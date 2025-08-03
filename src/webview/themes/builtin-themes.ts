@@ -1,0 +1,1017 @@
+/**
+ * Built-in Themes for Serial-Studio VSCode Extension
+ * 与Serial-Studio完全兼容的内置主题
+ */
+
+import type { ThemeDef } from '../types/ThemeDef';
+
+/**
+ * 默认主题（浅色）- 基于Serial-Studio default.json
+ */
+export const defaultTheme: ThemeDef = {
+  title: "Default",
+  parameters: {
+    "code-editor-theme": "default",
+    "start-icon": "assets/logo/start.svg"
+  },
+  translations: {
+    "en_US": "Default",
+    "es_MX": "Predeterminado",
+    "de_DE": "Standard",
+    "fr_FR": "Par défaut",
+    "it_IT": "Predefinito",
+    "ja_JP": "デフォルト",
+    "ko_KR": "기본값",
+    "pl_PL": "Domyślny",
+    "pt_BR": "Padrão",
+    "ru_RU": "По умолчанию",
+    "tr_TR": "Varsayılan",
+    "zh_CN": "默认",
+    "cs_CZ": "Výchozí",
+    "uk_UA": "Типова"
+  },
+  colors: {
+    groupbox_border: "#c2c2c2",
+    groupbox_background: "#eff0f1",
+    groupbox_hard_border: "#d4d4d4",
+
+    pane_background: "#f9f9f9",
+    pane_section_label: "#232629",
+    pane_caption_bg_top: "#394046",
+    pane_caption_border: "#595E63",
+    pane_caption_bg_bottom: "#475057",
+    pane_caption_foreground: "#ffffff",
+
+    setup_border: "#b2b2b2",
+    toolbar_top: "#475057",
+    titlebar_text: "#ffffff",
+    toolbar_text: "#ffffff",
+    toolbar_bottom: "#475057",
+    toolbar_border: "#595E63",
+    toolbar_separator: "#595E63",
+    toolbar_checked_button_opacity: 0.7,
+    toolbar_checked_button_border: "#394046",
+    toolbar_checked_button_background: "#394046",
+
+    error: "#f95258",
+    alarm: "#ba252e",
+    dashboard_background: "#e0e3e5",
+
+    mid: "#d4d4d4",
+    dark: "#b0b0b0",
+    text: "#232629",
+    base: "#f9f9f9",
+    link: "#3daee9",
+    light: "#eff0f1",
+    window: "#f9f9f9",
+    shadow: "#848484",
+    accent: "#3daee9",
+    button: "#eff0f1",
+    midlight: "#e0e0e0",
+    highlight: "#3daee9",
+    window_text: "#232629",
+    bright_text: "#ffffff",
+    button_text: "#232629",
+    tooltip_base: "#eff0f1",
+    tooltip_text: "#232629",
+    link_visited: "#2b8cb9",
+    alternate_base: "#e9e9e9",
+    placeholder_text: "#929497",
+    highlighted_text: "#ffffff",
+
+    console_text: "#434649",
+    console_base: "#fcfcfc",
+    console_border: "#c2c2c2",
+    console_highlight: "#B1DFF6",
+
+    widget_text: "#232629",
+    widget_base: "#eff0f1",
+    widget_button: "#eff0f1",
+    widget_border: "#c2c2c2",
+    widget_window: "#f9f9f9",
+    widget_highlight: "#3daee9",
+    widget_button_text: "#232629",
+    widget_highlighted_text: "#ffffff",
+    widget_placeholder_text: "#929497",
+
+    window_border: "#bebebe",
+    window_toolbar_background: "#eff0f1",
+    window_caption_active_top: "#f9f9f9",
+    window_caption_active_text: "#232629",
+    window_caption_inactive_top: "#eff0f1",
+    window_caption_inactive_text: "#929497",
+    window_caption_active_bottom: "#eff0f1",
+    window_caption_inactive_bottom: "#eff0f1",
+
+    taskbar_top: "#606569",
+    taskbar_text: "#ffffff",
+    taskbar_bottom: "#31373E",
+    taskbar_border: "#4b4e51",
+    taskbar_separator: "#606569",
+    tasbkar_highlight: "#3daee9",
+    taskbar_indicator_active: "#ffffff",
+    taskbar_indicator_inactive: "#ffffff",
+    taskbar_checked_button_top: "#464A51",
+    taskbar_checked_button_border: "#3a3a3a",
+    taskbar_checked_button_bottom: "#4A5056",
+
+    start_menu_text: "#232629",
+    start_menu_border: "#4b4e51",
+    start_menu_highlight: "#3daee9",
+    start_menu_background: "#f9f9f9",
+    start_menu_gradient_top: "#1A83CA",
+    start_menu_version_text: "#FFFFFF",
+    start_menu_gradient_bottom: "#2B36B3",
+    start_menu_highlighted_text: "#ffffff",
+
+    snap_indicator_border: "#1A83CA",
+    snap_indicator_background: "#401A83CA",
+
+    table_text: "#232629",
+    table_cell_bg: "#f9f9f9",
+    table_fg_header: "#1F2937",
+    table_separator: "#C2C2C2",
+    table_border_header: "#C2C2C2",
+    table_bg_header_top: "#f9f9f9",
+    table_bg_header_bottom: "#e9e9e9",
+    table_separator_header: "#C2C2C2",
+
+    polar_indicator: "#D8343D",
+    polar_background: "#3daee9",
+    polar_foreground: "#3daee9",
+
+    plot3d_x_axis: "#e04b5a",
+    plot3d_y_axis: "#7fbf3f",
+    plot3d_z_axis: "#3391e6",
+    plot3d_axis_text: "#ffffff",
+    plot3d_grid_major: "#A0A7B0",
+    plot3d_grid_minor: "#5f6670",
+    plot3d_background_inner: "#eff0f1",
+    plot3d_background_outer: "#eff0f1",
+
+    menu_hover_bg: "#3daee9",
+    menu_hover_text: "#ffffff",
+    menu_border: "#c2c2c2",
+
+    welcome_gradient_top: "#76B5DF",
+    welcome_gradient_bottom: "#AAAFE1",
+    welcome_gradient_border: "#5995BE",
+
+    widget_colors: [
+      "#007aff",
+      "#ff9500",
+      "#34c759",
+      "#ff3b30",
+      "#af52de",
+      "#ffcc00",
+      "#ff2d55",
+      "#c7c7cc",
+      "#8e8e93",
+      "#007aff",
+      "#5856d6"
+    ]
+  }
+};
+
+/**
+ * 深色主题 - 基于Serial-Studio dark.json
+ */
+export const darkTheme: ThemeDef = {
+  title: "Dark",
+  parameters: {
+    "code-editor-theme": "dark",
+    "start-icon": "assets/logo/start-dark.svg"
+  },
+  translations: {
+    "en_US": "Dark",
+    "es_MX": "Oscuro",
+    "de_DE": "Dunkel",
+    "fr_FR": "Sombre",
+    "it_IT": "Scuro",
+    "ja_JP": "ダーク",
+    "ko_KR": "다크",
+    "pl_PL": "Ciemny",
+    "pt_BR": "Escuro",
+    "ru_RU": "Тёмная",
+    "tr_TR": "Karanlık",
+    "zh_CN": "深色",
+    "cs_CZ": "Tmavý",
+    "uk_UA": "Темна"
+  },
+  colors: {
+    groupbox_border: "#242628",
+    groupbox_background: "#141414",
+    groupbox_hard_border: "#242628",
+
+    pane_background: "#0e0e0e",
+    pane_section_label: "#aaadb2",
+    pane_caption_bg_top: "#0b0b0c",
+    pane_caption_border: "#242628",
+    pane_caption_bg_bottom: "#111111",
+    pane_caption_foreground: "#aaadb2",
+
+    setup_border: "#242628",
+    toolbar_top: "#000000",
+    titlebar_text: "#ffffff",
+    toolbar_text: "#aaadb2",
+    toolbar_bottom: "#050505",
+    toolbar_border: "#242628",
+    toolbar_separator: "#242628",
+    toolbar_checked_button_opacity: 0.7,
+    toolbar_checked_button_border: "#242628",
+    toolbar_checked_button_background: "#101010",
+
+    error: "#e06c75",
+    alarm: "#a02125",
+    dashboard_background: "#0a0a0a",
+
+    mid: "#434548",
+    dark: "#26282a",
+    text: "#aaadb2",
+    base: "#0e0e0e",
+    link: "#4b6cb7",
+    light: "#232527",
+    window: "#0e0e0e",
+    shadow: "#000000",
+    accent: "#4b6cb7",
+    button: "#1c1c1c",
+    midlight: "#232527",
+    highlight: "#4b6cb7",
+    window_text: "#aaadb2",
+    bright_text: "#ffffff",
+    button_text: "#aaadb2",
+    tooltip_base: "#191b1d",
+    tooltip_text: "#c5c7cb",
+    link_visited: "#a45a7a",
+    alternate_base: "#161616",
+    placeholder_text: "#606060",
+    highlighted_text: "#ffffff",
+
+    console_text: "#98c379",
+    console_base: "#0e0e0e",
+    console_border: "#212325",
+    console_highlight: "#4b6cb7",
+
+    widget_text: "#b6b8bc",
+    widget_base: "#191b1d",
+    widget_button: "#191919",
+    widget_border: "#262626",
+    widget_window: "#0e0e0e",
+    widget_highlight: "#4b6cb7",
+    widget_button_text: "#b6b8bc",
+    widget_highlighted_text: "#26282a",
+    widget_placeholder_text: "#727272",
+
+    window_border: "#262626",
+    window_toolbar_background: "#121212",
+    window_caption_active_top: "#181818",
+    window_caption_active_text: "#ffffff",
+    window_caption_inactive_top: "#121212",
+    window_caption_inactive_text: "#727478",
+    window_caption_active_bottom: "#121212",
+    window_caption_inactive_bottom: "#121212",
+
+    taskbar_top: "#1a1a1a",
+    taskbar_text: "#b6b8bc",
+    taskbar_bottom: "#0e0e0e",
+    taskbar_border: "#242628",
+    taskbar_separator: "#242628",
+    tasbkar_highlight: "#4b6cb7",
+    taskbar_indicator_active: "#ffffff",
+    taskbar_indicator_inactive: "#6e7074",
+    taskbar_checked_button_top: "#161616",
+    taskbar_checked_button_border: "#0e0e0e",
+    taskbar_checked_button_bottom: "#18191a",
+
+    start_menu_text: "#c8cdd2",
+    start_menu_border: "#242628",
+    start_menu_highlight: "#3b5fb2",
+    start_menu_background: "#131415",
+    start_menu_gradient_top: "#202224",
+    start_menu_version_text: "#e8e9ec",
+    start_menu_gradient_bottom: "#18191b",
+    start_menu_highlighted_text: "#ffffff",
+
+    snap_indicator_border: "#1a83ca",
+    snap_indicator_background: "#401a83ca",
+
+    table_text: "#aaadb2",
+    table_cell_bg: "#0e0e0e",
+    table_fg_header: "#c8cdd2",
+    table_separator: "#242628",
+    table_bg_header_top: "#1a1a1a",
+    table_border_header: "#242628",
+    table_bg_header_bottom: "#161616",
+    table_separator_header: "#242628",
+
+    polar_indicator: "#ea6654",
+    polar_background: "#0e0e0e",
+    polar_foreground: "#d2d2d2",
+
+    plot3d_x_axis: "#f46c7a",
+    plot3d_y_axis: "#99d95c",
+    plot3d_z_axis: "#5aaef2",
+    plot3d_axis_text: "#ffffff",
+    plot3d_grid_major: "#43484b",
+    plot3d_grid_minor: "#232323",
+    plot3d_background_inner: "#171717",
+    plot3d_background_outer: "#0f0f0f",
+
+    menu_hover_bg: "#26282d",
+    menu_hover_text: "#ffffff",
+    menu_border: "#34373a",
+
+    widget_colors: [
+      "#4b6cb7",
+      "#98c379",
+      "#e06c75",
+      "#d19a66",
+      "#c678dd",
+      "#ffcc00",
+      "#ff2d55",
+      "#6e7074",
+      "#7e7e83",
+      "#a45a7a",
+      "#56b6c2"
+    ]
+  }
+};
+
+/**
+ * 轻量主题
+ */
+export const lightTheme: ThemeDef = {
+  title: "Light",
+  parameters: {
+    "code-editor-theme": "light",
+    "start-icon": "assets/logo/start.svg"
+  },
+  translations: {
+    "en_US": "Light",
+    "es_MX": "Claro",
+    "de_DE": "Hell",
+    "fr_FR": "Clair",
+    "it_IT": "Chiaro",
+    "ja_JP": "ライト",
+    "ko_KR": "라이트",
+    "pl_PL": "Jasny",
+    "pt_BR": "Claro",
+    "ru_RU": "Светлая",
+    "tr_TR": "Açık",
+    "zh_CN": "浅色",
+    "cs_CZ": "Světlý",
+    "uk_UA": "Світла"
+  },
+  colors: {
+    // 基于default主题，但使用更亮的颜色
+    groupbox_border: "#e0e0e0",
+    groupbox_background: "#ffffff",
+    groupbox_hard_border: "#f0f0f0",
+
+    pane_background: "#ffffff",
+    pane_section_label: "#333333",
+    pane_caption_bg_top: "#4a5160",
+    pane_caption_border: "#6a7080",
+    pane_caption_bg_bottom: "#556070",
+    pane_caption_foreground: "#ffffff",
+
+    setup_border: "#d0d0d0",
+    toolbar_top: "#556070",
+    titlebar_text: "#ffffff",
+    toolbar_text: "#ffffff",
+    toolbar_bottom: "#556070",
+    toolbar_border: "#6a7080",
+    toolbar_separator: "#6a7080",
+    toolbar_checked_button_opacity: 0.8,
+    toolbar_checked_button_border: "#4a5160",
+    toolbar_checked_button_background: "#4a5160",
+
+    error: "#ff5555",
+    alarm: "#cc2222",
+    dashboard_background: "#f8f8f8",
+
+    mid: "#e8e8e8",
+    dark: "#c8c8c8",
+    text: "#222222",
+    base: "#ffffff",
+    link: "#0080ff",
+    light: "#ffffff",
+    window: "#ffffff",
+    shadow: "#888888",
+    accent: "#0080ff",
+    button: "#ffffff",
+    midlight: "#f0f0f0",
+    highlight: "#0080ff",
+    window_text: "#222222",
+    bright_text: "#ffffff",
+    button_text: "#222222",
+    tooltip_base: "#ffffff",
+    tooltip_text: "#222222",
+    link_visited: "#0060cc",
+    alternate_base: "#f8f8f8",
+    placeholder_text: "#999999",
+    highlighted_text: "#ffffff",
+
+    console_text: "#444444",
+    console_base: "#ffffff",
+    console_border: "#e0e0e0",
+    console_highlight: "#ccddff",
+
+    widget_text: "#222222",
+    widget_base: "#ffffff",
+    widget_button: "#ffffff",
+    widget_border: "#e0e0e0",
+    widget_window: "#ffffff",
+    widget_highlight: "#0080ff",
+    widget_button_text: "#222222",
+    widget_highlighted_text: "#ffffff",
+    widget_placeholder_text: "#999999",
+
+    window_border: "#d0d0d0",
+    window_toolbar_background: "#ffffff",
+    window_caption_active_top: "#ffffff",
+    window_caption_active_text: "#222222",
+    window_caption_inactive_top: "#ffffff",
+    window_caption_inactive_text: "#999999",
+    window_caption_active_bottom: "#ffffff",
+    window_caption_inactive_bottom: "#ffffff",
+
+    taskbar_top: "#707070",
+    taskbar_text: "#ffffff",
+    taskbar_bottom: "#404040",
+    taskbar_border: "#606060",
+    taskbar_separator: "#707070",
+    tasbkar_highlight: "#0080ff",
+    taskbar_indicator_active: "#ffffff",
+    taskbar_indicator_inactive: "#ffffff",
+    taskbar_checked_button_top: "#565656",
+    taskbar_checked_button_border: "#444444",
+    taskbar_checked_button_bottom: "#585858",
+
+    start_menu_text: "#222222",
+    start_menu_border: "#606060",
+    start_menu_highlight: "#0080ff",
+    start_menu_background: "#ffffff",
+    start_menu_gradient_top: "#4080ff",
+    start_menu_version_text: "#ffffff",
+    start_menu_gradient_bottom: "#6060ff",
+    start_menu_highlighted_text: "#ffffff",
+
+    snap_indicator_border: "#4080ff",
+    snap_indicator_background: "#404080ff",
+
+    table_text: "#222222",
+    table_cell_bg: "#ffffff",
+    table_fg_header: "#222222",
+    table_separator: "#e0e0e0",
+    table_border_header: "#e0e0e0",
+    table_bg_header_top: "#ffffff",
+    table_bg_header_bottom: "#f8f8f8",
+    table_separator_header: "#e0e0e0",
+
+    polar_indicator: "#ff4444",
+    polar_background: "#0080ff",
+    polar_foreground: "#0080ff",
+
+    plot3d_x_axis: "#ff4444",
+    plot3d_y_axis: "#44ff44",
+    plot3d_z_axis: "#4444ff",
+    plot3d_axis_text: "#ffffff",
+    plot3d_grid_major: "#c0c0c0",
+    plot3d_grid_minor: "#808080",
+    plot3d_background_inner: "#ffffff",
+    plot3d_background_outer: "#ffffff",
+
+    menu_hover_bg: "#0080ff",
+    menu_hover_text: "#ffffff",
+    menu_border: "#e0e0e0",
+
+    widget_colors: [
+      "#0080ff",
+      "#ff8000",
+      "#00c040",
+      "#ff4040",
+      "#c040ff",
+      "#ffff00",
+      "#ff4080",
+      "#c0c0c0",
+      "#808080",
+      "#0080ff",
+      "#8080ff"
+    ]
+  }
+};
+
+/**
+ * Iron主题 - 基于Serial-Studio iron.json (如果存在)
+ */
+export const ironTheme: ThemeDef = {
+  title: "Iron",
+  parameters: {
+    "code-editor-theme": "iron",
+    "start-icon": "assets/logo/start-dark.svg"
+  },
+  translations: {
+    "en_US": "Iron",
+    "es_MX": "Hierro",
+    "de_DE": "Eisen",
+    "fr_FR": "Fer",
+    "it_IT": "Ferro",
+    "ja_JP": "アイアン",
+    "ko_KR": "아이언",
+    "pl_PL": "Żelazo",
+    "pt_BR": "Ferro",
+    "ru_RU": "Железо",
+    "tr_TR": "Demir",
+    "zh_CN": "铁色",
+    "cs_CZ": "Železo", 
+    "uk_UA": "Залізо"
+  },
+  colors: {
+    // Iron主题采用金属质感的颜色
+    groupbox_border: "#4a4a4a",
+    groupbox_background: "#2a2a2a",
+    groupbox_hard_border: "#3a3a3a",
+
+    pane_background: "#1a1a1a",
+    pane_section_label: "#cccccc",
+    pane_caption_bg_top: "#1a1a1a",
+    pane_caption_border: "#4a4a4a",
+    pane_caption_bg_bottom: "#2a2a2a",
+    pane_caption_foreground: "#cccccc",
+
+    setup_border: "#4a4a4a",
+    toolbar_top: "#2a2a2a",
+    titlebar_text: "#ffffff",
+    toolbar_text: "#cccccc",
+    toolbar_bottom: "#1a1a1a",
+    toolbar_border: "#4a4a4a",
+    toolbar_separator: "#4a4a4a",
+    toolbar_checked_button_opacity: 0.8,
+    toolbar_checked_button_border: "#4a4a4a",
+    toolbar_checked_button_background: "#3a3a3a",
+
+    error: "#ff6666",
+    alarm: "#cc4444",
+    dashboard_background: "#1a1a1a",
+
+    mid: "#5a5a5a",
+    dark: "#3a3a3a",
+    text: "#cccccc",
+    base: "#2a2a2a",
+    link: "#88aaff",
+    light: "#4a4a4a",
+    window: "#2a2a2a",
+    shadow: "#000000",
+    accent: "#88aaff",
+    button: "#3a3a3a",
+    midlight: "#4a4a4a",
+    highlight: "#88aaff",
+    window_text: "#cccccc",
+    bright_text: "#ffffff",
+    button_text: "#cccccc",
+    tooltip_base: "#3a3a3a",
+    tooltip_text: "#cccccc",
+    link_visited: "#aa88ff",
+    alternate_base: "#3a3a3a",
+    placeholder_text: "#888888",
+    highlighted_text: "#ffffff",
+
+    console_text: "#aaffaa",
+    console_base: "#2a2a2a",
+    console_border: "#4a4a4a",
+    console_highlight: "#88aaff",
+
+    widget_text: "#cccccc",
+    widget_base: "#3a3a3a",
+    widget_button: "#3a3a3a",
+    widget_border: "#5a5a5a",
+    widget_window: "#2a2a2a",
+    widget_highlight: "#88aaff",
+    widget_button_text: "#cccccc",
+    widget_highlighted_text: "#3a3a3a",
+    widget_placeholder_text: "#888888",
+
+    window_border: "#5a5a5a",
+    window_toolbar_background: "#3a3a3a",
+    window_caption_active_top: "#3a3a3a",
+    window_caption_active_text: "#ffffff",
+    window_caption_inactive_top: "#2a2a2a",
+    window_caption_inactive_text: "#888888",
+    window_caption_active_bottom: "#3a3a3a",
+    window_caption_inactive_bottom: "#2a2a2a",
+
+    taskbar_top: "#3a3a3a",
+    taskbar_text: "#cccccc",
+    taskbar_bottom: "#2a2a2a",
+    taskbar_border: "#5a5a5a",
+    taskbar_separator: "#5a5a5a",
+    tasbkar_highlight: "#88aaff",
+    taskbar_indicator_active: "#ffffff",
+    taskbar_indicator_inactive: "#888888",
+    taskbar_checked_button_top: "#3a3a3a",
+    taskbar_checked_button_border: "#2a2a2a",
+    taskbar_checked_button_bottom: "#4a4a4a",
+
+    start_menu_text: "#cccccc",
+    start_menu_border: "#5a5a5a",
+    start_menu_highlight: "#88aaff",
+    start_menu_background: "#2a2a2a",
+    start_menu_gradient_top: "#4a4a4a",
+    start_menu_version_text: "#ffffff",
+    start_menu_gradient_bottom: "#3a3a3a",
+    start_menu_highlighted_text: "#ffffff",
+
+    snap_indicator_border: "#88aaff",
+    snap_indicator_background: "#4088aaff",
+
+    table_text: "#cccccc",
+    table_cell_bg: "#2a2a2a",
+    table_fg_header: "#ffffff",
+    table_separator: "#5a5a5a",
+    table_bg_header_top: "#3a3a3a",
+    table_border_header: "#5a5a5a",
+    table_bg_header_bottom: "#2a2a2a",
+    table_separator_header: "#5a5a5a",
+
+    polar_indicator: "#ff8888",
+    polar_background: "#2a2a2a",
+    polar_foreground: "#cccccc",
+
+    plot3d_x_axis: "#ff8888",
+    plot3d_y_axis: "#88ff88",
+    plot3d_z_axis: "#8888ff",
+    plot3d_axis_text: "#ffffff",
+    plot3d_grid_major: "#5a5a5a",
+    plot3d_grid_minor: "#3a3a3a",
+    plot3d_background_inner: "#2a2a2a",
+    plot3d_background_outer: "#1a1a1a",
+
+    menu_hover_bg: "#4a4a4a",
+    menu_hover_text: "#ffffff",
+    menu_border: "#5a5a5a",
+
+    widget_colors: [
+      "#88aaff",
+      "#ffaa88",
+      "#88ffaa",
+      "#ff8888",
+      "#aa88ff",
+      "#ffff88",
+      "#ff88aa",
+      "#aaaaaa",
+      "#888888",
+      "#88aaff",
+      "#aaaaff"
+    ]
+  }
+};
+
+/**
+ * Midnight主题 - 极深的黑色主题
+ */
+export const midnightTheme: ThemeDef = {
+  title: "Midnight",
+  parameters: {
+    "code-editor-theme": "midnight",
+    "start-icon": "assets/logo/start-dark.svg"
+  },
+  translations: {
+    "en_US": "Midnight",
+    "es_MX": "Medianoche",
+    "de_DE": "Mitternacht",
+    "fr_FR": "Minuit",
+    "it_IT": "Mezzanotte",
+    "ja_JP": "ミッドナイト",
+    "ko_KR": "미드나이트",
+    "pl_PL": "Północ",
+    "pt_BR": "Meia-noite",
+    "ru_RU": "Полночь",
+    "tr_TR": "Gece Yarısı",
+    "zh_CN": "午夜",
+    "cs_CZ": "Půlnoc",
+    "uk_UA": "Північ"
+  },
+  colors: {
+    // Midnight主题采用极深的黑色调
+    groupbox_border: "#1a1a1a",
+    groupbox_background: "#0a0a0a",
+    groupbox_hard_border: "#1a1a1a",
+
+    pane_background: "#000000",
+    pane_section_label: "#999999",
+    pane_caption_bg_top: "#0a0a0a",
+    pane_caption_border: "#1a1a1a",
+    pane_caption_bg_bottom: "#000000",
+    pane_caption_foreground: "#999999",
+
+    setup_border: "#1a1a1a",
+    toolbar_top: "#000000",
+    titlebar_text: "#ffffff",
+    toolbar_text: "#999999",
+    toolbar_bottom: "#000000",
+    toolbar_border: "#1a1a1a",
+    toolbar_separator: "#1a1a1a",
+    toolbar_checked_button_opacity: 0.7,
+    toolbar_checked_button_border: "#1a1a1a",
+    toolbar_checked_button_background: "#0a0a0a",
+
+    error: "#ff4444",
+    alarm: "#aa2222",
+    dashboard_background: "#000000",
+
+    mid: "#333333",
+    dark: "#1a1a1a",
+    text: "#999999",
+    base: "#000000",
+    link: "#6666ff",
+    light: "#1a1a1a",
+    window: "#000000",
+    shadow: "#000000",
+    accent: "#6666ff",
+    button: "#0a0a0a",
+    midlight: "#1a1a1a",
+    highlight: "#6666ff",
+    window_text: "#999999",
+    bright_text: "#ffffff",
+    button_text: "#999999",
+    tooltip_base: "#0a0a0a",
+    tooltip_text: "#cccccc",
+    link_visited: "#9966ff",
+    alternate_base: "#0a0a0a",
+    placeholder_text: "#555555",
+    highlighted_text: "#ffffff",
+
+    console_text: "#66ff66",
+    console_base: "#000000",
+    console_border: "#1a1a1a",
+    console_highlight: "#6666ff",
+
+    widget_text: "#999999",
+    widget_base: "#0a0a0a",
+    widget_button: "#0a0a0a",
+    widget_border: "#1a1a1a",
+    widget_window: "#000000",
+    widget_highlight: "#6666ff",
+    widget_button_text: "#999999",
+    widget_highlighted_text: "#1a1a1a",
+    widget_placeholder_text: "#555555",
+
+    window_border: "#1a1a1a",
+    window_toolbar_background: "#0a0a0a",
+    window_caption_active_top: "#0a0a0a",
+    window_caption_active_text: "#ffffff",
+    window_caption_inactive_top: "#000000",
+    window_caption_inactive_text: "#555555",
+    window_caption_active_bottom: "#0a0a0a",
+    window_caption_inactive_bottom: "#000000",
+
+    taskbar_top: "#0a0a0a",
+    taskbar_text: "#999999",
+    taskbar_bottom: "#000000",
+    taskbar_border: "#1a1a1a",
+    taskbar_separator: "#1a1a1a",
+    tasbkar_highlight: "#6666ff",
+    taskbar_indicator_active: "#ffffff",
+    taskbar_indicator_inactive: "#555555",
+    taskbar_checked_button_top: "#0a0a0a",
+    taskbar_checked_button_border: "#000000",
+    taskbar_checked_button_bottom: "#0a0a0a",
+
+    start_menu_text: "#cccccc",
+    start_menu_border: "#1a1a1a",
+    start_menu_highlight: "#6666ff",
+    start_menu_background: "#000000",
+    start_menu_gradient_top: "#1a1a1a",
+    start_menu_version_text: "#ffffff",
+    start_menu_gradient_bottom: "#0a0a0a",
+    start_menu_highlighted_text: "#ffffff",
+
+    snap_indicator_border: "#6666ff",
+    snap_indicator_background: "#406666ff",
+
+    table_text: "#999999",
+    table_cell_bg: "#000000",
+    table_fg_header: "#cccccc",
+    table_separator: "#1a1a1a",
+    table_bg_header_top: "#0a0a0a",
+    table_border_header: "#1a1a1a",
+    table_bg_header_bottom: "#000000",
+    table_separator_header: "#1a1a1a",
+
+    polar_indicator: "#ff6666",
+    polar_background: "#000000",
+    polar_foreground: "#cccccc",
+
+    plot3d_x_axis: "#ff6666",
+    plot3d_y_axis: "#66ff66",
+    plot3d_z_axis: "#6666ff",
+    plot3d_axis_text: "#ffffff",
+    plot3d_grid_major: "#333333",
+    plot3d_grid_minor: "#1a1a1a",
+    plot3d_background_inner: "#0a0a0a",
+    plot3d_background_outer: "#000000",
+
+    menu_hover_bg: "#1a1a1a",
+    menu_hover_text: "#ffffff",
+    menu_border: "#333333",
+
+    widget_colors: [
+      "#6666ff",
+      "#ff9966",
+      "#66ff99",
+      "#ff6666",
+      "#9966ff",
+      "#ffff66",
+      "#ff6699",
+      "#666666",
+      "#555555",
+      "#9999ff",
+      "#6699ff"
+    ]
+  }
+};
+
+/**
+ * 高对比度主题 - 提升可访问性
+ */
+export const highContrastTheme: ThemeDef = {
+  title: "High Contrast",
+  parameters: {
+    "code-editor-theme": "high-contrast",
+    "start-icon": "assets/logo/start-dark.svg"
+  },
+  translations: {
+    "en_US": "High Contrast",
+    "es_MX": "Alto Contraste",
+    "de_DE": "Hoher Kontrast",
+    "fr_FR": "Contraste Élevé",
+    "it_IT": "Alto Contrasto",
+    "ja_JP": "ハイコントラスト",
+    "ko_KR": "고대비",
+    "pl_PL": "Wysoki Kontrast",
+    "pt_BR": "Alto Contraste",
+    "ru_RU": "Высокий контраст",
+    "tr_TR": "Yüksek Kontrast",
+    "zh_CN": "高对比度",
+    "cs_CZ": "Vysoký kontrast",
+    "uk_UA": "Високий контраст"
+  },
+  colors: {
+    // 高对比度主题使用极端的黑白对比
+    groupbox_border: "#ffffff",
+    groupbox_background: "#000000",
+    groupbox_hard_border: "#ffffff",
+
+    pane_background: "#000000",
+    pane_section_label: "#ffffff",
+    pane_caption_bg_top: "#000000",
+    pane_caption_border: "#ffffff",
+    pane_caption_bg_bottom: "#000000",
+    pane_caption_foreground: "#ffffff",
+
+    setup_border: "#ffffff",
+    toolbar_top: "#000000",
+    titlebar_text: "#ffffff",
+    toolbar_text: "#ffffff",
+    toolbar_bottom: "#000000",
+    toolbar_border: "#ffffff",
+    toolbar_separator: "#ffffff",
+    toolbar_checked_button_opacity: 1.0,
+    toolbar_checked_button_border: "#ffffff",
+    toolbar_checked_button_background: "#ffffff",
+
+    error: "#ff0000",
+    alarm: "#ffff00",
+    dashboard_background: "#000000",
+
+    mid: "#808080",
+    dark: "#000000",
+    text: "#ffffff",
+    base: "#000000",
+    link: "#00ffff",
+    light: "#ffffff",
+    window: "#000000",
+    shadow: "#ffffff",
+    accent: "#00ffff",
+    button: "#000000",
+    midlight: "#808080",
+    highlight: "#00ffff",
+    window_text: "#ffffff",
+    bright_text: "#ffffff",
+    button_text: "#ffffff",
+    tooltip_base: "#000000",
+    tooltip_text: "#ffffff",
+    link_visited: "#ff00ff",
+    alternate_base: "#000000",
+    placeholder_text: "#808080",
+    highlighted_text: "#000000",
+
+    console_text: "#00ff00",
+    console_base: "#000000",
+    console_border: "#ffffff",
+    console_highlight: "#00ffff",
+
+    widget_text: "#ffffff",
+    widget_base: "#000000",
+    widget_button: "#000000",
+    widget_border: "#ffffff",
+    widget_window: "#000000",
+    widget_highlight: "#00ffff",
+    widget_button_text: "#ffffff",
+    widget_highlighted_text: "#000000",
+    widget_placeholder_text: "#808080",
+
+    window_border: "#ffffff",
+    window_toolbar_background: "#000000",
+    window_caption_active_top: "#000000",
+    window_caption_active_text: "#ffffff",
+    window_caption_inactive_top: "#000000",
+    window_caption_inactive_text: "#808080",
+    window_caption_active_bottom: "#000000",
+    window_caption_inactive_bottom: "#000000",
+
+    taskbar_top: "#000000",
+    taskbar_text: "#ffffff",
+    taskbar_bottom: "#000000",
+    taskbar_border: "#ffffff",
+    taskbar_separator: "#ffffff",
+    tasbkar_highlight: "#00ffff",
+    taskbar_indicator_active: "#ffffff",
+    taskbar_indicator_inactive: "#808080",
+    taskbar_checked_button_top: "#000000",
+    taskbar_checked_button_border: "#ffffff",
+    taskbar_checked_button_bottom: "#000000",
+
+    start_menu_text: "#ffffff",
+    start_menu_border: "#ffffff",
+    start_menu_highlight: "#00ffff",
+    start_menu_background: "#000000",
+    start_menu_gradient_top: "#000000",
+    start_menu_version_text: "#ffffff",
+    start_menu_gradient_bottom: "#000000",
+    start_menu_highlighted_text: "#000000",
+
+    snap_indicator_border: "#00ffff",
+    snap_indicator_background: "#8000ffff",
+
+    table_text: "#ffffff",
+    table_cell_bg: "#000000",
+    table_fg_header: "#ffffff",
+    table_separator: "#ffffff",
+    table_bg_header_top: "#000000",
+    table_border_header: "#ffffff",
+    table_bg_header_bottom: "#000000",
+    table_separator_header: "#ffffff",
+
+    polar_indicator: "#ff0000",
+    polar_background: "#000000",
+    polar_foreground: "#ffffff",
+
+    plot3d_x_axis: "#ff0000",
+    plot3d_y_axis: "#00ff00",
+    plot3d_z_axis: "#0000ff",
+    plot3d_axis_text: "#ffffff",
+    plot3d_grid_major: "#ffffff",
+    plot3d_grid_minor: "#808080",
+    plot3d_background_inner: "#000000",
+    plot3d_background_outer: "#000000",
+
+    menu_hover_bg: "#ffffff",
+    menu_hover_text: "#000000",
+    menu_border: "#ffffff",
+
+    widget_colors: [
+      "#ff0000",  // 红色
+      "#00ff00",  // 绿色
+      "#0000ff",  // 蓝色
+      "#ffff00",  // 黄色
+      "#ff00ff",  // 品红色
+      "#00ffff",  // 青色
+      "#ffffff",  // 白色
+      "#808080",  // 灰色
+      "#ff8000",  // 橙色
+      "#8000ff",  // 紫色
+      "#0080ff"   // 天蓝色
+    ]
+  }
+};
+
+/**
+ * 所有内置主题
+ */
+export const BUILTIN_THEMES: ThemeDef[] = [
+  defaultTheme,
+  lightTheme,
+  darkTheme,
+  ironTheme,
+  midnightTheme,
+  highContrastTheme
+];
+
+/**
+ * 根据主题ID获取内置主题
+ */
+export const getBuiltInTheme = (themeId: string): ThemeDef | undefined => {
+  return BUILTIN_THEMES.find(theme => theme.title.toLowerCase() === themeId.toLowerCase());
+};

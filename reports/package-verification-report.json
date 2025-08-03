@@ -1,0 +1,52 @@
+{
+  "title": "VSCode扩展包验证报告",
+  "timestamp": "2025-07-29T13:32:24.845Z",
+  "version": "1.0.0",
+  "packageInfo": {
+    "fileName": "serial-studio-vscode-1.0.0.vsix",
+    "fileSize": 0,
+    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "verification": {
+    "signatureValid": true,
+    "algorithm": "RSA-SHA256",
+    "signer": "Serial Studio Team",
+    "signatureTimestamp": "2025-07-29T13:32:23.841Z"
+  },
+  "issues": {
+    "errors": [],
+    "warnings": [
+      "扩展包文件过小，可能不完整"
+    ]
+  },
+  "recommendations": [
+    "⚠️ 解决所有警告问题",
+    "🔄 建议在发布前进行最终测试",
+    "📚 更新发布文档和变更日志"
+  ],
+  "manifest": {
+    "version": "1.0.0",
+    "timestamp": 1753795944844,
+    "packages": [
+      {
+        "name": "serial-studio-vscode",
+        "file": "serial-studio-vscode-1.0.0.vsix",
+        "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "signature": {
+          "algorithm": "RSA-SHA256",
+          "signature": "Mjk/cGDUcc29Uj9RncPqC+VLsrKagBykaNUvxpByFPQAvMVgA6Ix+fXkwicHmYrrALRHhmvcOR85Z232xWehy3EXh+z8E65XKDWP+C03FufqGR3xkfPsVY1bkdnJ2byMmB9M0C4lSW2rfskB8jfcic1+POOtk2Zankza2Gx3xE955e1IFX5Hylp7r4gFcnFSk64WbA7XF3clE62bhWpI71CojdUPTkGtm19hKCOEolE/g/HxsAVjWnfmGjtsfOxKudig9qALW7etlgFWQGFhF+FDdHt5UJC+QiF3XvWsWoT7quCcqybe077fd6SSy77S0Igd8CnZYapiuSAoTrratQ==",
+          "timestamp": 1753795943841,
+          "signer": "Serial Studio Team",
+          "keyId": "A5E140B172730F90"
+        },
+        "size": 0
+      }
+    ],
+    "metadata": {
+      "buildId": "1753795944844-9f32aba5",
+      "gitCommit": "abc123def456",
+      "buildTime": 1753795944844,
+      "environment": "production"
+    }
+  }
+}

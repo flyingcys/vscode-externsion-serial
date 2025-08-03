@@ -1,0 +1,688 @@
+/**
+ * RTL (Right-to-Left) Language Support Styles
+ * RTL语言支持样式
+ */
+
+/* RTL 基础设置 */
+html[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+html[dir="rtl"] body {
+  direction: rtl;
+  text-align: right;
+}
+
+/* RTL 文本对齐 */
+html[dir="rtl"] .text-left {
+  text-align: right !important;
+}
+
+html[dir="rtl"] .text-right {
+  text-align: left !important;
+}
+
+html[dir="rtl"] .text-start {
+  text-align: right !important;
+}
+
+html[dir="rtl"] .text-end {
+  text-align: left !important;
+}
+
+/* RTL Flexbox 布局 */
+html[dir="rtl"] .flex-row {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .flex-row-reverse {
+  flex-direction: row;
+}
+
+html[dir="rtl"] .justify-start {
+  justify-content: flex-end;
+}
+
+html[dir="rtl"] .justify-end {
+  justify-content: flex-start;
+}
+
+/* RTL 边距和填充 */
+html[dir="rtl"] .ml-1 { margin-left: 0; margin-right: 0.25rem; }
+html[dir="rtl"] .ml-2 { margin-left: 0; margin-right: 0.5rem; }
+html[dir="rtl"] .ml-3 { margin-left: 0; margin-right: 0.75rem; }
+html[dir="rtl"] .ml-4 { margin-left: 0; margin-right: 1rem; }
+html[dir="rtl"] .ml-5 { margin-left: 0; margin-right: 1.25rem; }
+html[dir="rtl"] .ml-6 { margin-left: 0; margin-right: 1.5rem; }
+
+html[dir="rtl"] .mr-1 { margin-right: 0; margin-left: 0.25rem; }
+html[dir="rtl"] .mr-2 { margin-right: 0; margin-left: 0.5rem; }
+html[dir="rtl"] .mr-3 { margin-right: 0; margin-left: 0.75rem; }
+html[dir="rtl"] .mr-4 { margin-right: 0; margin-left: 1rem; }
+html[dir="rtl"] .mr-5 { margin-right: 0; margin-left: 1.25rem; }
+html[dir="rtl"] .mr-6 { margin-right: 0; margin-left: 1.5rem; }
+
+html[dir="rtl"] .pl-1 { padding-left: 0; padding-right: 0.25rem; }
+html[dir="rtl"] .pl-2 { padding-left: 0; padding-right: 0.5rem; }
+html[dir="rtl"] .pl-3 { padding-left: 0; padding-right: 0.75rem; }
+html[dir="rtl"] .pl-4 { padding-left: 0; padding-right: 1rem; }
+html[dir="rtl"] .pl-5 { padding-left: 0; padding-right: 1.25rem; }
+html[dir="rtl"] .pl-6 { padding-left: 0; padding-right: 1.5rem; }
+
+html[dir="rtl"] .pr-1 { padding-right: 0; padding-left: 0.25rem; }
+html[dir="rtl"] .pr-2 { padding-right: 0; padding-left: 0.5rem; }
+html[dir="rtl"] .pr-3 { padding-right: 0; padding-left: 0.75rem; }
+html[dir="rtl"] .pr-4 { padding-right: 0; padding-left: 1rem; }
+html[dir="rtl"] .pr-5 { padding-right: 0; padding-left: 1.25rem; }
+html[dir="rtl"] .pr-6 { padding-right: 0; padding-left: 1.5rem; }
+
+/* RTL 定位 */
+html[dir="rtl"] .left-0 { left: auto; right: 0; }
+html[dir="rtl"] .left-1 { left: auto; right: 0.25rem; }
+html[dir="rtl"] .left-2 { left: auto; right: 0.5rem; }
+html[dir="rtl"] .left-3 { left: auto; right: 0.75rem; }
+html[dir="rtl"] .left-4 { left: auto; right: 1rem; }
+
+html[dir="rtl"] .right-0 { right: auto; left: 0; }
+html[dir="rtl"] .right-1 { right: auto; left: 0.25rem; }
+html[dir="rtl"] .right-2 { right: auto; left: 0.5rem; }
+html[dir="rtl"] .right-3 { right: auto; left: 0.75rem; }
+html[dir="rtl"] .right-4 { right: auto; left: 1rem; }
+
+/* RTL 边框 */
+html[dir="rtl"] .border-l { border-left: none; border-right: 1px solid; }
+html[dir="rtl"] .border-r { border-right: none; border-left: 1px solid; }
+html[dir="rtl"] .border-l-2 { border-left: none; border-right: 2px solid; }
+html[dir="rtl"] .border-r-2 { border-right: none; border-left: 2px solid; }
+
+/* Element Plus RTL 支持 */
+html[dir="rtl"] .el-menu--horizontal .el-menu-item {
+  float: right;
+}
+
+html[dir="rtl"] .el-menu--horizontal .el-submenu {
+  float: right;
+}
+
+html[dir="rtl"] .el-menu--horizontal .el-submenu__icon-arrow {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .el-dropdown-menu {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-select-dropdown {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-cascader-panel {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-date-picker {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-time-picker {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-dialog {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-drawer {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-drawer.rtl {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-drawer__header {
+  text-align: right;
+}
+
+html[dir="rtl"] .el-form-item__label {
+  text-align: right;
+}
+
+html[dir="rtl"] .el-input__inner {
+  text-align: right;
+}
+
+html[dir="rtl"] .el-textarea__inner {
+  text-align: right;
+}
+
+html[dir="rtl"] .el-input-group__prepend {
+  border-radius: 0 4px 4px 0;
+  border-right: 0;
+  border-left: 1px solid #dcdfe6;
+}
+
+html[dir="rtl"] .el-input-group__append {
+  border-radius: 4px 0 0 4px;
+  border-left: 0;
+  border-right: 1px solid #dcdfe6;
+}
+
+html[dir="rtl"] .el-input--prefix .el-input__inner {
+  padding-left: 15px;
+  padding-right: 30px;
+}
+
+html[dir="rtl"] .el-input--suffix .el-input__inner {
+  padding-right: 15px;
+  padding-left: 30px;
+}
+
+html[dir="rtl"] .el-input__prefix {
+  left: auto;
+  right: 5px;
+}
+
+html[dir="rtl"] .el-input__suffix {
+  right: auto;
+  left: 5px;
+}
+
+html[dir="rtl"] .el-table th {
+  text-align: right;
+}
+
+html[dir="rtl"] .el-table td {
+  text-align: right;
+}
+
+html[dir="rtl"] .el-table .caret-wrapper {
+  right: auto;
+  left: 14px;
+}
+
+html[dir="rtl"] .el-pagination {
+  text-align: left;
+}
+
+html[dir="rtl"] .el-pagination .el-pagination__jump {
+  margin-left: 0;
+  margin-right: 24px;
+}
+
+html[dir="rtl"] .el-pagination .el-pagination__sizes {
+  margin-left: 0;
+  margin-right: 10px;
+}
+
+html[dir="rtl"] .el-breadcrumb__separator {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .el-breadcrumb__item:last-child .el-breadcrumb__inner {
+  color: #606266;
+}
+
+html[dir="rtl"] .el-steps {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-step__head {
+  direction: ltr;
+}
+
+html[dir="rtl"] .el-step__main {
+  text-align: right;
+}
+
+html[dir="rtl"] .el-carousel__arrow--left {
+  left: auto;
+  right: 15px;
+}
+
+html[dir="rtl"] .el-carousel__arrow--right {
+  right: auto;
+  left: 15px;
+}
+
+html[dir="rtl"] .el-carousel__arrow--left i {
+  transform: scaleX(-1);
+}
+
+html[dir="rtl"] .el-carousel__arrow--right i {
+  transform: scaleX(-1);
+}
+
+/* 自定义组件 RTL 支持 */
+html[dir="rtl"] .serial-studio-toolbar {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-toolbar .toolbar-button {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+html[dir="rtl"] .serial-studio-toolbar .toolbar-button:first-child {
+  margin-left: 0;
+}
+
+html[dir="rtl"] .serial-studio-sidebar {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-sidebar .sidebar-item {
+  text-align: right;
+  padding-left: 16px;
+  padding-right: 24px;
+}
+
+html[dir="rtl"] .serial-studio-main-content {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-widget {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-widget .widget-header {
+  text-align: right;
+}
+
+html[dir="rtl"] .serial-studio-widget .widget-toolbar {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-widget .widget-toolbar .toolbar-item {
+  margin-left: 8px;
+  margin-right: 0;
+}
+
+html[dir="rtl"] .serial-studio-console {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-console .console-input {
+  text-align: right;
+}
+
+html[dir="rtl"] .serial-studio-console .console-output {
+  text-align: right;
+}
+
+html[dir="rtl"] .serial-studio-dashboard {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-dashboard .dashboard-grid {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-project-editor {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-project-editor .editor-sidebar {
+  direction: rtl;
+}
+
+html[dir="rtl"] .serial-studio-project-editor .editor-main {
+  direction: rtl;
+}
+
+/* 图标 RTL 支持 */
+html[dir="rtl"] .icon-arrow-left::before {
+  content: "\e6e0"; /* 右箭头 */
+}
+
+html[dir="rtl"] .icon-arrow-right::before {
+  content: "\e6de"; /* 左箭头 */
+}
+
+html[dir="rtl"] .icon-chevron-left::before {
+  content: "\e6e0";
+}
+
+html[dir="rtl"] .icon-chevron-right::before {
+  content: "\e6de";
+}
+
+/* 特殊布局 RTL 支持 */
+html[dir="rtl"] .layout-header {
+  direction: rtl;
+}
+
+html[dir="rtl"] .layout-sidebar {
+  direction: rtl;
+}
+
+html[dir="rtl"] .layout-main {
+  direction: rtl;
+}
+
+html[dir="rtl"] .layout-footer {
+  direction: rtl;
+}
+
+/* 工具提示 RTL 支持 */
+html[dir="rtl"] .el-tooltip__popper[x-placement^="left"] {
+  transform-origin: right center;
+}
+
+html[dir="rtl"] .el-tooltip__popper[x-placement^="right"] {
+  transform-origin: left center;
+}
+
+html[dir="rtl"] .el-tooltip__popper .popper__arrow {
+  transform: scaleX(-1);
+}
+
+/* 弹出框 RTL 支持 */
+html[dir="rtl"] .el-popover[x-placement^="left"] {
+  transform-origin: right center;
+}
+
+html[dir="rtl"] .el-popover[x-placement^="right"] {
+  transform-origin: left center;
+}
+
+/* 输入建议 RTL 支持 */
+html[dir="rtl"] .el-autocomplete-suggestion {
+  direction: rtl;
+  text-align: right;
+}
+
+/* 滚动条 RTL 支持 */
+html[dir="rtl"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html[dir="rtl"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html[dir="rtl"] ::-webkit-scrollbar-thumb {
+  background-color: rgba(144, 147, 153, 0.3);
+  border-radius: 4px;
+}
+
+html[dir="rtl"] ::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(144, 147, 153, 0.5);
+}
+
+/* 数据表格 RTL 特殊处理 */
+html[dir="rtl"] .el-table .el-table__expand-icon {
+  transform: rotate(180deg);
+}
+
+html[dir="rtl"] .el-table .el-table__expand-icon--expanded {
+  transform: rotate(90deg);
+}
+
+/* 树形控件 RTL 支持 */
+html[dir="rtl"] .el-tree {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-tree-node__expand-icon {
+  transform: rotate(180deg);
+}
+
+html[dir="rtl"] .el-tree-node__expand-icon.expanded {
+  transform: rotate(90deg);
+}
+
+html[dir="rtl"] .el-tree-node__content {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-tree-node__label {
+  text-align: right;
+}
+
+/* 级联选择器 RTL 支持 */
+html[dir="rtl"] .el-cascader-node__postfix {
+  left: 12px;
+  right: auto;
+}
+
+html[dir="rtl"] .el-cascader-node__prefix {
+  right: 12px;
+  left: auto;
+}
+
+/* 时间轴 RTL 支持 */
+html[dir="rtl"] .el-timeline {
+  direction: rtl;
+}
+
+html[dir="rtl"] .el-timeline-item__node {
+  left: auto;
+  right: 4px;
+}
+
+html[dir="rtl"] .el-timeline-item__wrapper {
+  padding-left: 0;
+  padding-right: 28px;
+}
+
+html[dir="rtl"] .el-timeline-item__content {
+  text-align: right;
+}
+
+/* 响应式 RTL 调整 */
+@media (max-width: 768px) {
+  html[dir="rtl"] .mobile-sidebar {
+    direction: rtl;
+    right: auto;
+    left: 0;
+  }
+  
+  html[dir="rtl"] .mobile-menu-button {
+    left: 16px;
+    right: auto;
+  }
+}
+
+/* 打印样式 RTL 支持 */
+@media print {
+  html[dir="rtl"] {
+    direction: rtl !important;
+  }
+  
+  html[dir="rtl"] body {
+    direction: rtl !important;
+    text-align: right !important;
+  }
+}
+
+/* 高对比度模式 RTL 支持 */
+@media (prefers-contrast: high) {
+  html[dir="rtl"] .high-contrast {
+    direction: rtl;
+  }
+}
+
+/* 动画 RTL 调整 */
+html[dir="rtl"] .slide-left-enter-active,
+html[dir="rtl"] .slide-left-leave-active {
+  transition: transform 0.3s ease;
+}
+
+html[dir="rtl"] .slide-left-enter-from {
+  transform: translateX(100%);
+}
+
+html[dir="rtl"] .slide-left-leave-to {
+  transform: translateX(-100%);
+}
+
+html[dir="rtl"] .slide-right-enter-from {
+  transform: translateX(-100%);
+}
+
+html[dir="rtl"] .slide-right-leave-to {
+  transform: translateX(100%);
+}
+
+/* ====== 新增组件RTL支持 ====== */
+
+/* 语言选择器RTL支持 */
+html[dir="rtl"] .language-selector-dialog .language-item {
+  text-align: right;
+  direction: rtl;
+}
+
+html[dir="rtl"] .language-selector-dialog .language-item.rtl {
+  direction: rtl;
+}
+
+html[dir="rtl"] .language-selector-dialog .language-info {
+  flex-direction: row-reverse;
+}
+
+html[dir="rtl"] .language-selector-dialog .language-names {
+  text-align: right;
+}
+
+html[dir="rtl"] .language-selector-dialog .language-flag {
+  margin-left: 12px;
+  margin-right: 0;
+}
+
+html[dir="rtl"] .language-selector-dialog .language-meta {
+  text-align: left;
+}
+
+html[dir="rtl"] .language-selector-dialog .current-language-display {
+  text-align: right;
+}
+
+/* 主题配置RTL支持 */
+html[dir="rtl"] .theme-config-dialog .theme-card {
+  text-align: right;
+}
+
+html[dir="rtl"] .theme-config-dialog .theme-info {
+  text-align: right;
+}
+
+html[dir="rtl"] .theme-config-dialog .current-indicator {
+  left: 8px;
+  right: auto;
+}
+
+html[dir="rtl"] .theme-config-dialog .theme-actions {
+  justify-content: center;
+}
+
+html[dir="rtl"] .theme-config-dialog .import-export-actions {
+  justify-content: flex-start;
+}
+
+html[dir="rtl"] .theme-config-dialog .themes-grid {
+  direction: rtl;
+}
+
+html[dir="rtl"] .theme-config-dialog .section-header {
+  direction: rtl;
+}
+
+/* 自定义主题编辑器RTL支持 */
+html[dir="rtl"] .custom-theme-editor .color-item {
+  text-align: right;
+}
+
+html[dir="rtl"] .custom-theme-editor .color-label {
+  text-align: right;
+  margin-bottom: 8px;
+}
+
+html[dir="rtl"] .custom-theme-editor .color-input-group {
+  justify-content: flex-end;
+}
+
+html[dir="rtl"] .custom-theme-editor .widget-colors-header {
+  text-align: right;
+}
+
+html[dir="rtl"] .custom-theme-editor .widget-color-item {
+  direction: rtl;
+}
+
+html[dir="rtl"] .custom-theme-editor .color-index {
+  margin-left: 12px;
+  margin-right: 0;
+}
+
+html[dir="rtl"] .custom-theme-editor .preview-sample {
+  text-align: right;
+}
+
+html[dir="rtl"] .custom-theme-editor .sample-toolbar {
+  direction: rtl;
+}
+
+html[dir="rtl"] .custom-theme-editor .sample-content {
+  direction: rtl;
+}
+
+html[dir="rtl"] .custom-theme-editor .sample-sidebar {
+  border-left: 1px solid var(--preview-border, #cccccc);
+  border-right: none;
+}
+
+html[dir="rtl"] .custom-theme-editor .sample-main {
+  text-align: right;
+}
+
+html[dir="rtl"] .custom-theme-editor .widget-header {
+  text-align: right;
+}
+
+/* 数字和代码内容保持LTR */
+html[dir="rtl"] .number,
+html[dir="rtl"] .timestamp,
+html[dir="rtl"] .version,
+html[dir="rtl"] .port,
+html[dir="rtl"] .baudrate,
+html[dir="rtl"] .size,
+html[dir="rtl"] .count,
+html[dir="rtl"] .percentage {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}
+
+html[dir="rtl"] code,
+html[dir="rtl"] pre,
+html[dir="rtl"] .code,
+html[dir="rtl"] .json,
+html[dir="rtl"] .xml,
+html[dir="rtl"] .csv,
+html[dir="rtl"] .hex,
+html[dir="rtl"] .binary {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+html[dir="rtl"] .url,
+html[dir="rtl"] .email,
+html[dir="rtl"] .link,
+html[dir="rtl"] a[href^="http"],
+html[dir="rtl"] a[href^="mailto"] {
+  direction: ltr;
+  unicode-bidi: embed;
+}
+
+html[dir="rtl"] .path,
+html[dir="rtl"] .filename,
+html[dir="rtl"] .directory {
+  direction: ltr;
+  text-align: left;
+  unicode-bidi: embed;
+}

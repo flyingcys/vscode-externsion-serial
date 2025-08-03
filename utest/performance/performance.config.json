@@ -1,0 +1,105 @@
+{
+  "testSuites": {
+    "quick": {
+      "description": "快速性能测试，用于开发期间的快速验证",
+      "tests": [
+        "serial-data-parsing",
+        "object-pool-performance",
+        "high-frequency-renderer"
+      ],
+      "config": {
+        "iterations": 20,
+        "warmupIterations": 3,
+        "timeout": 5000
+      }
+    },
+    "standard": {
+      "description": "标准性能测试套件，平衡测试覆盖率和执行时间",
+      "tests": [
+        "serial-data-parsing",
+        "high-frequency-data-stream",
+        "object-pool-performance",
+        "memory-leak-detection",
+        "high-frequency-renderer",
+        "canvas-rendering-throughput",
+        "virtual-list-scrolling"
+      ],
+      "config": {
+        "iterations": 50,
+        "warmupIterations": 5,
+        "timeout": 10000
+      }
+    },
+    "comprehensive": {
+      "description": "全面性能测试，包含所有测试用例",
+      "tests": "all",
+      "config": {
+        "iterations": 100,
+        "warmupIterations": 10,
+        "timeout": 15000
+      }
+    },
+    "stress": {
+      "description": "压力测试，使用更大的数据量和更多迭代",
+      "tests": [
+        "high-frequency-data-stream",
+        "memory-leak-detection",
+        "virtual-table-data-handling"
+      ],
+      "config": {
+        "iterations": 200,
+        "warmupIterations": 20,
+        "timeout": 30000,
+        "dataSize": 100000
+      }
+    }
+  },
+  "baseline": {
+    "serialStudio": {
+      "version": "1.1.7",
+      "dataProcessingRate": 1000,
+      "maxDataRate": 2000000,
+      "plotUpdateRate": 30,
+      "maxPlotPoints": 10000,
+      "renderFPS": 60,
+      "baseMemoryUsage": 50,
+      "memoryPerDataPoint": 24,
+      "maxMemoryUsage": 500,
+      "averageLatency": 16,
+      "maxLatency": 100,
+      "maxConcurrentConnections": 10,
+      "threadPoolSize": 4
+    }
+  },
+  "thresholds": {
+    "performance": {
+      "minFPS": 25,
+      "maxLatency": 50,
+      "maxMemoryUsage": 200,
+      "minThroughput": 500
+    },
+    "compatibility": {
+      "fpsRatio": 0.8,
+      "memoryRatio": 1.5,
+      "throughputRatio": 0.7,
+      "latencyRatio": 2.0
+    }
+  },
+  "reporting": {
+    "formats": ["console", "json", "html"],
+    "outputDir": "./reports/performance",
+    "includeCharts": true,
+    "includeBaseline": true,
+    "includeRecommendations": true
+  },
+  "environment": {
+    "node": {
+      "minVersion": "16.0.0",
+      "maxOldSpaceSize": 4096
+    },
+    "system": {
+      "platform": ["win32", "darwin", "linux"],
+      "minMemory": 4096
+    }
+  }
+}

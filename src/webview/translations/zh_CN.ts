@@ -1,0 +1,567 @@
+/**
+ * Chinese (Simplified) Translation Messages
+ * 中文（简体）翻译消息
+ */
+
+import type { TranslationMessages } from '../types/I18nDef';
+
+export const messages: TranslationMessages = {
+  // 通用
+  common: {
+    ok: '确定',
+    cancel: '取消',
+    save: '保存',
+    close: '关闭',
+    delete: '删除',
+    edit: '编辑',
+    add: '添加',
+    remove: '移除',
+    clear: '清除',
+    reset: '重置',
+    refresh: '刷新',
+    loading: '加载中...',
+    error: '错误',
+    warning: '警告',
+    info: '信息',
+    success: '成功',
+    confirm: '确认',
+    yes: '是',
+    no: '否',
+    apply: '应用',
+    import: '导入',
+    export: '导出',
+    settings: '设置',
+    about: '关于',
+    help: '帮助',
+    search: '搜索',
+    filter: '筛选',
+    sort: '排序',
+    copy: '复制',
+    paste: '粘贴',
+    cut: '剪切',
+    undo: '撤销',
+    redo: '重做'
+  },
+
+  // 应用程序
+  app: {
+    name: 'Serial Studio',
+    version: '版本 {version}',
+    copyright: '版权所有 © {year} {author}',
+    allRightsReserved: '保留所有权利',
+    website: '网站',
+    reportBug: '报告错误',
+    checkUpdates: '检查更新',
+    donate: '捐赠',
+    acknowledgements: '鸣谢'
+  },
+
+  // 错误处理
+  error: {
+    dialog: {
+      title: '错误详情',
+      suggestions: '解决建议',
+      userAction: '建议操作',
+      autoRecovery: '自动恢复',
+      autoRecoveryMessage: '系统已尝试自动恢复此错误',
+      technicalDetails: '技术详细信息',
+      context: '错误上下文',
+      retry: '重试',
+      report: '报告问题',
+      viewHistory: '查看历史',
+      retrySuccess: '重试成功',
+      retryFailed: '重试失败',
+      reportSuccess: '错误报告已复制到剪贴板',
+      reportFailed: '生成错误报告失败'
+    },
+    
+    severity: {
+      info: '信息',
+      warning: '警告',
+      error: '错误',
+      critical: '严重',
+      fatal: '致命'
+    },
+    
+    category: {
+      network: '网络',
+      data: '数据处理',
+      filesystem: '文件系统',
+      device: '设备连接',
+      user_input: '用户输入',
+      system: '系统',
+      config: '配置',
+      performance: '性能',
+      security: '安全',
+      unknown: '未知'
+    },
+    
+    history: {
+      title: '错误历史',
+      totalErrors: '总错误数',
+      recoveryRate: '恢复成功率',
+      avgRecoveryTime: '平均恢复时间',
+      clear: '清除历史',
+      clearConfirm: '确定要清除所有错误历史记录吗？',
+      clearSuccess: '错误历史清除成功',
+      filterBySeverity: '按严重性筛选',
+      filterByCategory: '按类别筛选',
+      search: '搜索错误',
+      time: '时间',
+      severity: '严重性',
+      category: '类别',
+      columnTitle: '标题',
+      message: '消息',
+      actions: '操作'
+    },
+    
+    notification: {
+      details: '详情'
+    }
+  },
+
+  // 加载状态
+  loading: {
+    title: '加载中',
+    cancel: '取消',
+    retry: '重试',
+    viewHistory: '查看历史',
+    subProgress: '子进度',
+    
+    // 加载类型
+    types: {
+      spinner: '旋转加载',
+      progress: '进度条',
+      skeleton: '骨架屏',
+      dots: '点动画',
+      pulse: '脉冲效果',
+      wave: '波浪效果'
+    },
+    
+    // 加载状态
+    status: {
+      idle: '空闲',
+      loading: '加载中',
+      success: '成功',
+      error: '错误',
+      cancelled: '已取消'
+    },
+    
+    // 优先级
+    priority: {
+      low: '低优先级',
+      medium: '中等优先级',
+      high: '高优先级',
+      critical: '关键优先级'
+    },
+    
+    // 通用加载消息
+    messages: {
+      connecting: '正在连接...',
+      processing: '正在处理数据...',
+      saving: '正在保存...',
+      loading: '正在加载...',
+      exporting: '正在导出...',
+      importing: '正在导入...',
+      uploading: '正在上传...',
+      downloading: '正在下载...',
+      initializing: '正在初始化...',
+      configuring: '正在配置...',
+      validating: '正在验证...',
+      analyzing: '正在分析...'
+    },
+    
+    // 进度描述
+    progress: {
+      preparing: '准备中...',
+      processing: '处理中... {current}/{total}',
+      completing: '即将完成...',
+      finalizing: '最后整理中...',
+      success: '操作完成',
+      failed: '操作失败',
+      cancelled: '操作已取消'
+    },
+    
+    // 历史记录
+    history: {
+      title: '加载历史',
+      noHistory: '暂无历史记录',
+      clear: '清除历史',
+      clearConfirm: '确定要清除所有加载历史吗？',
+      duration: '耗时',
+      status: '状态',
+      operations: '操作',
+      completedTasks: '已完成任务',
+      failedTasks: '失败任务',
+      cancelledTasks: '取消任务',
+      averageDuration: '平均耗时'
+    }
+  },
+
+  // 主题
+  theme: {
+    title: '主题',
+    light: '浅色',
+    dark: '深色',
+    auto: '自动',
+    custom: '自定义',
+    default: '默认',
+    iron: '铁色',
+    midnight: '午夜',
+    switchTheme: '切换主题',
+    themeSettings: '主题设置',
+    customThemes: '自定义主题',
+    importTheme: '导入主题',
+    exportTheme: '导出主题',
+    deleteTheme: '删除主题',
+    themeImported: '主题导入成功',
+    themeExported: '主题导出成功',
+    themeDeleted: '主题删除成功',
+    invalidTheme: '无效的主题文件',
+    cannotDeleteBuiltIn: '无法删除内置主题',
+    
+    // 主题配置新增
+    builtinThemes: '内置主题',
+    createCustom: '创建自定义主题',
+    noCustomThemes: '暂无自定义主题',
+    options: '主题选项',
+    followSystem: '跟随系统',
+    followSystemDescription: '自动根据系统设置切换浅色/深色主题',
+    animations: '主题动画',
+    animationsDescription: '启用主题切换和界面过渡动画',
+    highContrast: '高对比度',
+    highContrastDescription: '增强界面对比度，提升可访问性',
+    importExport: '导入/导出',
+    exportAll: '导出所有主题',
+    allThemesExported: '所有主题导出成功',
+    settingsApplied: '主题设置已应用',
+    settingsReset: '主题设置已重置',
+    deleteConfirm: '确定要删除主题"{name}"吗？',
+    
+    // 自定义主题编辑器
+    createCustomTheme: '创建自定义主题',
+    editCustomTheme: '编辑自定义主题',
+    basicInfo: '基本信息',
+    themeName: '主题名称',
+    themeNamePlaceholder: '请输入主题名称',
+    baseTheme: '基础主题',
+    colorConfiguration: '颜色配置',
+    basicColors: '基础颜色',
+    interfaceColors: '界面颜色',
+    chartColors: '图表颜色',
+    plot3dColors: '3D绘图颜色',
+    widgetColors: '组件颜色',
+    preview: '预览',
+    sampleTitle: '示例主题',
+    invalidThemeData: '无效的主题数据',
+    customThemeSaved: '自定义主题保存成功',
+    unknown: '未知',
+    
+    // 颜色标签
+    colors: {
+      text: '文本颜色',
+      base: '背景颜色',
+      window: '窗口颜色',
+      accent: '强调色',
+      error: '错误颜色',
+      alarm: '警告颜色',
+      button: '按钮颜色',
+      buttonText: '按钮文本',
+      highlight: '高亮颜色',
+      highlightedText: '高亮文本',
+      toolbarTop: '工具栏顶部',
+      toolbarBottom: '工具栏底部',
+      toolbarText: '工具栏文本',
+      toolbarBorder: '工具栏边框',
+      consoleBase: '控制台背景',
+      consoleText: '控制台文本',
+      consoleBorder: '控制台边框',
+      widgetBase: '组件背景',
+      widgetText: '组件文本',
+      widgetBorder: '组件边框',
+      widgetWindow: '组件窗口',
+      plot3dXAxis: 'X轴颜色',
+      plot3dYAxis: 'Y轴颜色',
+      plot3dZAxis: 'Z轴颜色',
+      plot3dAxisText: '坐标轴文本',
+      plot3dGridMajor: '主网格线',
+      plot3dGridMinor: '次网格线',
+      plot3dBackgroundInner: '内部背景',
+      plot3dBackgroundOuter: '外部背景'
+    }
+  },
+
+  // 语言
+  language: {
+    title: '语言',
+    current: '当前语言',
+    available: '可用语言',
+    changeLanguage: '更改语言',
+    languageChanged: '语言已更改为{language}',
+    autoDetect: '自动检测',
+    system: '系统默认',
+    autoDetectDescription: '根据浏览器或系统设置自动选择语言',
+    autoDetected: '自动检测到语言：{language}'
+  },
+
+  // 连接
+  connection: {
+    title: '连接',
+    connect: '连接',
+    disconnect: '断开连接',
+    connected: '已连接',
+    disconnected: '已断开',
+    connecting: '连接中...',
+    connectionFailed: '连接失败',
+    status: '状态',
+    port: '端口',
+    baudRate: '波特率',
+    dataBits: '数据位',
+    stopBits: '停止位',
+    parity: '校验位',
+    flowControl: '流控制',
+    device: '设备',
+    protocol: '协议',
+    settings: '连接设置',
+    auto: '自动',
+    manual: '手动'
+  },
+
+  // 数据
+  data: {
+    title: '数据',
+    received: '已接收',
+    sent: '已发送',
+    frames: '帧',
+    bytes: '字节',
+    rate: '速率',
+    clear: '清除数据',
+    pause: '暂停',
+    resume: '恢复',
+    record: '记录',
+    stop: '停止',
+    save: '保存数据',
+    load: '加载数据',
+    export: '导出数据',
+    import: '导入数据',
+    format: '格式',
+    encoding: '编码',
+    plainText: '纯文本',
+    hexadecimal: '十六进制',
+    binary: '二进制',
+    base64: 'Base64'
+  },
+
+  // 项目
+  project: {
+    title: '项目',
+    new: '新建项目',
+    open: '打开项目',
+    save: '保存项目',
+    saveAs: '另存为...',
+    close: '关闭项目',
+    recent: '最近项目',
+    settings: '项目设置',
+    structure: '项目结构',
+    groups: '组群',
+    datasets: '数据集',
+    actions: '动作',
+    frameParser: '帧解析器',
+    validation: '验证',
+    editor: '项目编辑器',
+    template: '模板',
+    templates: '项目模板',
+    createFromTemplate: '从模板创建',
+    invalid: '无效项目',
+    loaded: '项目加载成功',
+    saved: '项目保存成功',
+    modified: '项目已被修改',
+    unsavedChanges: '您有未保存的更改。是否要保存它们？'
+  },
+
+  // 仪表板
+  dashboard: {
+    title: '仪表板',
+    widgets: '组件',
+    layout: '布局',
+    fullscreen: '全屏',
+    windowed: '窗口化',
+    autoLayout: '自动布局',
+    grid: '网格',
+    list: '列表',
+    add: '添加组件',
+    remove: '移除组件',
+    configure: '配置组件',
+    resize: '调整大小',
+    move: '移动',
+    duplicate: '复制',
+    widget: {
+      plot: '绘图',
+      multiplot: '多重图表',
+      gauge: '仪表',
+      bar: '条形图',
+      compass: '指南针',
+      accelerometer: '加速度计',
+      gyroscope: '陀螺仪',
+      gps: 'GPS地图',
+      led: 'LED面板',
+      dataGrid: '数据网格',
+      terminal: '终端',
+      fft: 'FFT图表',
+      plot3d: '3D绘图'
+    }
+  },
+
+  // 控制台
+  console: {
+    title: '控制台',
+    send: '发送',
+    clear: '清除控制台',
+    timestamp: '时间戳',
+    showTimestamp: '显示时间戳',
+    wordWrap: '自动换行',
+    autoScroll: '自动滚动',
+    saveLog: '保存日志',
+    loadLog: '加载日志',
+    filter: '过滤',
+    search: '在控制台中搜索'
+  },
+
+  // 设置
+  settings: {
+    title: '设置',
+    general: '常规',
+    appearance: '外观',
+    performance: '性能',
+    advanced: '高级',
+    plugins: '插件',
+    about: '关于',
+    resetSettings: '重置设置',
+    resetConfirm: '您确定要将所有设置重置为默认值吗？',
+    settingsReset: '设置已重置为默认值',
+    autoSave: '自动保存',
+    checkUpdates: '检查更新',
+    sendUsageData: '发送使用数据',
+    enablePlugins: '启用插件',
+    maxFrameRate: '最大帧率',
+    bufferSize: '缓冲区大小',
+    threadCount: '线程数',
+    dateFormat: '日期格式',
+    numberFormat: '数字格式',
+    language: '语言设置',
+    theme: '主题设置'
+  },
+
+  // 导出
+  export: {
+    title: '导出数据',
+    format: '导出格式',
+    destination: '目标位置',
+    filename: '文件名',
+    options: '导出选项',
+    range: '数据范围',
+    all: '所有数据',
+    current: '当前视图',
+    timeRange: '时间范围',
+    from: '从',
+    to: '到',
+    includeHeaders: '包含标题',
+    compression: '压缩',
+    progress: '导出进度',
+    completed: '导出完成',
+    failed: '导出失败',
+    cancelled: '导出已取消',
+    csv: 'CSV（逗号分隔值）',
+    json: 'JSON（JavaScript对象表示法）',
+    xml: 'XML（可扩展标记语言）',
+    excel: 'Excel工作簿',
+    binary: '二进制数据'
+  },
+
+  // 错误消息
+  errorMessages: {
+    generic: '发生错误',
+    network: '网络错误',
+    timeout: '操作超时',
+    permission: '权限被拒绝',
+    notFound: '未找到',
+    invalidInput: '无效输入',
+    invalidFormat: '无效格式',
+    fileNotFound: '文件未找到',
+    cannotConnect: '无法连接到设备',
+    deviceBusy: '设备忙',
+    parseError: '解析错误',
+    validationError: '验证错误',
+    unknownError: '发生未知错误'
+  },
+
+  // 成功消息
+  success: {
+    connected: '连接成功',
+    disconnected: '断开连接成功',
+    saved: '保存成功',
+    loaded: '加载成功',
+    exported: '导出成功',
+    imported: '导入成功',
+    deleted: '删除成功',
+    updated: '更新成功',
+    reset: '重置成功'
+  },
+
+  // 单位
+  units: {
+    bytes: '字节',
+    kb: 'KB',
+    mb: 'MB',
+    gb: 'GB',
+    bps: 'bps',
+    kbps: 'Kbps',
+    mbps: 'Mbps',
+    hz: 'Hz',
+    khz: 'KHz',
+    mhz: 'MHz',
+    ghz: 'GHz',
+    ms: '毫秒',
+    sec: '秒',
+    min: '分钟',
+    hour: '小时',
+    day: '天',
+    volt: '伏特',
+    ampere: '安培',
+    watt: '瓦特',
+    celsius: '摄氏度',
+    fahrenheit: '华氏度',
+    kelvin: '开尔文',
+    meter: '米',
+    kilometer: '千米',
+    inch: '英寸',
+    foot: '英尺',
+    gram: '克',
+    kilogram: '千克',
+    pound: '磅'
+  },
+
+  // 许可证
+  license: {
+    title: '许可证',
+    gpl: 'GNU通用公共许可证',
+    commercial: '商业许可证',
+    trial: '试用版',
+    expired: '许可证已过期',
+    invalid: '无效许可证',
+    activate: '激活许可证',
+    deactivate: '停用许可证',
+    manage: '管理许可证',
+    purchase: '购买许可证',
+    info: '许可证信息',
+    key: '许可证密钥',
+    email: '邮箱',
+    name: '姓名',
+    company: '公司',
+    expires: '过期时间',
+    devices: '设备',
+    features: '功能'
+  }
+};
+
+export default messages;

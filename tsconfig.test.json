@@ -1,0 +1,53 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable", "WebWorker"],
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "declaration": false,
+    "declarationMap": false,
+    "sourceMap": false,
+    "outDir": "./out-test",
+    "rootDir": "./",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["src/*"],
+      "@shared/*": ["src/shared/*"],
+      "@extension/*": ["src/extension/*"],
+      "@webview/*": ["src/webview/*"],
+      "@test/*": ["utest/test-utils/*"]
+    },
+    "types": ["vitest/globals", "node", "@types/node", "@types/vscode"]
+  },
+  "include": [
+    "src/**/*",
+    "src/types/**/*.d.ts",
+    "utest/**/*.ts",
+    "utest/**/*.js",
+    "utest/**/*.mjs"
+  ],
+  "exclude": [
+    "node_modules",
+    "out",
+    "dist",
+    "out-test",
+    "coverage"
+  ]
+}

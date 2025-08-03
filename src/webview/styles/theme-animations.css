@@ -1,0 +1,675 @@
+/**
+ * Theme Switching Animations
+ * 主题切换动画效果
+ */
+
+/* ====== CSS变量定义 ====== */
+:root {
+  /* 动画持续时间 */
+  --theme-transition-duration: 0.3s;
+  --theme-transition-timing: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* 页面切换动画 */
+  --page-transition-duration: 0.4s;
+  --page-transition-timing: cubic-bezier(0.25, 0.8, 0.25, 1);
+  
+  /* 组件动画 */
+  --component-transition-duration: 0.2s;
+  --component-transition-timing: ease-out;
+  
+  /* 颜色过渡动画 */
+  --color-transition-duration: 0.25s;
+  --color-transition-timing: ease;
+}
+
+/* 禁用动画时的设置 */
+.no-animations,
+.no-animations * {
+  --theme-transition-duration: 0s !important;
+  --page-transition-duration: 0s !important;
+  --component-transition-duration: 0s !important;
+  --color-transition-duration: 0s !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+/* ====== 全局主题切换动画 ====== */
+
+/* HTML和BODY元素的颜色过渡 */
+html {
+  transition: 
+    background-color var(--theme-transition-duration) var(--theme-transition-timing),
+    color var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+body {
+  transition: 
+    background-color var(--theme-transition-duration) var(--theme-transition-timing),
+    color var(--theme-transition-duration) var(--theme-transition-timing);
+}
+
+/* 所有元素的通用颜色过渡 */
+* {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing),
+    box-shadow var(--color-transition-duration) var(--color-transition-timing),
+    opacity var(--component-transition-duration) var(--component-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+/* ====== Element Plus组件动画 ====== */
+
+/* 按钮动画 */
+.el-button {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing),
+    box-shadow var(--component-transition-duration) var(--component-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+.el-button:hover {
+  transform: translateY(-1px);
+}
+
+.el-button:active {
+  transform: translateY(0);
+}
+
+/* 输入框动画 */
+.el-input__inner {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing),
+    box-shadow var(--component-transition-duration) var(--component-transition-timing);
+}
+
+.el-input__inner:focus {
+  transform: scale(1.02);
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing),
+    box-shadow var(--component-transition-duration) var(--component-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+/* 卡片动画 */
+.el-card {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    box-shadow var(--component-transition-duration) var(--component-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+.el-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+/* 对话框动画 */
+.el-dialog {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing);
+}
+
+.el-dialog__wrapper {
+  transition: opacity var(--page-transition-duration) var(--page-transition-timing);
+}
+
+.el-dialog {
+  animation: dialogFadeIn var(--page-transition-duration) var(--page-transition-timing);
+}
+
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* 抽屉动画 */
+.el-drawer {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing);
+}
+
+/* 消息提示动画 */
+.el-message {
+  animation: messageSlideIn var(--component-transition-duration) var(--component-transition-timing);
+}
+
+@keyframes messageSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 通知动画 */
+.el-notification {
+  animation: notificationSlideIn var(--component-transition-duration) var(--component-transition-timing);
+}
+
+@keyframes notificationSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 表格动画 */
+.el-table {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing);
+}
+
+.el-table__row {
+  transition: background-color var(--color-transition-duration) var(--color-transition-timing);
+}
+
+.el-table__body tr:hover {
+  transform: scale(1.005);
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+/* 菜单动画 */
+.el-menu {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing);
+}
+
+.el-menu-item {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+.el-menu-item:hover {
+  transform: translateX(4px);
+}
+
+/* RTL环境下的菜单项悬停动画 */
+[dir="rtl"] .el-menu-item:hover {
+  transform: translateX(-4px);
+}
+
+/* ====== 自定义组件动画 ====== */
+
+/* 主题卡片动画 */
+.theme-card {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    box-shadow var(--component-transition-duration) var(--component-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+.theme-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
+}
+
+.theme-card.selected {
+  animation: themeCardSelect var(--component-transition-duration) var(--component-transition-timing);
+}
+
+@keyframes themeCardSelect {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1.02);
+  }
+}
+
+/* 语言项动画 */
+.language-item {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+.language-item:hover {
+  transform: translateX(8px);
+}
+
+[dir="rtl"] .language-item:hover {
+  transform: translateX(-8px);
+}
+
+.language-item.current {
+  animation: languageItemCurrent var(--component-transition-duration) var(--component-transition-timing);
+}
+
+@keyframes languageItemCurrent {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 颜色选择器动画 */
+.color-item {
+  animation: colorItemFadeIn calc(var(--component-transition-duration) * 2) var(--component-transition-timing);
+}
+
+@keyframes colorItemFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.color-input-group {
+  transition: transform var(--component-transition-duration) var(--component-transition-timing);
+}
+
+.color-input-group:hover {
+  transform: scale(1.05);
+}
+
+/* Widget颜色项动画 */
+.widget-color-item {
+  animation: widgetColorSlideIn calc(var(--component-transition-duration) * 1.5) var(--component-transition-timing);
+}
+
+@keyframes widgetColorSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+[dir="rtl"] .widget-color-item {
+  animation: widgetColorSlideInRTL calc(var(--component-transition-duration) * 1.5) var(--component-transition-timing);
+}
+
+@keyframes widgetColorSlideInRTL {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* 预览区域动画 */
+.preview-sample {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    border-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing);
+}
+
+.sample-toolbar {
+  transition: 
+    background-color var(--color-transition-duration) var(--color-transition-timing),
+    color var(--color-transition-duration) var(--color-transition-timing);
+}
+
+/* ====== 页面级动画 ====== */
+
+/* 页面切换动画 */
+.page-transition-enter-active,
+.page-transition-leave-active {
+  transition: 
+    opacity var(--page-transition-duration) var(--page-transition-timing),
+    transform var(--page-transition-duration) var(--page-transition-timing);
+}
+
+.page-transition-enter-from {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.page-transition-leave-to {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+/* RTL页面切换动画 */
+[dir="rtl"] .page-transition-enter-from {
+  transform: translateX(-30px);
+}
+
+[dir="rtl"] .page-transition-leave-to {
+  transform: translateX(30px);
+}
+
+/* 模态框背景动画 */
+.modal-backdrop-enter-active,
+.modal-backdrop-leave-active {
+  transition: opacity var(--page-transition-duration) var(--page-transition-timing);
+}
+
+.modal-backdrop-enter-from,
+.modal-backdrop-leave-to {
+  opacity: 0;
+}
+
+/* ====== 主题切换特效 ====== */
+
+/* 主题切换时的全局动画 */
+.theme-switching {
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-switching::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  animation: themeSwitchRipple 0.6s ease-out;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes themeSwitchRipple {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
+/* 深色主题切换特效 */
+.theme-switching.dark-theme::before {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.1) 0%, transparent 70%);
+}
+
+/* ====== 加载动画 ====== */
+
+/* 主题加载动画 */
+.theme-loading {
+  animation: themeLoadingPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes themeLoadingPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+/* 骨架屏动画 */
+.skeleton-loading {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  background-size: 200% 100%;
+  animation: skeletonLoading 1.5s infinite;
+}
+
+@keyframes skeletonLoading {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ====== 微交互动画 ====== */
+
+/* 悬停效果增强 */
+.interactive-element {
+  transition: all var(--component-transition-duration) var(--component-transition-timing);
+  cursor: pointer;
+}
+
+.interactive-element:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.interactive-element:active {
+  transform: translateY(0);
+  transition-duration: calc(var(--component-transition-duration) / 2);
+}
+
+/* 焦点环动画 */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+  animation: focusRingPulse 0.3s ease-out;
+}
+
+@keyframes focusRingPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(66, 153, 225, 0.5);
+  }
+  100% {
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.5);
+  }
+}
+
+/* ====== 响应式动画 ====== */
+
+/* 移动设备优化 */
+@media (max-width: 768px) {
+  :root {
+    --theme-transition-duration: 0.2s;
+    --page-transition-duration: 0.3s;
+    --component-transition-duration: 0.15s;
+  }
+  
+  /* 减少复杂动画 */
+  .theme-card:hover,
+  .language-item:hover,
+  .interactive-element:hover {
+    transform: none;
+  }
+  
+  /* 简化过渡效果 */
+  .theme-switching::before {
+    display: none;
+  }
+}
+
+/* 用户偏好：减少动画 */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --theme-transition-duration: 0.1s;
+    --page-transition-duration: 0.1s;
+    --component-transition-duration: 0.05s;
+    --color-transition-duration: 0.05s;
+  }
+  
+  /* 禁用复杂动画 */
+  .theme-switching::before,
+  .theme-loading,
+  .skeleton-loading {
+    animation: none;
+  }
+  
+  /* 保留基本的颜色过渡 */
+  * {
+    transition: 
+      background-color 0.1s ease,
+      border-color 0.1s ease,
+      color 0.1s ease !important;
+  }
+}
+
+/* 高性能设备增强动画 */
+@media (min-width: 1920px) and (min-height: 1080px) {
+  :root {
+    --theme-transition-duration: 0.4s;
+    --page-transition-duration: 0.5s;
+  }
+  
+  /* 更流畅的动画 */
+  .theme-card:hover {
+    transform: translateY(-6px) scale(1.03);
+  }
+  
+  .interactive-element:hover {
+    transform: translateY(-3px) scale(1.02);
+  }
+}
+
+/* ====== 主题色彩动画 ====== */
+
+/* 主题色渐变动画 */
+.theme-gradient {
+  background: linear-gradient(-45deg, 
+    var(--el-color-primary),
+    var(--el-color-primary-light-3),
+    var(--el-color-primary-light-5),
+    var(--el-color-primary-light-7)
+  );
+  background-size: 400% 400%;
+  animation: themeGradientShift 4s ease infinite;
+}
+
+@keyframes themeGradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* 强调色脉冲动画 */
+.accent-pulse {
+  animation: accentPulse 2s ease-in-out infinite;
+}
+
+@keyframes accentPulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(var(--el-color-primary-rgb), 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(var(--el-color-primary-rgb), 0);
+  }
+}
+
+/* ====== 错误和成功状态动画 ====== */
+
+/* 错误摇摆动画 */
+.error-shake {
+  animation: errorShake 0.5s ease-in-out;
+}
+
+@keyframes errorShake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+/* 成功弹跳动画 */
+.success-bounce {
+  animation: successBounce 0.6s ease;
+}
+
+@keyframes successBounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
+}
+
+/* ====== 数据加载动画 ====== */
+
+/* 数据加载点动画 */
+.loading-dots {
+  display: inline-block;
+}
+
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s linear infinite;
+}
+
+@keyframes loadingDots {
+  0%, 20% { content: ''; }
+  40% { content: '.'; }
+  60% { content: '..'; }
+  80%, 100% { content: '...'; }
+}
+
+/* 进度条动画 */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}

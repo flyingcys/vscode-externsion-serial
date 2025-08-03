@@ -1,0 +1,383 @@
+name: Unit Tests & Quality Checks
+
+on:
+  push:
+    branches: [ master, develop, 'feature/**' ]
+  pull_request:
+    branches: [ master, develop ]
+  schedule:
+    # 每日定时测试（UTC 02:00，北京时间10:00）
+    - cron: '0 2 * * *'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 代码质量检查
+  quality-check:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: TypeScript type check
+        run: npm run type-check
+        
+      - name: ESLint check
+        run: npm run lint
+        
+      - name: Prettier format check
+        run: npm run prettier:check
+
+  # P0核心模块测试（并行执行）
+  test-p0-modules:
+    name: P0 Core Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: quality-check
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        module: 
+          - communication
+          - parsing
+          - visualization
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run ${{ matrix.module }} module tests
+        run: npm run test:unit -- --reporter=verbose utest/${{ matrix.module }}
+        env:
+          NODE_ENV: test
+          
+      - name: Generate coverage report
+        run: npm run test:coverage -- utest/${{ matrix.module }}
+        
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: ${{ matrix.module }}
+          name: ${{ matrix.module }}-coverage
+          fail_ci_if_error: false
+
+  # P1重要模块测试
+  test-p1-modules:
+    name: P1 Important Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    needs: test-p0-modules
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        module:
+          - extensions
+          - performance
+          - export
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run ${{ matrix.module }} module tests
+        run: npm run test:unit -- --reporter=verbose utest/${{ matrix.module }}
+        env:
+          NODE_ENV: test
+          
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-results-${{ matrix.module }}
+          path: |
+            coverage/
+            test-results.xml
+
+  # 性能基准测试
+  performance-benchmark:
+    name: Performance Benchmarks
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: test-p0-modules
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run performance benchmarks
+        run: npm run test:performance
+        env:
+          NODE_ENV: test
+          BENCHMARK_MODE: ci
+          
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v3
+        with:
+          name: performance-benchmarks
+          path: |
+            benchmarks/
+            performance-report.json
+
+  # 集成测试
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [test-p0-modules, test-p1-modules]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          
+      - name: Check for memory leaks
+        run: npm run test:memory-leaks
+
+  # 跨平台兼容性测试
+  cross-platform-tests:
+    name: Cross Platform (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    needs: quality-check
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node-version: ['18', '20']
+        exclude:
+          # 减少矩阵组合，只在Ubuntu上测试多版本Node.js
+          - os: windows-latest
+            node-version: '20'
+          - os: macos-latest
+            node-version: '20'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run core tests
+        run: npm run test:unit -- --reporter=basic
+        env:
+          NODE_ENV: test
+
+  # 安全审计
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run npm audit
+        run: npm audit --audit-level high
+        
+      - name: Run security scan
+        run: npm run security:scan
+        continue-on-error: true
+
+  # 测试覆盖率汇总
+  coverage-report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: [test-p0-modules, test-p1-modules]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Run full test suite with coverage
+        run: npm run test:coverage:full
+        env:
+          NODE_ENV: test
+          
+      - name: Generate coverage report
+        run: npm run coverage:report
+        
+      - name: Check coverage thresholds
+        run: npm run coverage:check
+        
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info
+          flags: full-suite
+          name: full-coverage
+          fail_ci_if_error: true
+          
+      - name: Comment PR with coverage
+        if: github.event_name == 'pull_request'
+        uses: romeovs/lcov-reporter-action@v0.3.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          lcov-file: ./coverage/lcov.info
+
+  # 测试结果汇总
+  test-summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    if: always()
+    needs: 
+      - quality-check
+      - test-p0-modules
+      - test-p1-modules
+      - performance-benchmark
+      - integration-tests
+      - coverage-report
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        
+      - name: Generate test summary
+        run: |
+          echo "## 🧪 Test Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Test Results" >> $GITHUB_STEP_SUMMARY
+          echo "- Quality Check: ${{ needs.quality-check.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- P0 Core Tests: ${{ needs.test-p0-modules.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- P1 Important Tests: ${{ needs.test-p1-modules.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Performance Benchmarks: ${{ needs.performance-benchmark.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Integration Tests: ${{ needs.integration-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Coverage Report: ${{ needs.coverage-report.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [[ "${{ needs.quality-check.result }}" == "success" && 
+                "${{ needs.test-p0-modules.result }}" == "success" && 
+                "${{ needs.coverage-report.result }}" == "success" ]]; then
+            echo "✅ **All critical tests passed!**" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ **Some tests failed. Please check the details above.**" >> $GITHUB_STEP_SUMMARY
+          fi
+
+  # 自动化部署（仅在master分支且所有测试通过时）
+  deploy:
+    name: Deploy Extension
+    runs-on: ubuntu-latest
+    if: |
+      github.ref == 'refs/heads/master' && 
+      needs.test-summary.result == 'success' &&
+      github.event_name == 'push'
+    needs: test-summary
+    environment: production
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Build extension
+        run: npm run package
+        
+      - name: Run final quality checks
+        run: |
+          npm run test:unit -- --run
+          npm run lint
+          npm run type-check
+          
+      - name: Package extension
+        run: npm run vsce:package
+        
+      - name: Upload extension artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: extension-package
+          path: '*.vsix'

@@ -1,0 +1,36 @@
+# Serial Studio 高级测试工具依赖包
+
+# 必需的外部依赖
+pyserial==3.5          # 串口通讯
+
+# 可选依赖 (用于扩展功能)
+# numpy>=1.21.0        # 高级数学运算和信号处理
+# matplotlib>=3.5.0    # 数据可视化和图表生成
+# scipy>=1.7.0         # 科学计算和信号分析
+
+# Python内置模块 (无需安装，仅供参考)
+# tkinter              # GUI界面 (某些Linux发行版需要: apt install python3-tk)
+# socket               # 网络通讯
+# json                 # JSON数据处理
+# time                 # 时间处理
+# threading            # 多线程
+# argparse             # 命令行参数解析
+# signal               # 信号处理
+# datetime             # 日期时间
+# pathlib              # 路径处理
+# dataclasses          # 数据类
+# enum                 # 枚举类型
+# typing               # 类型提示
+# random               # 随机数生成
+# math                 # 数学运算
+# sys                  # 系统相关
+# struct               # 二进制数据处理
+
+# 安装说明:
+# pip install -r requirements.txt
+#
+# 对于Ubuntu/Debian系统，如果tkinter缺失:
+# sudo apt-get install python3-tk
+#
+# 对于CentOS/RHEL系统:
+# sudo yum install tkinter 或 sudo dnf install python3-tkinter

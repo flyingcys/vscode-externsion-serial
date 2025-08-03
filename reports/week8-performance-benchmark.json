@@ -1,0 +1,56 @@
+{
+  "timestamp": "2025-08-01T00:19:23.941Z",
+  "baseline": {
+    "CPU_USAGE": 35,
+    "MEMORY_USAGE": 120,
+    "UPDATE_FREQUENCY": 15,
+    "FRAME_PROCESSING": 800,
+    "STARTUP_TIME": 3000,
+    "RESPONSE_TIME": 20
+  },
+  "serialStudioBaseline": {
+    "CPU_USAGE": 25,
+    "MEMORY_USAGE": 80,
+    "UPDATE_FREQUENCY": 20,
+    "FRAME_PROCESSING": 1000,
+    "STARTUP_TIME": 1000,
+    "RESPONSE_TIME": 10
+  },
+  "summary": {
+    "totalTime": 9522.490253999998,
+    "passedTests": 3,
+    "totalTests": 4,
+    "successRate": 75,
+    "results": {
+      "frameProcessing": {
+        "rate": 180141.70775383766,
+        "totalFrames": 10000,
+        "totalTime": 55.511853000000016,
+        "target": 800,
+        "passed": true
+      },
+      "memoryUsage": {
+        "initial": 15,
+        "peak": 879,
+        "final": 879,
+        "growth": 864,
+        "target": 120,
+        "passed": false
+      },
+      "updateFrequency": {
+        "frequency": 30.075636401362544,
+        "updateCount": 151,
+        "duration": 5020.67514,
+        "target": 15,
+        "passed": true
+      },
+      "responseTime": {
+        "average": 0.10340315000001282,
+        "max": 2.940564999998969,
+        "min": 0.0013959999996586703,
+        "target": 20,
+        "passed": true
+      }
+    }
+  }
+}
