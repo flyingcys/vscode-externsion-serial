@@ -29,6 +29,10 @@ export declare class ThemeManager {
      */
     static getInstance(): ThemeManager;
     /**
+     * 重置单例实例 (主要用于测试)
+     */
+    static resetInstance(): void;
+    /**
      * 初始化主题系统
      */
     initialize(): Promise<void>;

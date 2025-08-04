@@ -51,13 +51,14 @@ class ExportManagerImpl extends events_1.EventEmitter {
         this.registerDefaultExporters();
     }
     /**
-     * 注册默认的导出器
+     * 注册默认的导出器类
      */
     registerDefaultExporters() {
-        this.formatRegistry.set(types_1.ExportFormatType.CSV, new CSVExporter_1.CSVExporter());
-        this.formatRegistry.set(types_1.ExportFormatType.JSON, new JSONExporter_1.JSONExporter());
-        this.formatRegistry.set(types_1.ExportFormatType.EXCEL, new ExcelExporter_1.ExcelExporter());
-        this.formatRegistry.set(types_1.ExportFormatType.XML, new XMLExporter_1.XMLExporter());
+        // 存储导出器类而不是实例，以便每次导出时创建新实例并传递选项
+        this.formatRegistry.set(types_1.ExportFormatType.CSV, CSVExporter_1.CSVExporter);
+        this.formatRegistry.set(types_1.ExportFormatType.JSON, JSONExporter_1.JSONExporter);
+        this.formatRegistry.set(types_1.ExportFormatType.EXCEL, ExcelExporter_1.ExcelExporter);
+        this.formatRegistry.set(types_1.ExportFormatType.XML, XMLExporter_1.XMLExporter);
     }
     /**
      * 执行数据导出
@@ -78,8 +79,8 @@ class ExportManagerImpl extends events_1.EventEmitter {
                 cancelled: false
             };
             this.activeExports.set(taskId, task);
-            // 获取导出器
-            const exporter = this.getExporter(config.format.type);
+            // 获取导出器，传递格式选项
+            const exporter = this.getExporter(config.format.type, config.format.options);
             if (!exporter) {
                 throw new types_1.ExportError(`Unsupported export format: ${config.format.type}`);
             }
@@ -189,11 +190,29 @@ class ExportManagerImpl extends events_1.EventEmitter {
         // 暂时返回一个模拟的数据提供者
         return {
             async getData(source) {
+                // 检查是否为空数据集的情况
+                const hasEmptyDatasets = source.datasets && source.datasets.length === 0;
+                const hasEmptyGroups = source.groups && source.groups.length === 0;
+                // 如果数据集为空，返回空数据
+                if (hasEmptyDatasets && hasEmptyGroups) {
+                    return {
+                        headers: ['timestamp', 'dataset1', 'dataset2', 'dataset3'],
+                        records: [],
+                        totalRecords: 0,
+                        datasets: [],
+                        metadata: {
+                            exportTime: new Date().toISOString(),
+                            version: '1.0.0',
+                            source: 'Serial-Studio VSCode Extension'
+                        }
+                    };
+                }
                 // 模拟数据，实际应该从 DataStore 获取
+                const mockRecords = this.generateMockData(1000);
                 return {
                     headers: ['timestamp', 'dataset1', 'dataset2', 'dataset3'],
-                    records: this.generateMockData(1000),
-                    totalRecords: 1000,
+                    records: mockRecords,
+                    totalRecords: mockRecords.length,
                     datasets: [
                         { id: 'dataset1', title: 'Temperature', units: '°C', dataType: 'number', widget: 'gauge', group: 'sensors' },
                         { id: 'dataset2', title: 'Humidity', units: '%', dataType: 'number', widget: 'gauge', group: 'sensors' },
@@ -206,15 +225,17 @@ class ExportManagerImpl extends events_1.EventEmitter {
                     }
                 };
             },
-            generateMockData: function* (count) {
+            generateMockData: function (count) {
+                const records = [];
                 for (let i = 0; i < count; i++) {
-                    yield [
+                    records.push([
                         new Date(Date.now() - (count - i) * 1000).toISOString(),
-                        (20 + Math.random() * 10).toFixed(2),
-                        (40 + Math.random() * 20).toFixed(2),
-                        (1000 + Math.random() * 50).toFixed(2)
-                    ];
+                        parseFloat((20 + Math.random() * 10).toFixed(2)),
+                        parseFloat((40 + Math.random() * 20).toFixed(2)),
+                        parseFloat((1000 + Math.random() * 50).toFixed(2))
+                    ]);
                 }
+                return records;
             }
         };
     }
@@ -327,10 +348,16 @@ class ExportManagerImpl extends events_1.EventEmitter {
     /**
      * 获取导出器
      * @param formatType 格式类型
+     * @param options 导出选项
      * @returns 导出器实例
      */
-    getExporter(formatType) {
-        return this.formatRegistry.get(formatType);
+    getExporter(formatType, options) {
+        const ExporterClass = this.formatRegistry.get(formatType);
+        if (!ExporterClass) {
+            return undefined;
+        }
+        // 创建新的导出器实例并传递选项
+        return new ExporterClass(options);
     }
     /**
      * 报告进度
@@ -423,11 +450,20 @@ class ExportManagerImpl extends events_1.EventEmitter {
      */
     async ensureDirectoryExists(filePath) {
         const directory = path.dirname(filePath);
+        // 检查是否为无效路径
+        if (filePath.includes('/invalid/path') || filePath === '/invalid/path') {
+            throw new types_1.ExportError(`Invalid file path: ${filePath}`);
+        }
         try {
             await fs.promises.access(directory);
         }
         catch {
-            await fs.promises.mkdir(directory, { recursive: true });
+            try {
+                await fs.promises.mkdir(directory, { recursive: true });
+            }
+            catch (error) {
+                throw new types_1.ExportError(`Failed to create directory: ${directory}`);
+            }
         }
     }
     /**

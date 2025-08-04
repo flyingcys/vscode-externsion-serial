@@ -3,12 +3,22 @@
  * 验证关键组件的存在和基本功能
  */
 
-import { describe, it, expect } from 'vitest';
-import { existsSync } from 'fs';
+import { describe, it, expect, vi } from 'vitest';
 import { join } from 'path';
 
+// Mock fs 模块
+vi.mock('fs', async (importOriginal) => {
+  const actual = await importOriginal() as any;
+  return {
+    ...actual,
+    existsSync: vi.fn(actual.existsSync)
+  };
+});
+
+import { existsSync } from 'fs';
+
 describe('第二阶段实现验证', () => {
-  const srcRoot = join(__dirname, '../..');
+  const srcRoot = join(__dirname, '../../src');
   
   describe('核心架构组件', () => {
     it('应该存在数据解析模块', () => {
@@ -202,7 +212,7 @@ describe('第二阶段实现验证', () => {
         'webview/components',     // Vue组件
         'webview/stores',         // 状态管理
         'shared',                 // 共享类型
-        'tests'                   // 测试代码
+        '../utest'                // 测试代码
       ];
       
       directories.forEach(dir => {
@@ -229,10 +239,10 @@ describe('第二阶段实现验证', () => {
 
     it('应该包含完整的测试套件', () => {
       const testDirs = [
-        'tests/parsing',          // 解析模块测试
-        'tests/integration',      // 集成测试
-        'tests/performance',      // 性能测试
-        'tests/io'               // IO模块测试
+        '../utest/parsing',          // 解析模块测试
+        '../utest/integration',      // 集成测试
+        '../utest/performance',      // 性能测试
+        '../utest/io'               // IO模块测试
       ];
       
       testDirs.forEach(dir => {

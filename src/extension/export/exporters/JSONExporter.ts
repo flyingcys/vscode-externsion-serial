@@ -372,6 +372,11 @@ export class JSONExporter implements DataExporter {
    */
   private createReplacer(): ((key: string, value: any) => any) | undefined {
     return (key: string, value: any) => {
+      // 处理 undefined 值
+      if (value === undefined) {
+        return null;
+      }
+      
       // 处理特殊数字值
       if (typeof value === 'number') {
         if (isNaN(value)) {
@@ -380,6 +385,16 @@ export class JSONExporter implements DataExporter {
         if (!isFinite(value)) {
           return value > 0 ? 'Infinity' : '-Infinity';
         }
+      }
+      
+      // 处理函数
+      if (typeof value === 'function') {
+        return '[Function]';
+      }
+      
+      // 处理 Symbol
+      if (typeof value === 'symbol') {
+        return value.toString();
       }
       
       return value;

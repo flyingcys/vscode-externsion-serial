@@ -4,10 +4,10 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { PerformanceMonitor, type PerformanceMetrics, type BenchmarkResult } from '../../shared/PerformanceMonitor';
-import { DataCompressor } from '../../shared/DataCompression';
-import { DataCache } from '../../shared/DataCache';
-import { useVirtualList } from '../../webview/composables/useVirtualList';
+import { PerformanceMonitor, type PerformanceMetrics, type BenchmarkResult } from '@shared/PerformanceMonitor';
+import { DataCompressor } from '@shared/DataCompression';
+import { DataCache } from '@shared/DataCache';
+import { useVirtualList } from '@webview/composables/useVirtualList';
 import { ref } from 'vue';
 
 /**

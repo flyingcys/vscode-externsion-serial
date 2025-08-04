@@ -28,7 +28,7 @@ describe('第32-33周：核心性能优化验证', () => {
 
   describe('1. 数据压缩性能验证', () => {
     it('应该实现高效的数据压缩算法', async () => {
-      const { DataCompressor } = await import('../../shared/DataCompression');
+      const { DataCompressor } = await import('@shared/DataCompression');
       
       // 生成有规律的测试数据（更适合压缩）
       const baseTime = Date.now();
@@ -76,7 +76,7 @@ describe('第32-33周：核心性能优化验证', () => {
     });
 
     it('应该支持高效的并发压缩', async () => {
-      const { DataCompressor } = await import('../../shared/DataCompression');
+      const { DataCompressor } = await import('@shared/DataCompression');
       
       const baseTime = Date.now();
       const datasets = Array.from({ length: 5 }, (_, i) => 
@@ -115,7 +115,7 @@ describe('第32-33周：核心性能优化验证', () => {
 
   describe('2. 缓存性能验证', () => {
     it('应该提供高性能的缓存操作', async () => {
-      const { DataCache } = await import('../../shared/DataCache');
+      const { DataCache } = await import('@shared/DataCache');
       
       const cache = new DataCache({
         maxSize: 10000,
@@ -177,7 +177,7 @@ describe('第32-33周：核心性能优化验证', () => {
     });
 
     it('应该支持高效的批量缓存操作', async () => {
-      const { DataCache } = await import('../../shared/DataCache');
+      const { DataCache } = await import('@shared/DataCache');
       
       const cache = new DataCache({
         maxSize: 5000,
@@ -221,7 +221,7 @@ describe('第32-33周：核心性能优化验证', () => {
     });
 
     it('应该正确处理内存回收和缓存淘汰', async () => {
-      const { DataCache } = await import('../../shared/DataCache');
+      const { DataCache } = await import('@shared/DataCache');
       
       const cache = new DataCache({
         maxSize: 1000,

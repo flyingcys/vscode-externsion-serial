@@ -69,11 +69,11 @@ class OptimizedGPSTrajectoryRenderer {
         }
         const startTime = performance.now();
         // 转换为采样算法的格式
-        const samplingPoint = {
-            x: point.lng,
-            y: point.lat,
-            timestamp: point.timestamp
-        };
+        // const samplingPoint = {
+        //   x: point.lng,
+        //   y: point.lat,
+        //   timestamp: point.timestamp
+        // };
         // 使用采样算法过滤点
         const shouldAdd = this.shouldAddPoint(point);
         if (!shouldAdd) {
@@ -434,7 +434,7 @@ class MapTileCacheManager {
     async preloadTiles(urls, bounds, zoom) {
         const tilePromises = [];
         // 计算需要的瓦片范围
-        const tileSize = 256;
+        // const tileSize = 256; // 暂时未使用
         const scale = Math.pow(2, zoom);
         const minX = Math.floor((bounds.getWest() + 180) / 360 * scale);
         const maxX = Math.floor((bounds.getEast() + 180) / 360 * scale);

@@ -117,6 +117,23 @@ export declare class FrameParser extends EventEmitter {
      * @returns 脚本模板
      */
     static createTemplate(templateType?: 'csv' | 'json' | 'custom'): string;
+    private datasetConfig;
+    /**
+     * 更新解析器配置（兼容测试接口）
+     * @param config 配置对象
+     */
+    updateConfig(config: any): void;
+    /**
+     * 创建数据集（兼容测试接口）
+     * @param frame 帧数据
+     * @returns 数据集数组
+     */
+    createDatasets(frame: any): Promise<any[]>;
+    /**
+     * 检查解析器是否就绪
+     * @returns 是否就绪
+     */
+    isReady(): boolean;
     /**
      * 销毁解析器并清理资源
      */

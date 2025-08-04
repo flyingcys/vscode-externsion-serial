@@ -32,6 +32,9 @@ var PluginManager_1 = require("./PluginManager");
 Object.defineProperty(exports, "PluginManager", { enumerable: true, get: function () { return PluginManager_1.PluginManager; } });
 var PluginLoader_1 = require("./PluginLoader");
 Object.defineProperty(exports, "PluginLoader", { enumerable: true, get: function () { return PluginLoader_1.PluginLoader; } });
+// Import for internal use
+const ContributionRegistry_2 = require("./ContributionRegistry");
+const PluginManager_2 = require("./PluginManager");
 var PluginContext_1 = require("./PluginContext");
 Object.defineProperty(exports, "PluginContextImpl", { enumerable: true, get: function () { return PluginContext_1.PluginContextImpl; } });
 Object.defineProperty(exports, "PluginContextFactory", { enumerable: true, get: function () { return PluginContext_1.PluginContextFactory; } });
@@ -51,10 +54,8 @@ class PluginSystem {
     contributionRegistry;
     initialized = false;
     constructor() {
-        const { PluginManager } = require('./PluginManager');
-        const { ContributionRegistry } = require('./ContributionRegistry');
-        this.pluginManager = PluginManager.getInstance();
-        this.contributionRegistry = ContributionRegistry.getInstance();
+        this.pluginManager = PluginManager_2.PluginManager.getInstance();
+        this.contributionRegistry = ContributionRegistry_2.ContributionRegistry.getInstance();
     }
     /**
      * Get singleton instance

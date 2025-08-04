@@ -7,20 +7,58 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';
+import { ExportManagerImpl } from '../../src/extension/export/ExportManager';
+import { CSVExporter } from '../../src/extension/export/exporters/CSVExporter';
+import { JSONExporter } from '../../src/extension/export/exporters/JSONExporter';
+import { ExcelExporter } from '../../src/extension/export/exporters/ExcelExporter';
+import { XMLExporter } from '../../src/extension/export/exporters/XMLExporter';
 import {
-  ExportManagerImpl,
-  CSVExporter,
-  JSONExporter,
-  ExcelExporter,
-  XMLExporter,
   ExportFormatType,
   DataSourceType,
   ExportConfig,
-  ExportData,
-  validateDataIntegrity,
-  formatFileSize,
-  formatDuration
-} from '@extension/export';
+  ExportData
+} from '../../src/extension/export/types';
+
+// 辅助函数
+function formatFileSize(bytes: number): string {
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let size = bytes;
+  let unitIndex = 0;
+  
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex++;
+  }
+  
+  return `${size.toFixed(2)} ${units[unitIndex]}`;
+}
+
+function formatDuration(ms: number): string {
+  if (ms < 1000) {
+    return `${ms}ms`;
+  }
+  return `${(ms / 1000).toFixed(2)}s`;
+}
+
+function validateDataIntegrity(original: any[][], exported: any[][]): boolean {
+  if (original.length !== exported.length) {
+    return false;
+  }
+  
+  for (let i = 0; i < original.length; i++) {
+    if (original[i].length !== exported[i].length) {
+      return false;
+    }
+    
+    for (let j = 0; j < original[i].length; j++) {
+      if (original[i][j] !== exported[i][j]) {
+        return false;
+      }
+    }
+  }
+  
+  return true;
+}
 
 describe('Export Quality Metrics Validation', () => {
   let tempDir: string;

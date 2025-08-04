@@ -4,12 +4,12 @@
  */
 
 import { describe, it, expect, beforeAll } from 'vitest';
-import { ThemeManager } from '../../webview/utils/ThemeManager';
-import { I18nManager } from '../../webview/i18n/I18nManager';
-import { BUILTIN_THEMES } from '../../webview/themes/builtin-themes';
-import { SupportedLocales, TranslationLoader, TranslationResource } from '../../webview/types/I18nDef';
-import { LANGUAGES } from '../../webview/i18n/languages';
-import { getPluralRule } from '../../webview/i18n/languages';
+import { ThemeManager } from '@webview/utils/ThemeManager';
+import { I18nManager } from '@webview/i18n/I18nManager';
+import { BUILTIN_THEMES } from '@webview/themes/builtin-themes';
+import { SupportedLocales, TranslationLoader, TranslationResource } from '@webview/types/I18nDef';
+import { LANGUAGES } from '@webview/i18n/languages';
+import { getPluralRule } from '@webview/i18n/languages';
 
 // Mock DOM environment for testing
 const mockDocument = {
@@ -34,24 +34,49 @@ global.localStorage = mockWindow.localStorage;
 // Mock Translation Loader for testing
 class MockTranslationLoader implements TranslationLoader {
   async loadTranslation(locale: SupportedLocales): Promise<TranslationResource> {
+    console.log(`MockTranslationLoader: Loading translation for ${locale}`);
     const mockMessages = {
-      'common.ok': 'OK',
-      'common.cancel': 'Cancel',
-      'common.save': 'Save',
-      'common.close': 'Close',
-      'app.name': 'Serial Studio',
-      'app.version': 'Version {version}',
-      'app.copyright': 'Copyright © {0} {1}', // 使用位置参数格式
-      'theme.title': 'Theme',
-      'language.title': 'Language',
-      'connection.title': 'Connection',
-      'data.title': 'Data',
-      'project.title': 'Project',
-      'dashboard.title': 'Dashboard',
-      'settings.title': 'Settings',
-      'export.title': 'Export',
-      'error.generic': 'An error occurred',
-      'success.connected': 'Successfully connected'
+      common: {
+        ok: 'OK',
+        cancel: 'Cancel',
+        save: 'Save',
+        close: 'Close'
+      },
+      app: {
+        name: 'Serial Studio',
+        version: 'Version {version}',
+        copyright: 'Copyright © {0} {1}' // 使用位置参数格式
+      },
+      theme: {
+        title: 'Theme'
+      },
+      language: {
+        title: 'Language'
+      },
+      connection: {
+        title: 'Connection'
+      },
+      data: {
+        title: 'Data'
+      },
+      project: {
+        title: 'Project'
+      },
+      dashboard: {
+        title: 'Dashboard'
+      },
+      settings: {
+        title: 'Settings'
+      },
+      export: {
+        title: 'Export'
+      },
+      error: {
+        generic: 'An error occurred'
+      },
+      success: {
+        connected: 'Successfully connected'
+      }
     };
     
     return {
@@ -77,17 +102,41 @@ describe('Theme and I18n Quality Metrics', () => {
   let i18nManager: I18nManager;
 
   beforeAll(async () => {
-    // Reset singletons
-    (ThemeManager as any).instance = null;
-    (I18nManager as any).instance = null;
+    console.log('🔄 Resetting singletons...');
     
+    // Reset singletons properly
+    if ((ThemeManager as any).resetInstance) {
+      console.log('Using ThemeManager.resetInstance()');
+      (ThemeManager as any).resetInstance();
+    } else {
+      console.log('Manually resetting ThemeManager instance');
+      (ThemeManager as any).instance = null;
+    }
+    
+    if ((I18nManager as any).resetInstance) {
+      console.log('Using I18nManager.resetInstance()');
+      (I18nManager as any).resetInstance();
+    } else {
+      console.log('Manually resetting I18nManager instance');
+      (I18nManager as any).instance = null;
+    }
+    
+    console.log('🏗️ Creating new instances...');
     themeManager = ThemeManager.getInstance();
-    i18nManager = I18nManager.getInstance(undefined, new MockTranslationLoader());
     
+    const mockLoader = new MockTranslationLoader();
+    console.log('Created MockTranslationLoader:', typeof mockLoader.loadTranslation);
+    
+    i18nManager = I18nManager.getInstance(undefined, mockLoader);
+    console.log('Created I18nManager with mock loader');
+    
+    console.log('🚀 Initializing systems...');
     await Promise.all([
       themeManager.initialize(),
       i18nManager.initialize()
     ]);
+    
+    console.log('✅ Initialization completed');
   });
 
   describe('第23-24周质量指标验证', () => {

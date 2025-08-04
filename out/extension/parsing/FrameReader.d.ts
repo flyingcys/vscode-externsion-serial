@@ -11,11 +11,13 @@ import { FrameDetection, OperationMode, RawFrame } from '../../shared/types';
  * 帧读取器配置接口
  */
 export interface FrameReaderConfig {
-    operationMode: OperationMode;
-    frameDetectionMode: FrameDetection;
-    startSequence: Buffer;
-    finishSequence: Buffer;
-    checksumAlgorithm: string;
+    operationMode?: OperationMode;
+    frameDetectionMode?: FrameDetection;
+    frameDetection?: FrameDetection;
+    startSequence?: Buffer;
+    finishSequence?: Buffer | Uint8Array;
+    checksumAlgorithm?: string;
+    decoderMethod?: any;
 }
 /**
  * 多线程帧读取器类
@@ -35,6 +37,12 @@ export declare class FrameReader extends EventEmitter {
      * @param data 来自设备的传入字节流
      */
     processData(data: Buffer): void;
+    /**
+     * 异步处理数据并等待完成
+     * @param data 来自设备的传入字节流
+     * @returns Promise，在处理完成后resolve
+     */
+    processDataAsync(data: Buffer): Promise<void>;
     /**
      * 根据当前模式提取帧
      */
@@ -123,6 +131,11 @@ export declare class FrameReader extends EventEmitter {
         capacity: number;
         utilization: number;
     };
+    /**
+     * 更新帧读取器配置（兼容测试接口）
+     * @param config 新配置
+     */
+    updateConfig(config: any): void;
     /**
      * 重置帧读取器状态
      */

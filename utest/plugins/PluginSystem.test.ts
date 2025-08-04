@@ -19,7 +19,7 @@ import {
   DriverContribution,
   WidgetContribution,
   PluginEvent
-} from '../../extension/plugins';
+} from '../../src/extension/plugins';
 
 describe('Plugin System Integration Tests', () => {
   let pluginSystem: PluginSystem;

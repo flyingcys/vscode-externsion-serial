@@ -14,6 +14,10 @@ export * from './types';
 export { ContributionRegistry } from './ContributionRegistry';
 export { PluginManager } from './PluginManager';
 export { PluginLoader } from './PluginLoader';
+
+// Import for internal use
+import { ContributionRegistry } from './ContributionRegistry';
+import { PluginManager } from './PluginManager';
 export { 
   PluginContextImpl, 
   PluginContextFactory, 
@@ -42,13 +46,11 @@ export {
  */
 export class PluginSystem {
   private static instance: PluginSystem;
-  private pluginManager: import('./PluginManager').PluginManager;
-  private contributionRegistry: import('./ContributionRegistry').ContributionRegistry;
+  private pluginManager: PluginManager;
+  private contributionRegistry: ContributionRegistry;
   private initialized = false;
   
   private constructor() {
-    const { PluginManager } = require('./PluginManager');
-    const { ContributionRegistry } = require('./ContributionRegistry');
     this.pluginManager = PluginManager.getInstance();
     this.contributionRegistry = ContributionRegistry.getInstance();
   }

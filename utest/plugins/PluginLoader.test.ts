@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { PluginLoader } from '../../extension/plugins/PluginLoader';
-import { PluginManifest } from '../../extension/plugins/types';
+import { PluginLoader } from '../../src/extension/plugins/PluginLoader';
+import { PluginManifest } from '../../src/extension/plugins/types';
 
 describe('PluginLoader', () => {
   let loader: PluginLoader;

@@ -28,6 +28,10 @@ export declare class I18nManager {
      */
     static getInstance(options?: Partial<TranslationOptions>, loader?: TranslationLoader, cache?: TranslationCache, detector?: LanguageDetector): I18nManager;
     /**
+     * 重置单例实例 (主要用于测试)
+     */
+    static resetInstance(): void;
+    /**
      * 初始化I18n系统
      */
     initialize(): Promise<void>;

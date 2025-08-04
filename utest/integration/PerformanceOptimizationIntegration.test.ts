@@ -24,8 +24,8 @@ describe('第32-33周性能优化集成测试', () => {
     it('应该实现完整的数据压缩→缓存→虚拟化渲染流水线', async () => {
       console.log('📊 测试数据处理流水线集成...');
       
-      const { DataCompressor } = await import('../../shared/DataCompression');
-      const { DataCache } = await import('../../shared/DataCache');
+      const { DataCompressor } = await import('../../src/shared/DataCompression');
+      const { DataCache } = await import('../../src/shared/DataCache');
       
       // 1. 创建测试数据
       const originalData = Array.from({ length: 5000 }, (_, i) => ({
@@ -88,8 +88,8 @@ describe('第32-33周性能优化集成测试', () => {
     it('应该支持高并发数据处理', async () => {
       console.log('⚡ 测试高并发数据处理...');
       
-      const { DataCompressor } = await import('../../shared/DataCompression');
-      const { DataCache } = await import('../../shared/DataCache');
+      const { DataCompressor } = await import('../../src/shared/DataCompression');
+      const { DataCache } = await import('../../src/shared/DataCache');
       
       const cache = new DataCache({
         maxSize: 20000,
@@ -151,8 +151,8 @@ describe('第32-33周性能优化集成测试', () => {
     it('应该提供完整的性能监控和内存管理', async () => {
       console.log('📈 测试性能监控和内存管理...');
       
-      const { PerformanceMonitor } = await import('../../shared/PerformanceMonitor');
-      const { DataCache } = await import('../../shared/DataCache');
+      const { PerformanceMonitor } = await import('../../src/shared/PerformanceMonitor');
+      const { DataCache } = await import('../../src/shared/DataCache');
       
       // 初始化性能监控
       const monitor = new PerformanceMonitor({
@@ -213,6 +213,7 @@ describe('第32-33周性能优化集成测试', () => {
     it('应该正确处理内存压力和自动清理', async () => {
       console.log('🔄 测试内存压力和自动清理...');
       
+      const { DataCache } = await import('../../src/shared/DataCache');
       const cache = new DataCache({
         maxSize: 100,
         maxMemory: 1024 * 1024, // 1MB
@@ -229,9 +230,9 @@ describe('第32-33周性能优化集成测试', () => {
         cache.set(`pressure_test_${i}`, largeData, 10000);
         addedCount++;
         
-        const stats = cache.getStats();
-        if (stats.size >= 100) {
-          // 已触发LRU清理
+        // 不要在达到maxSize时立即退出，继续添加以触发LRU淘汰
+        if (i >= 150) {
+          // 添加了足够多的数据，应该已经触发LRU清理
           break;
         }
       }
@@ -258,8 +259,8 @@ describe('第32-33周性能优化集成测试', () => {
     it('应该实现完整的端到端性能优化流程', async () => {
       console.log('🔗 测试端到端性能优化流程...');
       
-      const { DataCompressor } = await import('../../shared/DataCompression');
-      const { DataCache } = await import('../../shared/DataCache');
+      const { DataCompressor } = await import('../../src/shared/DataCompression');
+      const { DataCache } = await import('../../src/shared/DataCache');
       
       // 模拟完整的数据处理流程
       const scenario = {

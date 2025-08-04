@@ -32,7 +32,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
 const vscode = __importStar(require("vscode"));
 const Manager_1 = require("./io/Manager");
-const types_1 = require("@shared/types");
+const types_1 = require("../shared/types");
 /**
  * Extension context and state management
  */

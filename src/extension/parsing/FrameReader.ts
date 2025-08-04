@@ -17,6 +17,19 @@ import {
  * 帧读取器配置接口
  */
 export interface FrameReaderConfig {
+  operationMode?: OperationMode;
+  frameDetectionMode?: FrameDetection;
+  frameDetection?: FrameDetection; // 兼容测试接口
+  startSequence?: Buffer;
+  finishSequence?: Buffer | Uint8Array;
+  checksumAlgorithm?: string;
+  decoderMethod?: any; // 兼容测试接口
+}
+
+/**
+ * 内部配置接口（确保所有字段都有值）
+ */
+interface InternalFrameReaderConfig {
   operationMode: OperationMode;
   frameDetectionMode: FrameDetection;
   startSequence: Buffer;
@@ -32,7 +45,7 @@ export interface FrameReaderConfig {
 export class FrameReader extends EventEmitter {
   private circularBuffer: CircularBuffer;
   private frameQueue: RawFrame[] = [];
-  private config: FrameReaderConfig;
+  private config: InternalFrameReaderConfig;
   private checksumLength = 0;
   private sequenceNumber = 0;
   
@@ -48,7 +61,15 @@ export class FrameReader extends EventEmitter {
     
     // 初始化10MB环形缓冲区
     this.circularBuffer = new CircularBuffer(1024 * 1024 * 10);
-    this.config = { ...config };
+    
+    // 处理配置兼容性
+    this.config = {
+      operationMode: config.operationMode || OperationMode.ProjectFile,
+      frameDetectionMode: config.frameDetectionMode || config.frameDetection || FrameDetection.EndDelimiterOnly,
+      startSequence: config.startSequence ? Buffer.from(config.startSequence) : Buffer.alloc(0),
+      finishSequence: config.finishSequence ? Buffer.from(config.finishSequence) : Buffer.from('\n'),
+      checksumAlgorithm: config.checksumAlgorithm || ''
+    };
     this.updateChecksumLength();
   }
 
@@ -57,11 +78,16 @@ export class FrameReader extends EventEmitter {
    * @param data 来自设备的传入字节流
    */
   processData(data: Buffer): void {
+    console.log('调试: processData - 操作模式:', this.config.operationMode, '帧检测模式:', this.config.frameDetectionMode);
+    console.log('调试: 数据长度:', data.length, '数据:', data.toString());
+    
     // 直通模式（无分隔符）
     if (this.config.operationMode === OperationMode.ProjectFile && 
         this.config.frameDetectionMode === FrameDetection.NoDelimiters) {
+      console.log('调试: 进入直通模式');
       this.enqueueFrame(data);
     } else {
+      console.log('调试: 进入环形缓冲区模式');
       // 使用环形缓冲区解析帧
       this.circularBuffer.append(data);
       this.extractFrames();
@@ -72,29 +98,61 @@ export class FrameReader extends EventEmitter {
   }
 
   /**
+   * 异步处理数据并等待完成
+   * @param data 来自设备的传入字节流
+   * @returns Promise，在处理完成后resolve
+   */
+  async processDataAsync(data: Buffer): Promise<void> {
+    return new Promise((resolve) => {
+      // 添加一次性监听器来等待处理完成
+      const onFrameExtracted = () => {
+        this.removeListener('frameExtracted', onFrameExtracted);
+        // 使用nextTick确保所有同步代码执行完成
+        process.nextTick(resolve);
+      };
+      
+      this.once('frameExtracted', onFrameExtracted);
+      this.processData(data);
+      
+      // 如果没有提取到帧，仍然需要resolve
+      setTimeout(() => {
+        this.removeListener('frameExtracted', onFrameExtracted);
+        resolve();
+      }, 10);
+    });
+  }
+
+  /**
    * 根据当前模式提取帧
    */
   private extractFrames(): void {
+    console.log('调试: extractFrames - 操作模式:', this.config.operationMode, '帧检测模式:', this.config.frameDetectionMode);
     switch (this.config.operationMode) {
       case OperationMode.QuickPlot:
+        console.log('调试: 进入QuickPlot模式');
         this.readEndDelimitedFrames();
         break;
       
       case OperationMode.DeviceSendsJSON:
+        console.log('调试: 进入DeviceSendsJSON模式');
         this.readStartEndDelimitedFrames();
         break;
       
       case OperationMode.ProjectFile:
+        console.log('调试: 进入ProjectFile模式');
         switch (this.config.frameDetectionMode) {
           case FrameDetection.EndDelimiterOnly:
+            console.log('调试: 使用EndDelimiterOnly检测');
             this.readEndDelimitedFrames();
             break;
           
           case FrameDetection.StartDelimiterOnly:
+            console.log('调试: 使用StartDelimiterOnly检测');
             this.readStartDelimitedFrames();
             break;
           
           case FrameDetection.StartAndEndDelimiter:
+            console.log('调试: 使用StartAndEndDelimiter检测');
             this.readStartEndDelimitedFrames();
             break;
         }
@@ -125,10 +183,12 @@ export class FrameReader extends EventEmitter {
         // 或使用固定分隔符（项目模式）
         delimiter = this.config.finishSequence;
         endIndex = this.circularBuffer.findPatternKMP(delimiter);
+        console.log('调试: 查找分隔符', delimiter, '结果:', endIndex, '缓冲区大小:', this.circularBuffer.getSize());
       }
 
       // 未找到帧
       if (endIndex === -1) {
+        console.log('调试: 未找到帧，退出');
         break;
       }
 
@@ -340,6 +400,19 @@ export class FrameReader extends EventEmitter {
 
     this.frameQueue.push(frame);
     
+    // 发出frameExtracted事件以兼容测试
+    const frameData = {
+      id: this.sequenceNumber,
+      data: data.toString('utf-8').trim(), // 清理数据，移除结束符
+      timestamp: frame.timestamp,
+      sequence: frame.sequence
+    };
+    
+    // 立即发出事件（同步）
+    setImmediate(() => {
+      this.emit('frameExtracted', frameData);
+    });
+    
     // 限制队列大小以防止内存泄漏
     if (this.frameQueue.length > 4096) {
       this.frameQueue.shift();
@@ -440,6 +513,29 @@ export class FrameReader extends EventEmitter {
       capacity: this.circularBuffer.getCapacity(),
       utilization: this.circularBuffer.getUtilization()
     };
+  }
+
+  /**
+   * 更新帧读取器配置（兼容测试接口）
+   * @param config 新配置
+   */
+  updateConfig(config: any): void {
+    if (config.frameDetection !== undefined) {
+      this.config.frameDetectionMode = config.frameDetection;
+    }
+    if (config.finishSequence !== undefined) {
+      this.config.finishSequence = Buffer.from(config.finishSequence);
+    }
+    if (config.startSequence !== undefined) {
+      this.config.startSequence = Buffer.from(config.startSequence);
+    }
+    if (config.checksumAlgorithm !== undefined) {
+      this.config.checksumAlgorithm = config.checksumAlgorithm;
+      this.updateChecksumLength();
+    }
+    if (config.operationMode !== undefined) {
+      this.config.operationMode = config.operationMode;
+    }
   }
 
   /**

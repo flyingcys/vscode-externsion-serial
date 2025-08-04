@@ -457,6 +457,66 @@ function parse(frame) {
     }
   }
 
+  private datasetConfig: any[] = [];
+
+  /**
+   * 更新解析器配置（兼容测试接口）
+   * @param config 配置对象
+   */
+  updateConfig(config: any): void {
+    if (config.datasets) {
+      this.datasetConfig = config.datasets;
+      this.emit('configUpdated', config);
+    }
+    if (config.timeout) {
+      this.setConfig({ timeout: config.timeout });
+    }
+    if (config.memoryLimit) {
+      this.setConfig({ memoryLimit: config.memoryLimit });
+    }
+    if (config.enableConsole !== undefined) {
+      this.setConfig({ enableConsole: config.enableConsole });
+    }
+  }
+
+  /**
+   * 创建数据集（兼容测试接口）
+   * @param frame 帧数据
+   * @returns 数据集数组
+   */
+  async createDatasets(frame: any): Promise<any[]> {
+    try {
+      const parseResult = this.parse(frame.data || frame);
+      if (!parseResult.success) {
+        throw new Error(parseResult.error || 'Parse failed');
+      }
+
+      const datasets = parseResult.datasets.map((value: string, index: number) => {
+        const config = this.datasetConfig[index] || {};
+        return {
+          title: config.title || `Dataset ${index + 1}`,
+          value: parseFloat(value) || 0,
+          unit: config.unit || '',
+          index: index,
+          timestamp: Date.now()
+        };
+      });
+
+      return datasets;
+    } catch (error) {
+      console.error('创建数据集失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * 检查解析器是否就绪
+   * @returns 是否就绪
+   */
+  isReady(): boolean {
+    return this.parseFunction !== null;
+  }
+
   /**
    * 销毁解析器并清理资源
    */

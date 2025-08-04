@@ -343,6 +343,10 @@ class JSONExporter {
      */
     createReplacer() {
         return (key, value) => {
+            // 处理 undefined 值
+            if (value === undefined) {
+                return null;
+            }
             // 处理特殊数字值
             if (typeof value === 'number') {
                 if (isNaN(value)) {
@@ -351,6 +355,14 @@ class JSONExporter {
                 if (!isFinite(value)) {
                     return value > 0 ? 'Infinity' : '-Infinity';
                 }
+            }
+            // 处理函数
+            if (typeof value === 'function') {
+                return '[Function]';
+            }
+            // 处理 Symbol
+            if (typeof value === 'symbol') {
+                return value.toString();
             }
             return value;
         };

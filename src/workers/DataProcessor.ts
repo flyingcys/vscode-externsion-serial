@@ -320,7 +320,7 @@ class FrameProcessor {
   /**
    * 获取缓冲区统计信息
    */
-  getBufferStats() {
+  getBufferStats(): any {
     return {
       size: this.circularBuffer.size,
       capacity: this.circularBuffer.capacity,
@@ -388,7 +388,7 @@ class FrameProcessor {
 const frameProcessor = new FrameProcessor();
 
 // WebWorker 消息处理
-self.onmessage = function(event: MessageEvent<WorkerMessage>) {
+self.onmessage = function(event: MessageEvent<WorkerMessage>): void {
   const { type, data, id } = event.data;
   
   try {

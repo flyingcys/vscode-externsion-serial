@@ -7,12 +7,11 @@ import type {
   ThemeDef, 
   ThemeType, 
   ThemeConfig, 
-  ThemeEvents, 
   CSSVariableMap,
   ThemeValidationResult,
   SerialStudioColors
 } from '../types/ThemeDef';
-import { BUILTIN_THEMES, getBuiltInTheme } from '../themes/builtin-themes';
+import { BUILTIN_THEMES } from '../themes/builtin-themes';
 
 /**
  * 主题变更监听器
@@ -42,7 +41,7 @@ export class ThemeManager {
   private cssVariableMap: CSSVariableMap = this.createCSSVariableMap();
   
   // 媒体查询监听器
-  private mediaQueryListener: ((e: any) => void) | null = null;
+  private mediaQueryListener: ((e: MediaQueryListEvent) => void) | null = null;
 
   private constructor() {
     this.detectSystemTheme();
@@ -57,6 +56,16 @@ export class ThemeManager {
       ThemeManager.instance = new ThemeManager();
     }
     return ThemeManager.instance;
+  }
+
+  /**
+   * 重置单例实例 (主要用于测试)
+   */
+  public static resetInstance(): void {
+    if (ThemeManager.instance) {
+      ThemeManager.instance.destroy();
+    }
+    ThemeManager.instance = null;
   }
 
   /**
@@ -169,11 +178,11 @@ export class ThemeManager {
       throw new Error(`Theme not found: ${themeTitle}`);
     }
     
-    // 设置当前主题
-    this.currentTheme = theme;
-    
-    // 应用主题到DOM
+    // 先尝试应用主题到DOM，如果失败则不更新状态
     this.applyTheme(theme);
+    
+    // DOM操作成功后才设置当前主题
+    this.currentTheme = theme;
     
     // 通知监听器
     this.notifyThemeChanged(theme);
@@ -346,7 +355,7 @@ export class ThemeManager {
     if (typeof window !== 'undefined' && window.matchMedia) {
       const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
       
-      this.mediaQueryListener = (e: any) => {
+      this.mediaQueryListener = (e: MediaQueryListEvent): void => {
         const oldValue = this.systemPrefersDark;
         this.systemPrefersDark = e.matches;
         
@@ -542,7 +551,7 @@ export class ThemeManager {
   /**
    * 验证主题
    */
-  private validateTheme(theme: any): ThemeValidationResult {
+  private validateTheme(theme: unknown): ThemeValidationResult {
     const errors: string[] = [];
     const warnings: string[] = [];
     
@@ -552,33 +561,36 @@ export class ThemeManager {
       return { valid: false, errors, warnings };
     }
     
+    // 类型断言 - 在这里我们确定 theme 是一个对象
+    const themeObj = theme as Record<string, any>;
+    
     // 必要字段验证
-    if (!theme.title || typeof theme.title !== 'string') {
+    if (!themeObj.title || typeof themeObj.title !== 'string') {
       errors.push('Theme must have a title');
     }
     
-    if (!theme.colors || typeof theme.colors !== 'object') {
+    if (!themeObj.colors || typeof themeObj.colors !== 'object') {
       errors.push('Theme must have colors object');
     }
     
-    if (!theme.translations || typeof theme.translations !== 'object') {
+    if (!themeObj.translations || typeof themeObj.translations !== 'object') {
       warnings.push('Theme should have translations object');
     }
     
-    if (!theme.parameters || typeof theme.parameters !== 'object') {
+    if (!themeObj.parameters || typeof themeObj.parameters !== 'object') {
       warnings.push('Theme should have parameters object');
     }
     
     // 颜色验证
-    if (theme.colors) {
+    if (themeObj.colors) {
       const requiredColors = ['text', 'base', 'accent', 'error'];
       requiredColors.forEach(color => {
-        if (!theme.colors[color]) {
+        if (!themeObj.colors[color]) {
           errors.push(`Missing required color: ${color}`);
         }
       });
       
-      if (!theme.colors.widget_colors || !Array.isArray(theme.colors.widget_colors)) {
+      if (!themeObj.colors.widget_colors || !Array.isArray(themeObj.colors.widget_colors)) {
         errors.push('Theme must have widget_colors array');
       }
     }
@@ -699,7 +711,7 @@ export class ThemeManager {
         const stored = localStorage.getItem('serial-studio-custom-themes');
         if (stored) {
           const themes = JSON.parse(stored);
-          this.customThemes = themes.filter((theme: any) => this.validateTheme(theme).valid);
+          this.customThemes = themes.filter((theme: unknown) => this.validateTheme(theme).valid);
         }
       } catch (error) {
         console.warn('Failed to load custom themes:', error);

@@ -38,6 +38,15 @@ class ThemeManager {
         return ThemeManager.instance;
     }
     /**
+     * 重置单例实例 (主要用于测试)
+     */
+    static resetInstance() {
+        if (ThemeManager.instance) {
+            ThemeManager.instance.destroy();
+        }
+        ThemeManager.instance = null;
+    }
+    /**
      * 初始化主题系统
      */
     async initialize() {
@@ -131,10 +140,10 @@ class ThemeManager {
         if (!theme) {
             throw new Error(`Theme not found: ${themeTitle}`);
         }
-        // 设置当前主题
-        this.currentTheme = theme;
-        // 应用主题到DOM
+        // 先尝试应用主题到DOM，如果失败则不更新状态
         this.applyTheme(theme);
+        // DOM操作成功后才设置当前主题
+        this.currentTheme = theme;
         // 通知监听器
         this.notifyThemeChanged(theme);
         if (save) {
@@ -459,28 +468,30 @@ class ThemeManager {
             errors.push('Theme must be an object');
             return { valid: false, errors, warnings };
         }
+        // 类型断言 - 在这里我们确定 theme 是一个对象
+        const themeObj = theme;
         // 必要字段验证
-        if (!theme.title || typeof theme.title !== 'string') {
+        if (!themeObj.title || typeof themeObj.title !== 'string') {
             errors.push('Theme must have a title');
         }
-        if (!theme.colors || typeof theme.colors !== 'object') {
+        if (!themeObj.colors || typeof themeObj.colors !== 'object') {
             errors.push('Theme must have colors object');
         }
-        if (!theme.translations || typeof theme.translations !== 'object') {
+        if (!themeObj.translations || typeof themeObj.translations !== 'object') {
             warnings.push('Theme should have translations object');
         }
-        if (!theme.parameters || typeof theme.parameters !== 'object') {
+        if (!themeObj.parameters || typeof themeObj.parameters !== 'object') {
             warnings.push('Theme should have parameters object');
         }
         // 颜色验证
-        if (theme.colors) {
+        if (themeObj.colors) {
             const requiredColors = ['text', 'base', 'accent', 'error'];
             requiredColors.forEach(color => {
-                if (!theme.colors[color]) {
+                if (!themeObj.colors[color]) {
                     errors.push(`Missing required color: ${color}`);
                 }
             });
-            if (!theme.colors.widget_colors || !Array.isArray(theme.colors.widget_colors)) {
+            if (!themeObj.colors.widget_colors || !Array.isArray(themeObj.colors.widget_colors)) {
                 errors.push('Theme must have widget_colors array');
             }
         }

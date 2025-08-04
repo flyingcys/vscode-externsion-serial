@@ -7,7 +7,7 @@
 
 import * as vscode from 'vscode';
 import { IOManager, ConnectionState } from './io/Manager';
-import { ExtensionState, MessageType, Message, ConnectionConfig } from '@shared/types';
+import { ExtensionState, MessageType, Message, ConnectionConfig } from '../shared/types';
 
 /**
  * Extension context and state management

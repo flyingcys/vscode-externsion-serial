@@ -15,7 +15,7 @@ import {
   WidgetContribution,
   PluginEvent,
   PluginEventData
-} from '../../extension/plugins';
+} from '../../src/extension/plugins';
 
 describe('Plugin System Core Tests', () => {
   let contributionRegistry: ContributionRegistry;

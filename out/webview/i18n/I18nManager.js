@@ -159,17 +159,37 @@ class DefaultTranslationLoader {
         return Object.values(I18nDef_1.SupportedLocales);
     }
     async importTranslationModule(locale) {
-        // 这里应该动态导入对应的翻译文件
-        // 为了演示，我们返回一个基本的翻译对象
-        switch (locale) {
-            case I18nDef_1.SupportedLocales.ZH_CN:
-                return Promise.resolve().then(() => __importStar(require('../translations/zh_CN')));
-            case I18nDef_1.SupportedLocales.EN_US:
-                return Promise.resolve().then(() => __importStar(require('../translations/en_US')));
-            // 其他语言...
-            default:
-                // 回退到英语
-                return Promise.resolve().then(() => __importStar(require('../translations/en_US')));
+        try {
+            // 动态导入对应的翻译文件
+            switch (locale) {
+                case I18nDef_1.SupportedLocales.ZH_CN:
+                    return await Promise.resolve().then(() => __importStar(require('../translations/zh_CN')));
+                case I18nDef_1.SupportedLocales.EN_US:
+                    return await Promise.resolve().then(() => __importStar(require('../translations/en_US')));
+                case I18nDef_1.SupportedLocales.DE_DE:
+                case I18nDef_1.SupportedLocales.FR_FR:
+                case I18nDef_1.SupportedLocales.ES_MX:
+                case I18nDef_1.SupportedLocales.IT_IT:
+                case I18nDef_1.SupportedLocales.JA_JP:
+                case I18nDef_1.SupportedLocales.KO_KR:
+                case I18nDef_1.SupportedLocales.PL_PL:
+                case I18nDef_1.SupportedLocales.PT_BR:
+                case I18nDef_1.SupportedLocales.RU_RU:
+                case I18nDef_1.SupportedLocales.TR_TR:
+                case I18nDef_1.SupportedLocales.CS_CZ:
+                case I18nDef_1.SupportedLocales.UK_UA:
+                    // 对于尚未实现的语言，回退到英语
+                    console.warn(`Translation for ${locale} not yet implemented, falling back to en_US`);
+                    return await Promise.resolve().then(() => __importStar(require('../translations/en_US')));
+                default:
+                    // 回退到英语
+                    return await Promise.resolve().then(() => __importStar(require('../translations/en_US')));
+            }
+        }
+        catch (error) {
+            console.warn(`Failed to import translation module for ${locale}:`, error);
+            // 最后的回退
+            return await Promise.resolve().then(() => __importStar(require('../translations/en_US')));
         }
     }
     getDateTimeFormats(locale) {
@@ -267,6 +287,15 @@ class I18nManager {
             I18nManager.instance = new I18nManager(options, loader, cache, detector);
         }
         return I18nManager.instance;
+    }
+    /**
+     * 重置单例实例 (主要用于测试)
+     */
+    static resetInstance() {
+        if (I18nManager.instance) {
+            I18nManager.instance.destroy();
+        }
+        I18nManager.instance = null;
     }
     /**
      * 初始化I18n系统

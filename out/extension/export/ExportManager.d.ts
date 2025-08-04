@@ -15,7 +15,7 @@ export declare class ExportManagerImpl extends EventEmitter implements ExportMan
     private progressCallbacks;
     constructor();
     /**
-     * 注册默认的导出器
+     * 注册默认的导出器类
      */
     private registerDefaultExporters;
     /**
@@ -85,6 +85,7 @@ export declare class ExportManagerImpl extends EventEmitter implements ExportMan
     /**
      * 获取导出器
      * @param formatType 格式类型
+     * @param options 导出选项
      * @returns 导出器实例
      */
     private getExporter;
