@@ -430,9 +430,11 @@ export class ObjectPoolManager {
       bytesSent: 0,
       framesReceived: 0,
       framesSent: 0,
+      framesProcessed: 0,
       errors: 0,
       reconnections: 0,
-      uptime: 0
+      uptime: 0,
+      memoryUsage: 0
     };
   }
 

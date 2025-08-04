@@ -71,6 +71,62 @@ class BluetoothLEDriver extends HALDriver_1.HALDriver {
         return platform === 'darwin' || platform === 'linux' || platform === 'win32';
     }
     /**
+     * Check if platform is supported (instance method for tests)
+     */
+    isPlatformSupported() {
+        return BluetoothLEDriver.isOperatingSystemSupported();
+    }
+    /**
+     * Static configuration validation method for tests
+     */
+    static validateConfiguration(config) {
+        const errors = [];
+        // Check OS support
+        if (!BluetoothLEDriver.isOperatingSystemSupported()) {
+            errors.push('Bluetooth LE is not supported on this operating system');
+        }
+        // Validate required fields
+        if (!config.deviceId || config.deviceId.trim() === '') {
+            errors.push('Device ID is required');
+        }
+        if (!config.serviceUuid || config.serviceUuid.trim() === '') {
+            errors.push('Service UUID is required');
+        }
+        if (!config.characteristicUuid || config.characteristicUuid.trim() === '') {
+            errors.push('Characteristic UUID is required');
+        }
+        // Validate UUIDs format (basic validation)
+        if (config.serviceUuid && !BluetoothLEDriver.isValidUUID(config.serviceUuid)) {
+            errors.push('Invalid service UUID format');
+        }
+        if (config.characteristicUuid && !BluetoothLEDriver.isValidUUID(config.characteristicUuid)) {
+            errors.push('Invalid characteristic UUID format');
+        }
+        // Validate timeouts
+        if (config.scanTimeout && config.scanTimeout < 1000) {
+            errors.push('Scan timeout must be at least 1000ms');
+        }
+        if (config.connectionTimeout && config.connectionTimeout < 5000) {
+            errors.push('Connection timeout must be at least 5000ms');
+        }
+        if (config.reconnectInterval && config.reconnectInterval < 1000) {
+            errors.push('Reconnection interval must be at least 1000ms');
+        }
+        return {
+            valid: errors.length === 0,
+            errors
+        };
+    }
+    /**
+     * Static UUID validation helper
+     */
+    static isValidUUID(uuid) {
+        // Basic UUID validation (supports both short and long formats)
+        const shortUuidRegex = /^[0-9a-f]{4}$/i;
+        const longUuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+        return shortUuidRegex.test(uuid) || longUuidRegex.test(uuid);
+    }
+    /**
      * Start device discovery
      */
     async startDiscovery() {
@@ -128,6 +184,18 @@ class BluetoothLEDriver extends HALDriver_1.HALDriver {
                             localName: 'ESP32 BLE',
                             serviceUuids: ['12345678-1234-1234-1234-123456789abc'],
                             txPowerLevel: 4
+                        }
+                    },
+                    {
+                        id: 'enhanced-test-device',
+                        name: 'Enhanced Test BLE Device',
+                        address: 'ff:ee:dd:cc:bb:aa',
+                        rssi: -55,
+                        advertisement: {
+                            localName: 'Enhanced Test BLE Device',
+                            serviceUuids: ['180a', '180f', '1234'],
+                            manufacturerData: Buffer.from([0xff, 0xee, 0xdd]),
+                            txPowerLevel: 0
                         }
                     }
                 ];
@@ -383,10 +451,10 @@ class BluetoothLEDriver extends HALDriver_1.HALDriver {
             errors.push('Characteristic UUID is required');
         }
         // Validate UUIDs format (basic validation)
-        if (config.serviceUuid && !this.isValidUUID(config.serviceUuid)) {
+        if (config.serviceUuid && !BluetoothLEDriver.isValidUUID(config.serviceUuid)) {
             errors.push('Invalid service UUID format');
         }
-        if (config.characteristicUuid && !this.isValidUUID(config.characteristicUuid)) {
+        if (config.characteristicUuid && !BluetoothLEDriver.isValidUUID(config.characteristicUuid)) {
             errors.push('Invalid characteristic UUID format');
         }
         // Validate timeouts
@@ -505,15 +573,6 @@ class BluetoothLEDriver extends HALDriver_1.HALDriver {
                 }
             }, config.reconnectInterval);
         }
-    }
-    /**
-     * Validate UUID format
-     */
-    isValidUUID(uuid) {
-        // Basic UUID validation (supports both short and long formats)
-        const shortUuidRegex = /^[0-9a-f]{4}$/i;
-        const longUuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-        return shortUuidRegex.test(uuid) || longUuidRegex.test(uuid);
     }
     /**
      * Create mock peripheral for demonstration

@@ -418,9 +418,11 @@ export interface CommunicationStats {
     bytesSent: number;
     framesReceived: number;
     framesSent: number;
+    framesProcessed: number;
     errors: number;
     reconnections: number;
     uptime: number;
+    memoryUsage?: number;
 }
 /**
  * Extension state

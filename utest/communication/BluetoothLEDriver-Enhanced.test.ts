@@ -58,26 +58,25 @@ describe('BluetoothLEDriver - Enhanced Coverage Tests', () => {
       const timeoutConfig = { ...config, connectionTimeout: 1 };
       driver = new BluetoothLEDriver(timeoutConfig);
       
-      // 模拟连接超时，但不让测试真正等待
-      const connectPromise = driver.open();
-      
-      // 快速检查状态，然后快速完成连接以避免真实超时
+      // 在mock环境中，超时时间太短时会真的发生超时
       expect(driver.isOpen()).toBe(false);
-      await connectPromise; // 应该成功连接（因为是模拟的）
+      
+      // 连接应该因为超时而失败
+      await expect(driver.open()).rejects.toThrow('Connection timeout after 1ms');
     });
 
     it('should handle multiple rapid connection attempts', async () => {
       driver = new BluetoothLEDriver(config);
       
-      // 连续多次快速连接尝试
-      const connections = [
-        driver.open(),
-        driver.open(),
-        driver.open()
-      ];
+      // 第一次连接应该成功
+      const firstConnection = driver.open();
       
-      // 等待所有连接完成
-      await Promise.all(connections);
+      // 后续的连接尝试应该抛出错误，因为已经有连接在进行中
+      await expect(driver.open()).rejects.toThrow('Connection attempt already in progress');
+      await expect(driver.open()).rejects.toThrow('Connection attempt already in progress');
+      
+      // 等待第一次连接完成
+      await firstConnection;
       expect(driver.isOpen()).toBe(true);
     });
 
@@ -237,17 +236,19 @@ describe('BluetoothLEDriver - Enhanced Coverage Tests', () => {
     });
 
     it('should clean up resources properly', async () => {
+      driver = new BluetoothLEDriver(config);
       await driver.open();
       
       // 获取初始统计
       const initialStats = driver.getStats();
       expect(initialStats).toBeTruthy();
       
-      // 执行清理
-      await driver.destroy();
+      // 执行清理（destroy调用close()，是异步的）
+      await driver.close();
+      driver.destroy();
       
-      // 确保清理后不能再使用
-      await expect(driver.write(Buffer.from('after destroy'))).rejects.toThrow();
+      // 确保清理后不能再使用（isWritable应该返回false）
+      await expect(driver.write(Buffer.from('after destroy'))).rejects.toThrow('BLE connection is not writable');
     });
   });
 
@@ -274,9 +275,8 @@ describe('BluetoothLEDriver - Enhanced Coverage Tests', () => {
       const notFoundConfig = { ...config, deviceId: 'non-existent-device' };
       const notFoundDriver = new BluetoothLEDriver(notFoundConfig);
       
-      // 在模拟环境中，这应该仍然成功
-      await expect(notFoundDriver.open()).resolves.not.toThrow();
-      await notFoundDriver.close();
+      // 设备不存在时应该抛出错误
+      await expect(notFoundDriver.open()).rejects.toThrow('Device non-existent-device not found');
     });
 
     it('should handle characteristic access errors', async () => {
@@ -372,10 +372,17 @@ describe('BluetoothLEDriver - Enhanced Coverage Tests', () => {
     });
 
     it('should track error rates correctly', () => {
+      driver = new BluetoothLEDriver(config);
       const initialStats = driver.getStats();
       
-      // 触发错误
-      driver.emit('error', new Error('Test error'));
+      // 触发错误处理（直接调用handleError方法）
+      // 因为直接emit('error')不会触发统计更新
+      // handleError可能会重新抛出错误，所以使用try-catch捕获
+      try {
+        (driver as any).handleError(new Error('Test error'));
+      } catch (error) {
+        // 忽略重新抛出的错误，我们只关心统计更新
+      }
       
       const afterErrorStats = driver.getStats();
       expect(afterErrorStats.errors).toBeGreaterThan(initialStats.errors);

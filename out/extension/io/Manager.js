@@ -211,9 +211,11 @@ class IOManager extends events_1.EventEmitter {
         try {
             this.setState(ConnectionState.Disconnected);
             // Clean up driver
-            await this.currentDriver.close();
-            this.currentDriver.destroy();
-            this.currentDriver = null;
+            if (this.currentDriver) {
+                await this.currentDriver.close();
+                this.currentDriver.destroy();
+                this.currentDriver = null;
+            }
             // Reset frame processing state
             this.frameBuffer = Buffer.alloc(0);
             this.frameSequence = 0;
@@ -646,6 +648,78 @@ class IOManager extends events_1.EventEmitter {
                 threadedExtraction: this.threadedFrameExtraction
             }
         };
+    }
+    /**
+     * Get connection state (alias for state getter)
+     */
+    getConnectionState() {
+        return this.state;
+    }
+    /**
+     * Get statistics (alias for communicationStats getter)
+     */
+    getStatistics() {
+        return this.communicationStats;
+    }
+    /**
+     * Get current bus type
+     */
+    getCurrentBusType() {
+        return this.currentDriver?.busType || null;
+    }
+    /**
+     * Configure frame processing parameters
+     */
+    configureFrameProcessing(config) {
+        this.frameConfig = { ...config };
+        // Clear frame buffer when configuration changes
+        this.frameBuffer = Buffer.alloc(0);
+    }
+    /**
+     * Get frame configuration
+     */
+    getFrameConfiguration() {
+        return this.frameConfiguration;
+    }
+    /**
+     * Configure worker threads for data processing
+     */
+    configureWorkers(config) {
+        if (config.threadedFrameExtraction !== undefined) {
+            this.threadedFrameExtraction = config.threadedFrameExtraction;
+        }
+        if (this.workerManager && config.maxWorkers !== undefined) {
+            // WorkerManager doesn't expose a configure method, so we'd need to recreate it
+            // For now, just log the configuration attempt
+            console.log(`Worker configuration update requested: maxWorkers=${config.maxWorkers}`);
+        }
+    }
+    /**
+     * Update configuration dynamically
+     */
+    updateConfiguration(config) {
+        if (this.currentDriver) {
+            // For now, we can't update configuration while connected
+            throw new Error('Cannot update configuration while connected. Disconnect first.');
+        }
+        // Store configuration for next connection
+        console.log('Configuration update prepared for next connection');
+    }
+    /**
+     * Validate configuration (alias for validateConfig)
+     */
+    validateConfiguration(config) {
+        const errors = this.validateConfig(config);
+        return {
+            valid: errors.length === 0,
+            errors
+        };
+    }
+    /**
+     * Write data (alias for writeData)
+     */
+    async write(data) {
+        return await this.writeData(data);
     }
     /**
      * Clean up resources

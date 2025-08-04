@@ -442,9 +442,11 @@ export interface CommunicationStats {
   bytesSent: number;
   framesReceived: number;
   framesSent: number;
+  framesProcessed: number;    // For enhanced tests
   errors: number;
   reconnections: number;
   uptime: number;             // ms
+  memoryUsage?: number;       // Optional memory usage in bytes
 }
 
 /**

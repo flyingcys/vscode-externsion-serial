@@ -108,6 +108,18 @@ export declare class BluetoothLEDriver extends HALDriver {
      */
     static isOperatingSystemSupported(): boolean;
     /**
+     * Check if platform is supported (instance method for tests)
+     */
+    isPlatformSupported(): boolean;
+    /**
+     * Static configuration validation method for tests
+     */
+    static validateConfiguration(config: BluetoothLEConfig): ConfigValidationResult;
+    /**
+     * Static UUID validation helper
+     */
+    private static isValidUUID;
+    /**
      * Start device discovery
      */
     startDiscovery(): Promise<BluetoothDeviceInfo[]>;
@@ -185,10 +197,6 @@ export declare class BluetoothLEDriver extends HALDriver {
      * Schedule automatic reconnection if enabled
      */
     private scheduleReconnect;
-    /**
-     * Validate UUID format
-     */
-    private isValidUUID;
     /**
      * Create mock peripheral for demonstration
      */

@@ -258,10 +258,54 @@ export declare class IOManager extends EventEmitter {
         bytesSent: number;
         framesReceived: number;
         framesSent: number;
+        framesProcessed: number;
         errors: number;
         reconnections: number;
         uptime: number;
+        memoryUsage?: number | undefined;
     };
+    /**
+     * Get connection state (alias for state getter)
+     */
+    getConnectionState(): ConnectionState;
+    /**
+     * Get statistics (alias for communicationStats getter)
+     */
+    getStatistics(): CommunicationStats;
+    /**
+     * Get current bus type
+     */
+    getCurrentBusType(): BusType | null;
+    /**
+     * Configure frame processing parameters
+     */
+    configureFrameProcessing(config: FrameConfig): void;
+    /**
+     * Get frame configuration
+     */
+    getFrameConfiguration(): FrameConfig;
+    /**
+     * Configure worker threads for data processing
+     */
+    configureWorkers(config: {
+        maxWorkers?: number;
+        threadedFrameExtraction?: boolean;
+    }): void;
+    /**
+     * Update configuration dynamically
+     */
+    updateConfiguration(config: Partial<ConnectionConfig>): void;
+    /**
+     * Validate configuration (alias for validateConfig)
+     */
+    validateConfiguration(config: ConnectionConfig): {
+        valid: boolean;
+        errors: string[];
+    };
+    /**
+     * Write data (alias for writeData)
+     */
+    write(data: Buffer): Promise<number>;
     /**
      * Clean up resources
      */
