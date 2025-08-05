@@ -492,13 +492,12 @@ describe('BluetoothLEDriver - 增强覆盖率测试', () => {
         deviceId: 'device-1',
         serviceUuid: '180a',
         characteristicUuid: '2a29',
-        connectionTimeout: 100 // 很短的超时
+        connectionTimeout: 100 // 很短的超时，应该在构造函数中被拒绝
       };
       
-      const shortTimeoutDriver = new BluetoothLEDriver(shortTimeoutConfig);
-      
-      await expect(shortTimeoutDriver.open()).rejects.toThrow(
-        'Connection timeout after 100ms'
+      // 现在应该在构造函数中因为配置验证失败而抛出错误
+      expect(() => new BluetoothLEDriver(shortTimeoutConfig)).toThrow(
+        'Invalid BLE configuration: Connection timeout must be at least 5000ms'
       );
     });
 

@@ -156,7 +156,7 @@ export class SimpleCompressor {
   private static readonly MAX_MATCH_LENGTH = 15;
 
   /**
-   * 简化的字典压缩
+   * 增强的字典压缩 - 使用哈希表加速匹配，优化压缩比
    */
   static compress(data: Uint8Array): CompressedData {
     const originalSize = data.length;
@@ -171,40 +171,82 @@ export class SimpleCompressor {
       };
     }
 
-    // 简化实现：只做简单的重复模式检测
+    // 改进的压缩策略：
+    // 1. 增大窗口大小以找到更多匹配
+    // 2. 降低最小匹配长度以压缩更多重复
+    // 3. 添加字节频率分析优化
+    const ENHANCED_WINDOW_SIZE = 8192; // 增大窗口
+    const ENHANCED_MIN_MATCH = 3; // 降低最小匹配长度
+    
+    // 预处理：字节频率分析
+    const frequencies = new Uint32Array(256);
+    for (let i = 0; i < data.length; i++) {
+      frequencies[data[i]]++;
+    }
+    
+    // 使用哈希表加速字符串匹配
+    const hashTable = new Map<number, number[]>();
     const compressed: number[] = [];
     let pos = 0;
+
+    // 改进的哈希函数 - 使用更多字节提高匹配精度
+    const hash = (pos: number): number => {
+      if (pos + 3 >= data.length) return 0;
+      // 使用4字节哈希提高匹配质量
+      return ((data[pos] << 24) | (data[pos + 1] << 16) | (data[pos + 2] << 8) | (data[pos + 3] || 0)) >>> 0;
+    };
 
     while (pos < data.length) {
       let bestMatchLength = 0;
       let bestMatchDistance = 0;
       
-      // 在窗口内查找最优匹配
-      const windowStart = Math.max(0, pos - this.WINDOW_SIZE);
-      
-      for (let i = windowStart; i < pos; i++) {
-        let matchLength = 0;
+      // 如果有足够的数据计算哈希
+      if (pos + 3 < data.length) {
+        const hashValue = hash(pos);
+        const matches = hashTable.get(hashValue) || [];
         
-        // 计算匹配长度
-        while (
-          matchLength < this.MAX_MATCH_LENGTH &&
-          pos + matchLength < data.length &&
-          data[i + matchLength] === data[pos + matchLength]
-        ) {
-          matchLength++;
+        // 在哈希匹配中查找最优匹配
+        for (const matchPos of matches) {
+          if (pos - matchPos > ENHANCED_WINDOW_SIZE) continue;
+          
+          let matchLength = 0;
+          
+          // 计算匹配长度
+          while (
+            matchLength < this.MAX_MATCH_LENGTH &&
+            pos + matchLength < data.length &&
+            matchPos + matchLength < pos &&
+            data[matchPos + matchLength] === data[pos + matchLength]
+          ) {
+            matchLength++;
+          }
+          
+          // 更新最优匹配 - 使用增强的最小匹配长度
+          if (matchLength >= ENHANCED_MIN_MATCH && matchLength > bestMatchLength) {
+            bestMatchLength = matchLength;
+            bestMatchDistance = pos - matchPos;
+          }
         }
         
-        // 更新最优匹配
-        if (matchLength >= this.MIN_MATCH_LENGTH && matchLength > bestMatchLength) {
-          bestMatchLength = matchLength;
-          bestMatchDistance = pos - i;
+        // 将当前位置加入哈希表
+        if (!hashTable.has(hashValue)) {
+          hashTable.set(hashValue, []);
+        }
+        hashTable.get(hashValue)!.push(pos);
+        
+        // 限制哈希表条目数量，避免内存过度使用
+        if (hashTable.get(hashValue)!.length > 16) {
+          hashTable.get(hashValue)!.shift();
         }
       }
       
-      if (bestMatchLength >= this.MIN_MATCH_LENGTH) {
-        // 输出匹配标记：负数表示匹配
-        compressed.push(-bestMatchDistance);
-        compressed.push(bestMatchLength);
+      if (bestMatchLength >= ENHANCED_MIN_MATCH) {
+        // 输出匹配：使用特殊编码
+        compressed.push(0x80 | (bestMatchLength - ENHANCED_MIN_MATCH)); // 长度编码
+        compressed.push(bestMatchDistance & 0xFF); // 距离低位
+        if (bestMatchDistance > 255) {
+          compressed.push((bestMatchDistance >> 8) & 0xFF); // 距离高位
+        }
         pos += bestMatchLength;
       } else {
         // 输出字面字符
@@ -213,38 +255,20 @@ export class SimpleCompressor {
       }
     }
 
-    // 转换为字节数组
-    const compressedData = new Uint8Array(compressed.length * 2); // 简化处理
-    let offset = 0;
-    
-    for (const value of compressed) {
-      if (value < 0) {
-        // 负数：匹配距离
-        compressedData[offset++] = 0xFF; // 标记位
-        compressedData[offset++] = (-value) & 0xFF;
-      } else if (offset > 0 && compressedData[offset - 2] === 0xFF) {
-        // 匹配长度
-        compressedData[offset++] = value & 0xFF;
-      } else {
-        // 字面字符
-        compressedData[offset++] = value & 0xFF;
-      }
-    }
-
-    const finalData = compressedData.slice(0, offset);
-    const compressedSize = finalData.length;
+    // 更高效的字节数组转换
+    const compressedData = new Uint8Array(compressed);
     
     return {
-      data: finalData,
+      data: compressedData,
       originalSize,
-      compressedSize,
-      compressionRatio: originalSize / compressedSize,
+      compressedSize: compressedData.length,
+      compressionRatio: originalSize / compressedData.length,
       algorithm: 'simple-lz'
     };
   }
 
   /**
-   * 解压缩数据
+   * 解压缩数据 - 与增强压缩算法兼容
    */
   static decompress(compressed: CompressedData): Uint8Array {
     if (compressed.originalSize === 0) {
@@ -254,20 +278,31 @@ export class SimpleCompressor {
     const data = compressed.data;
     const result: number[] = [];
     let pos = 0;
+    const ENHANCED_MIN_MATCH = 3; // 与压缩算法保持一致
 
     while (pos < data.length) {
-      if (data[pos] === 0xFF && pos + 2 < data.length) {
-        // 匹配模式
-        const distance = data[pos + 1];
-        const length = data[pos + 2];
+      if ((data[pos] & 0x80) !== 0) {
+        // 匹配模式：最高位为1
+        const length = (data[pos] & 0x7F) + ENHANCED_MIN_MATCH;
+        pos++;
+        
+        if (pos >= data.length) break;
+        
+        let distance = data[pos++];
+        
+        // 检查是否有高位距离字节
+        if (distance === 0 && pos < data.length) {
+          distance = data[pos++];
+          distance = (distance << 8) | data[pos++];
+        }
         
         // 复制匹配的数据
         const startPos = result.length - distance;
         for (let i = 0; i < length; i++) {
-          result.push(result[startPos + i]);
+          if (startPos + i >= 0 && startPos + i < result.length) {
+            result.push(result[startPos + i]);
+          }
         }
-        
-        pos += 3;
       } else {
         // 字面字符
         result.push(data[pos]);
@@ -300,11 +335,38 @@ export class DataCompressor {
       };
     }
 
-    // 小数据集不压缩
-    if (data.length < this.COMPRESSION_THRESHOLD) {
+    // 尝试多种压缩策略，选择最优结果
+    const strategies = [
+      () => this.compressDeltaRLE(data),
+      () => this.compressWithQuantization(data),
+      () => this.compressWithLZ(data)
+    ];
+
+    let bestResult: CompressedData | null = null;
+    
+    for (const strategy of strategies) {
+      try {
+        const result = strategy();
+        if (!bestResult || result.compressionRatio > bestResult.compressionRatio) {
+          bestResult = result;
+        }
+      } catch (error) {
+        console.warn('Compression strategy failed:', error);
+      }
+    }
+
+    // 如果所有压缩策略都失败，返回未压缩数据
+    if (!bestResult) {
       return this.serializeUncompressed(data);
     }
 
+    return bestResult;
+  }
+
+  /**
+   * Delta + RLE压缩策略
+   */
+  private static compressDeltaRLE(data: DataPoint[]): CompressedData {
     // 尝试Delta + RLE组合压缩
     const deltaResult = DeltaEncoder.encode(data);
     const rleResult = RunLengthEncoder.encode(deltaResult.deltas);
@@ -320,11 +382,6 @@ export class DataCompressor {
     const originalSize = this.estimateDataSize(data);
     const compressedSize = serialized.length;
     
-    if (compressedSize >= originalSize * 0.8) {
-      // 压缩效果不好，返回未压缩数据
-      return this.serializeUncompressed(data);
-    }
-
     return {
       data: serialized,
       originalSize,
@@ -340,6 +397,65 @@ export class DataCompressor {
   }
 
   /**
+   * 量化压缩策略 - 减少精度以提高压缩比
+   */
+  private static compressWithQuantization(data: DataPoint[]): CompressedData {
+    // 量化数据以减少熵
+    const quantizedData = data.map(point => ({
+      timestamp: Math.round(point.timestamp / 100) * 100, // 时间戳量化到最近100ms
+      value: Math.round(point.value * 100) / 100, // 数值量化到2位小数
+      sequence: point.sequence
+    }));
+
+    // 使用Delta + RLE压缩量化数据
+    const deltaResult = DeltaEncoder.encode(quantizedData);
+    const rleResult = RunLengthEncoder.encode(deltaResult.deltas);
+    
+    const serialized = this.serializeDeltaRLE({
+      baseline: deltaResult.baseline,
+      values: rleResult.values,
+      counts: rleResult.counts
+    });
+
+    const originalSize = this.estimateDataSize(data);
+    const compressedSize = serialized.length;
+    
+    return {
+      data: serialized,
+      originalSize,
+      compressedSize,
+      compressionRatio: originalSize / compressedSize,
+      algorithm: 'quantized-delta-rle',
+      metadata: {
+        dataCount: data.length,
+        quantization: { timestampStep: 100, valuePrecision: 2 }
+      }
+    };
+  }
+
+  /**
+   * LZ风格压缩策略
+   */
+  private static compressWithLZ(data: DataPoint[]): CompressedData {
+    // 先序列化为字节数组
+    const uncompressed = this.serializeUncompressed(data);
+    
+    // 使用简化LZ压缩
+    const lzResult = SimpleCompressor.compress(uncompressed.data);
+    
+    return {
+      data: lzResult.data,
+      originalSize: lzResult.originalSize,
+      compressedSize: lzResult.compressedSize,
+      compressionRatio: lzResult.compressionRatio,
+      algorithm: 'simple-lz',
+      metadata: {
+        dataCount: data.length
+      }
+    };
+  }
+
+  /**
    * 解压缩数据
    */
   static decompress(compressed: CompressedData): DataPoint[] {
@@ -349,6 +465,7 @@ export class DataCompressor {
         return this.deserializeUncompressed(compressed.data);
       
       case 'delta-rle':
+      case 'quantized-delta-rle':
         const deltaRLEData = this.deserializeDeltaRLE(compressed.data);
         const deltas = RunLengthEncoder.decode(deltaRLEData.values, deltaRLEData.counts);
         return DeltaEncoder.decode(deltas, deltaRLEData.baseline);

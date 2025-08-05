@@ -173,6 +173,12 @@ export class BluetoothLEDriver extends HALDriver {
       powerMode: 'balanced',
       ...config
     } as BluetoothLEConfig;
+
+    // Validate configuration
+    const validation = this.validateConfiguration(this.config);
+    if (!validation.valid) {
+      throw new Error(`Invalid BLE configuration: ${validation.errors.join(', ')}`);
+    }
   }
 
   get busType(): BusType {
@@ -422,6 +428,7 @@ export class BluetoothLEDriver extends HALDriver {
       this.currentPeripheral = this.createMockPeripheral(device);
       
       const timeout = setTimeout(() => {
+        this.isConnecting = false;
         reject(new Error(`Connection timeout after ${config.connectionTimeout}ms`));
       }, config.connectionTimeout);
 
@@ -441,6 +448,7 @@ export class BluetoothLEDriver extends HALDriver {
 
       this.currentPeripheral.on('error', (error: Error) => {
         clearTimeout(timeout);
+        this.isConnecting = false;
         this.handleError(error);
         reject(error);
       });
@@ -805,13 +813,21 @@ export class BluetoothLEDriver extends HALDriver {
     peripheral.state = 'disconnected';
 
     peripheral.connect = (callback?: (error?: Error) => void): void => {
+      // 根据配置的连接超时时间决定连接延迟
+      const config = this.config as BluetoothLEConfig;
+      const connectDelay = Math.min(config.connectionTimeout || 10000, 1000);
+      // 如果超时时间很短，让连接延迟超过超时时间以测试超时逻辑
+      const actualDelay = config.connectionTimeout && config.connectionTimeout < 1000 
+        ? config.connectionTimeout + 100 
+        : connectDelay;
+      
       setTimeout(() => {
         peripheral.state = 'connected';
         peripheral.emit('connect');
         if (callback) {
           callback();
         }
-      }, 1000);
+      }, actualDelay);
     };
 
     peripheral.disconnect = (callback?: (error?: Error) => void): void => {

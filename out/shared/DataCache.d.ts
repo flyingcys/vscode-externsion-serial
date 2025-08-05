@@ -77,13 +77,11 @@ export declare enum EvictionPolicy {
     /** 随机淘汰 */
     RANDOM = "random"
 }
-/**
- * 高性能数据缓存类
- * 提供多种缓存策略和优化功能
- */
 export declare class DataCache<T = any> {
     private cache;
-    private accessOrder;
+    private lruNodes;
+    private lruHead?;
+    private lruTail?;
     private cleanupTimer;
     private stats;
     private readonly options;
@@ -198,11 +196,23 @@ export declare class DataCache<T = any> {
      */
     private evictOne;
     /**
-     * 更新LRU访问顺序
+     * 更新LRU访问顺序 - O(1)实现
      *
      * @param key 缓存键
      */
     private updateAccessOrder;
+    /**
+     * 将节点添加到LRU链表头部
+     */
+    private addToLRUHead;
+    /**
+     * 从LRU链表中移除节点
+     */
+    private removeFromLRUList;
+    /**
+     * 获取最久未使用的键
+     */
+    private getLRUKey;
     /**
      * 估算数据大小
      *

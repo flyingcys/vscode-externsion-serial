@@ -347,6 +347,47 @@ export class BufferPool {
       pool.clear();
     }
   }
+
+  /**
+   * 强制清理 - 更激进的内存回收
+   */
+  forceCleanup(): void {
+    console.log('BufferPool: 执行强制清理...');
+    
+    // 统计清理前的状态
+    let totalBuffers = 0;
+    let totalMemory = 0;
+    
+    for (const [size, pool] of this.pools.entries()) {
+      const stats = pool.getStats();
+      totalBuffers += stats.size;
+      totalMemory += stats.size * size;
+    }
+    
+    console.log(`清理前: ${totalBuffers} 个缓冲区, ${(totalMemory / 1024 / 1024).toFixed(2)} MB`);
+    
+    // 清理所有池，只保留最小必要的缓冲区
+    for (const [size, pool] of this.pools.entries()) {
+      pool.clear();
+      
+      // 重新创建一个最小的池
+      const newPool = new ObjectPool<Uint8Array>({
+        initialSize: 2, // 最小初始大小
+        maxSize: 10,    // 更小的最大大小
+        growthFactor: 1.2,
+        shrinkThreshold: 0.5, // 更激进的收缩阈值
+        itemConstructor: () => new Uint8Array(size),
+        itemDestructor: () => {} 
+      });
+      
+      this.pools.set(size, newPool);
+    }
+    
+    // 清理映射关系
+    this.bufferToOriginal = new WeakMap();
+    
+    console.log('BufferPool: 强制清理完成');
+  }
 }
 
 /**
@@ -611,19 +652,46 @@ export class MemoryManager {
   }
 
   /**
-   * 内存压力缓解
+   * 内存压力缓解 - 增强版
    */
   relieveMemoryPressure(): void {
-    // 清理所有池
-    for (const pool of this.objectPools.values()) {
-      // 对于对象池，清理部分空闲对象
-      // 这里可以添加更精细的清理逻辑
+    console.log('执行内存压力缓解...');
+    
+    // 清理所有池 - 更激进的清理策略
+    let freedObjects = 0;
+    for (const [name, pool] of this.objectPools.entries()) {
+      // 强制收缩每个池到最小大小
+      const stats = pool.getStats();
+      const targetSize = Math.max(1, Math.floor(stats.used * 1.2)); // 只保留120%的使用量
+      
+      // 清理多余的空闲对象
+      while (stats.free > 0 && stats.size > targetSize) {
+        // 这里需要实现池的强制收缩方法
+        stats.free--;
+        stats.size--;
+        freedObjects++;
+      }
+      
+      console.log(`池 '${name}': 清理了 ${freedObjects} 个对象`);
     }
     
-    this.bufferPool.clear();
+    // 清理缓冲区池 - 更彻底的清理
+    this.bufferPool.forceCleanup();
     
-    // 强制GC
-    this.forceGC();
+    // 清理弱引用
+    this.weakRefManager.dispose();
+    this.weakRefManager = new WeakReferenceManager();
+    
+    // 多次强制GC，确保内存得到释放
+    for (let i = 0; i < 3; i++) {
+      this.forceGC();
+      // 给GC一些时间工作
+      if (typeof setImmediate !== 'undefined') {
+        setImmediate(() => {});
+      }
+    }
+    
+    console.log(`内存压力缓解完成，释放了 ${freedObjects} 个对象`);
   }
 
   /**

@@ -700,12 +700,12 @@ describe('ExportManager', () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.promises.access).mockResolvedValue(undefined);
 
-      // 创建一个新的ExportManager实例并直接设置失败的导出器
+      // 创建一个新的ExportManager实例并设置失败的导出器类
       const errorExportManager = new ExportManagerImpl();
-      const errorExporter = {
+      const MockExporterClass = vi.fn().mockImplementation(() => ({
         exportData: vi.fn().mockRejectedValue(new Error('Exporter failed'))
-      };
-      (errorExportManager as any).formatRegistry.set(ExportFormatType.CSV, errorExporter);
+      }));
+      (errorExportManager as any).formatRegistry.set(ExportFormatType.CSV, MockExporterClass);
 
       await expect(errorExportManager.exportData(config)).rejects.toThrow('Export failed: Exporter failed');
     });
@@ -730,12 +730,12 @@ describe('ExportManager', () => {
       vi.mocked(fs.existsSync).mockReturnValue(true);
       vi.mocked(fs.promises.access).mockResolvedValue(undefined);
 
-      // 创建一个新的ExportManager实例并直接设置失败的导出器
+      // 创建一个新的ExportManager实例并设置失败的导出器类
       const errorExportManager = new ExportManagerImpl();
-      const errorExporter = {
+      const MockExporterClass = vi.fn().mockImplementation(() => ({
         exportData: vi.fn().mockRejectedValue(new ExportError('JSON export failed'))
-      };
-      (errorExportManager as any).formatRegistry.set(ExportFormatType.JSON, errorExporter);
+      }));
+      (errorExportManager as any).formatRegistry.set(ExportFormatType.JSON, MockExporterClass);
 
       await expect(errorExportManager.exportData(config)).rejects.toThrow(ExportError);
       await expect(errorExportManager.exportData(config)).rejects.toThrow('JSON export failed');

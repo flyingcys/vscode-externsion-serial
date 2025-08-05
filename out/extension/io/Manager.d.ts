@@ -271,7 +271,12 @@ export declare class IOManager extends EventEmitter {
     /**
      * Get statistics (alias for communicationStats getter)
      */
-    getStatistics(): CommunicationStats;
+    getStatistics(): CommunicationStats & {
+        errorCount?: number;
+        connectionUptime?: number;
+        lastActivity?: number;
+        protocol?: string;
+    };
     /**
      * Get current bus type
      */
@@ -306,6 +311,33 @@ export declare class IOManager extends EventEmitter {
      * Write data (alias for writeData)
      */
     write(data: Buffer): Promise<number>;
+    /**
+     * Reset statistics to initial values
+     */
+    resetStatistics(): void;
+    /**
+     * Attempt to reconnect to the device
+     */
+    reconnect(): Promise<void>;
+    /**
+     * Migrate legacy configuration to current format
+     */
+    migrateConfiguration(legacyConfig: any): ConnectionConfig | null;
+    /**
+     * Export statistics in different formats
+     */
+    exportStatistics(format: string): string | null;
+    /**
+     * Get network-specific information (for network connections)
+     */
+    getNetworkInfo(): {
+        localAddress?: string;
+        remoteAddress?: string;
+    } | null;
+    /**
+     * Get circuit breaker state (for resilience patterns)
+     */
+    getCircuitBreakerState(): string | null;
     /**
      * Clean up resources
      */

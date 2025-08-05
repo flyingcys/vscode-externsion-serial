@@ -183,15 +183,31 @@ describe('PluginManager', () => {
   let mockFs: any;
 
   beforeEach(async () => {
-    // 重置单例
+    // 清除所有 mock 调用记录 - 在操作之前清除
+    vi.clearAllMocks();
+    
+    // 重置单例和清理内部状态
     (PluginManager as any).instance = undefined;
     
+    // 同时重置 ContributionRegistry 单例
+    const { ContributionRegistry } = await import('@extension/plugins/ContributionRegistry');
+    (ContributionRegistry as any).instance = undefined;
+    
     pluginManager = PluginManager.getInstance();
+    
+    // Clear internal state to ensure test isolation
+    (pluginManager as any).loadedPlugins.clear();
+    (pluginManager as any).activatedPlugins.clear();
+    (pluginManager as any).pluginPaths.clear();
+    (pluginManager as any).initializationComplete = false;
+    (pluginManager as any).extensionContext = null;
+    
+    // 清理 ContributionRegistry 状态
+    const contributionRegistry = pluginManager.getContributionRegistry();
+    contributionRegistry.clear();
+    
     mockExtensionContext = PluginMockFactory.createMockExtensionContext();
     mockFs = vi.mocked(fs);
-
-    // 清除所有 mock 调用记录
-    vi.clearAllMocks();
   });
 
   afterEach(() => {
@@ -233,14 +249,23 @@ describe('PluginManager', () => {
     });
 
     it('应该发现并加载内置插件', async () => {
+      // Clear any existing state
+      (pluginManager as any).loadedPlugins.clear();
+      (pluginManager as any).activatedPlugins.clear();
+      (pluginManager as any).pluginPaths.clear();
+      (pluginManager as any).initializationComplete = false;
+      
       // Mock 内置插件目录结构
-      mockFs.readdir.mockResolvedValueOnce([
-        { name: 'test-plugin', isDirectory: () => true }
+      mockFs.readdir.mockResolvedValue([
+        { name: 'test-builtin-plugin', isDirectory: () => true }
       ] as any);
       mockFs.access.mockResolvedValue(undefined);
       
       // Mock 插件加载器 - 设置在初始化之前
-      const mockManifest = PluginMockFactory.createMockPluginManifest();
+      const mockManifest = PluginMockFactory.createMockPluginManifest({
+        id: 'test-builtin-plugin',
+        name: 'Test Builtin Plugin'
+      });
       const mockPluginLoader = {
         loadManifest: vi.fn().mockResolvedValue(mockManifest),
         validateManifest: vi.fn().mockResolvedValue(undefined),
@@ -249,16 +274,14 @@ describe('PluginManager', () => {
       
       (pluginManager as any).pluginLoader = mockPluginLoader;
 
-      // 确保 loadPlugin 方法被正确mock
-      const loadPluginSpy = vi.spyOn(pluginManager, 'loadPlugin').mockResolvedValue(true);
-
       await pluginManager.initialize(mockExtensionContext);
 
-      // 验证loadPlugin被调用，路径应该是正确的
-      expect(loadPluginSpy).toHaveBeenCalledWith('/mock/extension/path/plugins/test-plugin/plugin.json');
-      expect(pluginManager.getLoadedPlugins()).toHaveLength(1);
+      // 验证 loadManifest 被调用了正确的路径
+      expect(mockPluginLoader.loadManifest).toHaveBeenCalledWith('/mock/extension/path/plugins/test-builtin-plugin/plugin.json');
       
-      loadPluginSpy.mockRestore();
+      // 验证插件已加载
+      expect(pluginManager.isPluginLoaded('test-builtin-plugin')).toBe(true);
+      expect(pluginManager.getLoadedPlugins()).toHaveLength(1);
     });
 
     it('应该处理没有插件目录的情况', async () => {
@@ -270,7 +293,8 @@ describe('PluginManager', () => {
     it('应该防止重复初始化', async () => {
       mockFs.readdir.mockResolvedValue([]);
       
-      // Mock VSCode window.showInformationMessage
+      // Import vscode within the test to ensure we're mocking the same module
+      const vscode = await import('vscode');
       const showInfoSpy = vi.spyOn(vscode.window, 'showInformationMessage');
       
       await pluginManager.initialize(mockExtensionContext);
@@ -571,14 +595,47 @@ describe('PluginManager', () => {
       expect(pluginManager.isPluginLoaded('test-plugin')).toBe(true);
     });
 
-    it('应该成功重载插件', async () => {
-      // 验证插件已加载
-      expect(pluginManager.isPluginLoaded('test-plugin')).toBe(true);
+    it('应该成功重载插件', async () => {    
+      // Force clear all existing plugins first
+      (pluginManager as any).loadedPlugins.clear();
+      (pluginManager as any).activatedPlugins.clear();
+      (pluginManager as any).pluginPaths.clear();
       
-      const result = await pluginManager.reloadPlugin('test-plugin');
+      // Create a unique plugin ID to avoid conflicts with other tests
+      const uniquePluginId = 'test-reload-plugin-' + Date.now();
+      const mockManifest = PluginMockFactory.createMockPluginManifest({
+        id: uniquePluginId,
+        name: 'Test Reload Plugin'
+      });
+      const mockModule = PluginMockFactory.createMockPluginModule();
+      
+      const mockPluginLoader = {
+        loadManifest: vi.fn().mockResolvedValue(mockManifest),
+        validateManifest: vi.fn().mockResolvedValue(undefined),
+        loadPluginModule: vi.fn().mockResolvedValue(mockModule)
+      };
+      
+      (pluginManager as any).pluginLoader = mockPluginLoader;
+      
+      // Ensure clean state
+      expect(pluginManager.isPluginLoaded(uniquePluginId)).toBe(false);
+      expect((pluginManager as any).loadedPlugins.size).toBe(0);
+      
+      // Load the plugin first
+      const result1 = await pluginManager.loadPlugin('/path/to/unique/plugin.json');
+      
+      expect(result1).toBe(true);
+      expect(pluginManager.isPluginLoaded(uniquePluginId)).toBe(true);
+      
+      // Verify plugin path is stored correctly  
+      expect((pluginManager as any).pluginPaths.has(uniquePluginId)).toBe(true);
+      expect((pluginManager as any).pluginPaths.get(uniquePluginId)).toBe('/path/to/unique');
+      
+      // Now test reloading
+      const result = await pluginManager.reloadPlugin(uniquePluginId);
 
       expect(result).toBe(true);
-      expect(pluginManager.isPluginLoaded('test-plugin')).toBe(true);
+      expect(pluginManager.isPluginLoaded(uniquePluginId)).toBe(true);
     });
 
     it('应该处理重载不存在的插件', async () => {
@@ -679,7 +736,16 @@ describe('PluginManager', () => {
       for (let i = 1; i <= 3; i++) {
         mockManifests.set(`/path/to/plugin-${i}/plugin.json`, PluginMockFactory.createMockPluginManifest({
           id: `test-plugin-${i}`,
-          name: `Test Plugin ${i}`
+          name: `Test Plugin ${i}`,
+          contributes: {
+            widgets: [{
+              id: `test-widget-${i}`, // Make each widget contribution unique
+              name: `Test Widget ${i}`,
+              type: 'dataset',
+              component: {},
+              configSchema: { type: 'object' }
+            }]
+          }
         }));
       }
 

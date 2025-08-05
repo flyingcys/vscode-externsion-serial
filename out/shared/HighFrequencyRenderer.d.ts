@@ -328,6 +328,10 @@ export declare class HighFrequencyRenderer extends EventEmitter {
         [widgetId: string]: any;
     };
     /**
+     * 添加渲染上下文（用于测试环境）
+     */
+    addRenderContext(widgetId: string): OffscreenRenderContext;
+    /**
      * 创建模拟渲染上下文（用于测试环境）
      */
     private createMockRenderContext;

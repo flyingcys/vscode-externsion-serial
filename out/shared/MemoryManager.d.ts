@@ -120,6 +120,10 @@ export declare class BufferPool {
      * 清理所有池
      */
     clear(): void;
+    /**
+     * 强制清理 - 更激进的内存回收
+     */
+    forceCleanup(): void;
 }
 /**
  * 弱引用管理器
@@ -210,7 +214,7 @@ export declare class MemoryManager {
      */
     forceGC(): void;
     /**
-     * 内存压力缓解
+     * 内存压力缓解 - 增强版
      */
     relieveMemoryPressure(): void;
     /**

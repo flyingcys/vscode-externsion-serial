@@ -114,7 +114,19 @@ function parse(frame) {
             this.parseFunction = (frame) => {
                 try {
                     const startTime = Date.now();
-                    const result = this.vm.run(`parse(${JSON.stringify(frame)})`);
+                    // 安全地传递参数到VM中，确保frame是字符串
+                    const frameStr = typeof frame === 'string' ? frame : String(frame);
+                    // 直接调用parse函数并传递参数
+                    // 使用正确的字符串转义避免JSON解析错误
+                    let safeFrameStr;
+                    try {
+                        safeFrameStr = JSON.stringify(frameStr);
+                    }
+                    catch (error) {
+                        // 如果JSON.stringify失败，使用简单的字符串转义
+                        safeFrameStr = '"' + frameStr.replace(/"/g, '\\"').replace(/\n/g, '\\n').replace(/\r/g, '\\r') + '"';
+                    }
+                    const result = this.vm.run(`parse(${safeFrameStr})`);
                     const executionTime = Date.now() - startTime;
                     // 验证返回值是否为数组
                     if (!Array.isArray(result)) {

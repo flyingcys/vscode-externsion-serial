@@ -20,13 +20,11 @@ var EvictionPolicy;
     /** 随机淘汰 */
     EvictionPolicy["RANDOM"] = "random";
 })(EvictionPolicy = exports.EvictionPolicy || (exports.EvictionPolicy = {}));
-/**
- * 高性能数据缓存类
- * 提供多种缓存策略和优化功能
- */
 class DataCache {
     cache = new Map();
-    accessOrder = []; // LRU 访问顺序
+    lruNodes = new Map(); // 快速节点查找
+    lruHead; // LRU链表头
+    lruTail; // LRU链表尾
     cleanupTimer = null;
     stats = {
         hits: 0,
@@ -168,11 +166,12 @@ class DataCache {
         this.cache.delete(key);
         this.stats.size--;
         this.stats.memoryUsage -= entry.size;
-        // 从LRU顺序中移除
+        // 从LRU链表中移除
         if (this.options.enableLRU) {
-            const index = this.accessOrder.indexOf(key);
-            if (index !== -1) {
-                this.accessOrder.splice(index, 1);
+            const node = this.lruNodes.get(key);
+            if (node) {
+                this.removeFromLRUList(node);
+                this.lruNodes.delete(key);
             }
         }
         this.updateStats();
@@ -204,7 +203,9 @@ class DataCache {
      */
     clear() {
         this.cache.clear();
-        this.accessOrder = [];
+        this.lruNodes.clear();
+        this.lruHead = undefined;
+        this.lruTail = undefined;
         this.stats.size = 0;
         this.stats.memoryUsage = 0;
         this.updateStats();
@@ -356,10 +357,10 @@ class DataCache {
      * 淘汰一个条目
      */
     evictOne() {
-        let keyToEvict = null;
-        if (this.options.enableLRU && this.accessOrder.length > 0) {
+        let keyToEvict;
+        if (this.options.enableLRU) {
             // LRU策略：淘汰最久未访问的
-            keyToEvict = this.accessOrder[0];
+            keyToEvict = this.getLRUKey();
         }
         else {
             // 简单策略：淘汰第一个条目
@@ -371,16 +372,60 @@ class DataCache {
         }
     }
     /**
-     * 更新LRU访问顺序
+     * 更新LRU访问顺序 - O(1)实现
      *
      * @param key 缓存键
      */
     updateAccessOrder(key) {
-        const index = this.accessOrder.indexOf(key);
-        if (index !== -1) {
-            this.accessOrder.splice(index, 1);
+        let node = this.lruNodes.get(key);
+        if (!node) {
+            // 创建新节点
+            node = { key };
+            this.lruNodes.set(key, node);
         }
-        this.accessOrder.push(key);
+        else {
+            // 从当前位置移除节点
+            this.removeFromLRUList(node);
+        }
+        // 将节点移到链表头部（最近使用）
+        this.addToLRUHead(node);
+    }
+    /**
+     * 将节点添加到LRU链表头部
+     */
+    addToLRUHead(node) {
+        node.next = this.lruHead;
+        node.prev = undefined;
+        if (this.lruHead) {
+            this.lruHead.prev = node;
+        }
+        this.lruHead = node;
+        if (!this.lruTail) {
+            this.lruTail = node;
+        }
+    }
+    /**
+     * 从LRU链表中移除节点
+     */
+    removeFromLRUList(node) {
+        if (node.prev) {
+            node.prev.next = node.next;
+        }
+        else {
+            this.lruHead = node.next;
+        }
+        if (node.next) {
+            node.next.prev = node.prev;
+        }
+        else {
+            this.lruTail = node.prev;
+        }
+    }
+    /**
+     * 获取最久未使用的键
+     */
+    getLRUKey() {
+        return this.lruTail?.key;
     }
     /**
      * 估算数据大小

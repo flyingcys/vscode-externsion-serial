@@ -387,8 +387,9 @@ describe('Plugin System Integration Tests', () => {
         console.log('Plugin deactivated: ${manifest.name}');
       };
       
-      exports.drivers = manifest.contributes && manifest.contributes.drivers || [];
-      exports.widgets = manifest.contributes && manifest.contributes.widgets || [];
+      const pluginManifest = ${JSON.stringify(manifest)};
+      exports.drivers = pluginManifest.contributes && pluginManifest.contributes.drivers || [];
+      exports.widgets = pluginManifest.contributes && pluginManifest.contributes.widgets || [];
     `;
     
     await fs.writeFile(path.join(pluginDir, 'index.js'), mainCode);

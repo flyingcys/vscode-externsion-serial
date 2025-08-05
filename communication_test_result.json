@@ -1,0 +1,162 @@
+{"numTotalTestSuites":14,"numPassedTestSuites":14,"numFailedTestSuites":0,"numPendingTestSuites":0,"numTotalTests":34,"numPassedTests":34,"numFailedTests":0,"numPendingTests":0,"numTodoTests":0,"startTime":1754354084779,"success":true,"testResults":[{"assertionResults":[{"ancestorTitles":["","HALDriver Abstract Base Class","Constructor and Basic Properties"],"fullName":" HALDriver Abstract Base Class Constructor and Basic Properties should initialize with correct configuration","status":"passed","title":"should initialize with correct configuration","duration":2,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Constructor and Basic Properties"],"fullName":" HALDriver Abstract Base Class Constructor and Basic Properties should initialize statistics correctly","status":"passed","title":"should initialize statistics correctly","duration":3,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Constructor and Basic Properties"],"fullName":" HALDriver Abstract Base Class Constructor and Basic Properties should initialize with default buffer size","status":"passed","title":"should initialize with default buffer size","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Configuration Management"],"fullName":" HALDriver Abstract Base Class Configuration Management should get configuration correctly","status":"passed","title":"should get configuration correctly","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Configuration Management"],"fullName":" HALDriver Abstract Base Class Configuration Management should update configuration","status":"passed","title":"should update configuration","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Configuration Management"],"fullName":" HALDriver Abstract Base Class Configuration Management should validate configuration","status":"passed","title":"should validate configuration","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Connection Lifecycle"],"fullName":" HALDriver Abstract Base Class Connection Lifecycle should open connection successfully","status":"passed","title":"should open connection successfully","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Connection Lifecycle"],"fullName":" HALDriver Abstract Base Class Connection Lifecycle should close connection successfully","status":"passed","title":"should close connection successfully","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Connection Lifecycle"],"fullName":" HALDriver Abstract Base Class Connection Lifecycle should handle open when already open","status":"passed","title":"should handle open when already open","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Connection Lifecycle"],"fullName":" HALDriver Abstract Base Class Connection Lifecycle should handle close when not open","status":"passed","title":"should handle close when not open","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Writing"],"fullName":" HALDriver Abstract Base Class Data Writing should write data successfully","status":"passed","title":"should write data successfully","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Writing"],"fullName":" HALDriver Abstract Base Class Data Writing should fail to write when not writable","status":"passed","title":"should fail to write when not writable","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Writing"],"fullName":" HALDriver Abstract Base Class Data Writing should fail to write when closed","status":"passed","title":"should fail to write when closed","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Processing and Buffering"],"fullName":" HALDriver Abstract Base Class Data Processing and Buffering should process small data chunks correctly","status":"passed","title":"should process small data chunks correctly","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Processing and Buffering"],"fullName":" HALDriver Abstract Base Class Data Processing and Buffering should auto-flush buffer when threshold reached","status":"passed","title":"should auto-flush buffer when threshold reached","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Processing and Buffering"],"fullName":" HALDriver Abstract Base Class Data Processing and Buffering should handle buffer overflow correctly","status":"passed","title":"should handle buffer overflow correctly","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Processing and Buffering"],"fullName":" HALDriver Abstract Base Class Data Processing and Buffering should handle data larger than buffer size","status":"passed","title":"should handle data larger than buffer size","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Data Processing and Buffering"],"fullName":" HALDriver Abstract Base Class Data Processing and Buffering should update statistics on data reception","status":"passed","title":"should update statistics on data reception","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Buffer Management"],"fullName":" HALDriver Abstract Base Class Buffer Management should set buffer size correctly","status":"passed","title":"should set buffer size correctly","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Buffer Management"],"fullName":" HALDriver Abstract Base Class Buffer Management should ignore invalid buffer sizes","status":"passed","title":"should ignore invalid buffer sizes","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Buffer Management"],"fullName":" HALDriver Abstract Base Class Buffer Management should reset buffer position when size changes","status":"passed","title":"should reset buffer position when size changes","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Buffer Management"],"fullName":" HALDriver Abstract Base Class Buffer Management should flush buffer correctly","status":"passed","title":"should flush buffer correctly","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Error Handling"],"fullName":" HALDriver Abstract Base Class Error Handling should handle errors correctly","status":"passed","title":"should handle errors correctly","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Error Handling"],"fullName":" HALDriver Abstract Base Class Error Handling should track multiple errors","status":"passed","title":"should track multiple errors","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Statistics Management"],"fullName":" HALDriver Abstract Base Class Statistics Management should calculate uptime correctly","status":"passed","title":"should calculate uptime correctly","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Statistics Management"],"fullName":" HALDriver Abstract Base Class Statistics Management should reset statistics correctly","status":"passed","title":"should reset statistics correctly","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Lifecycle and Cleanup"],"fullName":" HALDriver Abstract Base Class Lifecycle and Cleanup should destroy driver correctly","status":"passed","title":"should destroy driver correctly","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Lifecycle and Cleanup"],"fullName":" HALDriver Abstract Base Class Lifecycle and Cleanup should handle destroy when buffer is empty","status":"passed","title":"should handle destroy when buffer is empty","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Event System"],"fullName":" HALDriver Abstract Base Class Event System should emit correct events for connection state changes","status":"passed","title":"should emit correct events for connection state changes","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Event System"],"fullName":" HALDriver Abstract Base Class Event System should emit dataSent events correctly","status":"passed","title":"should emit dataSent events correctly","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Event System"],"fullName":" HALDriver Abstract Base Class Event System should support event listener management","status":"passed","title":"should support event listener management","duration":0,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Thread Safety and Concurrency"],"fullName":" HALDriver Abstract Base Class Thread Safety and Concurrency should handle concurrent data processing safely","status":"passed","title":"should handle concurrent data processing safely","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Performance Characteristics"],"fullName":" HALDriver Abstract Base Class Performance Characteristics should handle high-frequency data efficiently","status":"passed","title":"should handle high-frequency data efficiently","duration":1,"failureMessages":[]},{"ancestorTitles":["","HALDriver Abstract Base Class","Performance Characteristics"],"fullName":" HALDriver Abstract Base Class Performance Characteristics should maintain reasonable memory usage","status":"passed","title":"should maintain reasonable memory usage","duration":1,"failureMessages":[]}],"startTime":1754354092845,"endTime":1754354092866,"status":"passed","message":"","name":"/home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/utest/communication/HALDriver.test.ts"}]}
+ % Coverage report from v8
+-------------------|---------|----------|---------|---------|-------------------
+File               | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------|---------|----------|---------|---------|-------------------
+All files          |    1.04 |    20.64 |   10.21 |    1.04 |                   
+ extension         |       0 |        0 |       0 |       0 |                   
+  main.ts          |       0 |        0 |       0 |       0 | 1-588             
+ extension/export  |       0 |        0 |       0 |       0 |                   
+  ...ortManager.ts |       0 |        0 |       0 |       0 | 1-914             
+  DataFilter.ts    |       0 |        0 |       0 |       0 | 1-349             
+  ...ransformer.ts |       0 |        0 |       0 |       0 | 1-508             
+  ExportManager.ts |       0 |        0 |       0 |       0 | 1-637             
+  ...SVExporter.ts |       0 |        0 |       0 |       0 | 1-595             
+  index.ts         |       0 |        0 |       0 |       0 | 1-245             
+  types.ts         |       0 |        0 |       0 |       0 | 1-432             
+  utils.ts         |       0 |        0 |       0 |       0 | 1-393             
+ ...port/exporters |       0 |        0 |       0 |       0 |                   
+  CSVExporter.ts   |       0 |        0 |       0 |       0 | 1-416             
+  ExcelExporter.ts |       0 |        0 |       0 |       0 | 1-570             
+  JSONExporter.ts  |       0 |        0 |       0 |       0 | 1-546             
+  XMLExporter.ts   |       0 |        0 |       0 |       0 | 1-512             
+ extension/io      |   15.28 |       92 |    87.5 |   15.28 |                   
+  DriverFactory.ts |       0 |        0 |       0 |       0 | 1-470             
+  HALDriver.ts     |     100 |      100 |     100 |     100 |                   
+  Manager.ts       |       0 |        0 |       0 |       0 | 1-1087            
+ ...ion/io/drivers |       0 |        0 |       0 |       0 |                   
+  ...thLEDriver.ts |       0 |        0 |       0 |       0 | 1-944             
+  NetworkDriver.ts |       0 |        0 |       0 |       0 | 1-533             
+  UARTDriver.ts    |       0 |        0 |       0 |       0 | 1-460             
+ ...sion/licensing |       0 |        0 |       0 |       0 |                   
+  ...ionManager.ts |       0 |        0 |       0 |       0 | 1-727             
+  FeatureGate.ts   |       0 |        0 |       0 |       0 | 1-564             
+  ...nseManager.ts |       0 |        0 |       0 |       0 | 1-690             
+  ...rationTest.ts |       0 |        0 |       0 |       0 | 1-659             
+  MachineID.ts     |       0 |        0 |       0 |       0 | 1-338             
+  SimpleCrypt.ts   |       0 |        0 |       0 |       0 | 1-318             
+  index.ts         |       0 |        0 |       0 |       0 | 1-272             
+ extension/mqtt    |       0 |        0 |       0 |       0 |                   
+  MQTTClient.ts    |       0 |        0 |       0 |       0 | 1-998             
+  index.ts         |       0 |        0 |       0 |       0 | 1-207             
+  types.ts         |       0 |        0 |       0 |       0 | 1-196             
+ extension/parsing |       0 |        0 |       0 |       0 |                   
+  Checksum.ts      |       0 |        0 |       0 |       0 | 1-367             
+  ...ularBuffer.ts |       0 |        0 |       0 |       0 | 1-212             
+  DataDecoder.ts   |       0 |        0 |       0 |       0 | 1-280             
+  FrameParser.ts   |       0 |        0 |       0 |       0 | 1-543             
+  FrameReader.ts   |       0 |        0 |       0 |       0 | 1-557             
+ extension/plugins |       0 |        0 |       0 |       0 |                   
+  ...onRegistry.ts |       0 |        0 |       0 |       0 | 1-413             
+  PluginContext.ts |       0 |        0 |       0 |       0 | 1-504             
+  PluginLoader.ts  |       0 |        0 |       0 |       0 | 1-460             
+  PluginManager.ts |       0 |        0 |       0 |       0 | 1-654             
+  index.ts         |       0 |        0 |       0 |       0 | 1-136             
+  types.ts         |       0 |        0 |       0 |       0 | 1-637             
+ extension/project |       0 |        0 |       0 |       0 |                   
+  ...ectManager.ts |       0 |        0 |       0 |       0 | 1-555             
+  ...Serializer.ts |       0 |        0 |       0 |       0 | 1-623             
+  ...tValidator.ts |       0 |        0 |       0 |       0 | 1-362             
+ extension/webview |       0 |        0 |       0 |       0 |                   
+  ...orProvider.ts |       0 |        0 |       0 |       0 | 1-1122            
+ extension/workers |       0 |        0 |       0 |       0 |                   
+  WorkerManager.ts |       0 |        0 |       0 |       0 | 1-510             
+ shared            |    4.24 |    34.61 |       0 |    4.24 |                   
+  Checksum.ts      |       0 |        0 |       0 |       0 | 1-308             
+  ...ularBuffer.ts |       0 |        0 |       0 |       0 | 1-472             
+  DataCache.ts     |       0 |        0 |       0 |       0 | 1-731             
+  ...ompression.ts |       0 |        0 |       0 |       0 | 1-627             
+  ErrorHandling.ts |       0 |        0 |       0 |       0 | 1-655             
+  FrameParser.ts   |       0 |        0 |       0 |       0 | 1-517             
+  FrameReader.ts   |       0 |        0 |       0 |       0 | 1-439             
+  ...cyRenderer.ts |       0 |        0 |       0 |       0 | 1-1156            
+  ...cutManager.ts |       0 |        0 |       0 |       0 | 1-746             
+  ...ateManager.ts |       0 |        0 |       0 |       0 | 1-621             
+  MemoryManager.ts |       0 |        0 |       0 |       0 | 1-785             
+  MemoryMonitor.ts |       0 |        0 |       0 |       0 | 1-603             
+  ...oolManager.ts |       0 |        0 |       0 |       0 | 1-584             
+  ...Benchmarks.ts |       0 |        0 |       0 |       0 | 1-801             
+  ...eCollector.ts |       0 |        0 |       0 |       0 | 1-692             
+  ...nceMonitor.ts |       0 |        0 |       0 |       0 | 1-911             
+  ...ionManager.ts |       0 |        0 |       0 |       0 | 1-686             
+  types.ts         |     100 |      100 |     100 |     100 |                   
+ webview           |       0 |        0 |       0 |       0 |                   
+  App.vue          |       0 |        0 |       0 |       0 | 1-399             
+  main.ts          |       0 |        0 |       0 |       0 | 1-66              
+ ...iew/components |       0 |        0 |       0 |       0 |                   
+  ...ectEditor.vue |       0 |        0 |       0 |       0 | 1-597             
+ ...omponents/base |       0 |        0 |       0 |       0 |                   
+  BaseWidget.vue   |       0 |        0 |       0 |       0 | 1-750             
+ ...ponents/common |       0 |        0 |       0 |       0 |                   
+  ...Indicator.vue |       0 |        0 |       0 |       0 | 1-682             
+ ...onents/dialogs |       0 |        0 |       0 |       0 |                   
+  ...emeEditor.vue |       0 |        0 |       0 |       0 | 1-717             
+  ...ortDialog.vue |       0 |        0 |       0 |       0 | 1-854             
+  ...ionDialog.vue |       0 |        0 |       0 |       0 | 1-969             
+  ...essDialog.vue |       0 |        0 |       0 |       0 | 1-695             
+  ...torDialog.vue |       0 |        0 |       0 |       0 | 1-486             
+  ...figDialog.vue |       0 |        0 |       0 |       0 | 1-620             
+  ...usMonitor.vue |       0 |        0 |       0 |       0 | 1-592             
+  ...icManager.vue |       0 |        0 |       0 |       0 | 1-713             
+  ...figDialog.vue |       0 |        0 |       0 |       0 | 1-604             
+  ...essDialog.vue |       0 |        0 |       0 |       0 | 1-582             
+  ...figDialog.vue |       0 |        0 |       0 |       0 | 1-755             
+  ...ortDialog.vue |       0 |        0 |       0 |       0 | 1-617             
+  ...ngsDialog.vue |       0 |        0 |       0 |       0 | 1-595             
+ ...format-options |       0 |        0 |       0 |       0 |                   
+  ...atOptions.vue |       0 |        0 |       0 |       0 | 1-287             
+  ...atOptions.vue |       0 |        0 |       0 |       0 | 1-497             
+  ...atOptions.vue |       0 |        0 |       0 |       0 | 1-391             
+  ...atOptions.vue |       0 |        0 |       0 |       0 | 1-449             
+ ...ts/performance |       0 |        0 |       0 |       0 |                   
+  ...Dashboard.vue |       0 |        0 |       0 |       0 | 1-1001            
+  ...timeChart.vue |       0 |        0 |       0 |       0 | 1-836             
+ ...omponents/test |       0 |        0 |       0 |       0 |                   
+  ...idgetTest.vue |       0 |        0 |       0 |       0 | 1-424             
+  ...idgetTest.vue |       0 |        0 |       0 |       0 | 1-649             
+ ...onents/virtual |       0 |        0 |       0 |       0 |                   
+  ...DataTable.vue |       0 |        0 |       0 |       0 | 1-540             
+  VirtualList.vue  |       0 |        0 |       0 |       0 | 1-536             
+ ...onents/widgets |       0 |        0 |       0 |       0 |                   
+  ...terWidget.vue |       0 |        0 |       0 |       0 | 1-815             
+  BarWidget.vue    |       0 |        0 |       0 |       0 | 1-654             
+  ...assWidget.vue |       0 |        0 |       0 |       0 | 1-734             
+  ...ridWidget.vue |       0 |        0 |       0 |       0 | 1-887             
+  ...lotWidget.vue |       0 |        0 |       0 |       0 | 1-850             
+  GPSWidget.vue    |       0 |        0 |       0 |       0 | 1-882             
+  GaugeWidget.vue  |       0 |        0 |       0 |       0 | 1-825             
+  ...opeWidget.vue |       0 |        0 |       0 |       0 | 1-994             
+  LEDWidget.vue    |       0 |        0 |       0 |       0 | 1-890             
+  ...lotWidget.vue |       0 |        0 |       0 |       0 | 1-779             
+  Plot3DWidget.vue |       0 |        0 |       0 |       0 | 1-901             
+  PlotWidget.vue   |       0 |        0 |       0 |       0 | 1-1296            
+  ...nalWidget.vue |       0 |        0 |       0 |       0 | 1-1021            
+ ...ew/composables |       0 |        0 |       0 |       0 |                   
+  useI18n.ts       |       0 |        0 |       0 |       0 | 1-366             
+  ...irtualList.ts |       0 |        0 |       0 |       0 | 1-432             
+ webview/i18n      |       0 |        0 |       0 |       0 |                   
+  I18nManager.ts   |       0 |        0 |       0 |       0 | 1-691             
+  languages.ts     |       0 |        0 |       0 |       0 | 1-312             
+ webview/renderers |       0 |        0 |       0 |       0 |                   
+  ...otRenderer.ts |       0 |        0 |       0 |       0 | 1-385             
+ webview/stores    |       0 |        0 |       0 |       0 |                   
+  connection.ts    |       0 |        0 |       0 |       0 | 1-466             
+  data.ts          |       0 |        0 |       0 |       0 | 1-597             
+  layout.ts        |       0 |        0 |       0 |       0 | 1-662             
+  performance.ts   |       0 |        0 |       0 |       0 | 1-788             
+  projectStore.ts  |       0 |        0 |       0 |       0 | 1-554             
+  theme.ts         |       0 |        0 |       0 |       0 | 1-544             
+ webview/tests     |       0 |        0 |       0 |       0 |                   
+  ...ationTest.vue |       0 |        0 |       0 |       0 | 1-883             
+  ...-benchmark.ts |       0 |        0 |       0 |       0 | 1-462             
+  ...tion-tests.ts |       0 |        0 |       0 |       0 | 1-817             
+ webview/utils     |       0 |        0 |       0 |       0 |                   
+  ...Algorithms.ts |       0 |        0 |       0 |       0 | 1-482             
+  MessageBridge.ts |       0 |        0 |       0 |       0 | 1-352             
+  ...hOptimizer.ts |       0 |        0 |       0 |       0 | 1-468             
+  ...ryRenderer.ts |       0 |        0 |       0 |       0 | 1-657             
+  ThemeManager.ts  |       0 |        0 |       0 |       0 | 1-741             
+ workers           |       0 |        0 |       0 |       0 |                   
+  DataProcessor.ts |       0 |        0 |       0 |       0 | 1-440             
+  ...dProcessor.ts |       0 |        0 |       0 |       0 | 1-363             
+-------------------|---------|----------|---------|---------|-------------------

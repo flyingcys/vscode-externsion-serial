@@ -131,17 +131,21 @@ class DataDecoder {
      */
     static detectFormat(data) {
         const text = data.toString('utf8');
-        // 检查是否为Base64
-        if (this.isValidBase64(text)) {
-            return types_1.DecoderMethod.Base64;
+        // 空数据默认为纯文本
+        if (text.length === 0) {
+            return types_1.DecoderMethod.PlainText;
         }
-        // 检查是否为十六进制
+        // 检查是否为二进制数值序列（优先级较高，因为更具体）
+        if (this.isValidBinary(text)) {
+            return types_1.DecoderMethod.Binary;
+        }
+        // 检查是否为十六进制（在Base64之前检查，因为纯十六进制更明确）
         if (this.isValidHex(text)) {
             return types_1.DecoderMethod.Hexadecimal;
         }
-        // 检查是否为二进制数值序列
-        if (this.isValidBinary(text)) {
-            return types_1.DecoderMethod.Binary;
+        // 检查是否为Base64
+        if (this.isValidBase64(text)) {
+            return types_1.DecoderMethod.Base64;
         }
         // 默认为纯文本
         return types_1.DecoderMethod.PlainText;
@@ -151,10 +155,28 @@ class DataDecoder {
      */
     static isValidBase64(str) {
         try {
+            // 如果包含逗号，通常不是Base64格式
+            if (str.includes(',')) {
+                return false;
+            }
             const cleaned = str.replace(/[^A-Za-z0-9+/=]/g, '');
-            return cleaned.length > 0 &&
-                cleaned.length % 4 === 0 &&
-                /^[A-Za-z0-9+/]+={0,2}$/.test(cleaned);
+            // 如果清理后的字符串与原字符串差异太大，说明包含太多非Base64字符
+            // 但是要允许空格和换行符，这些在Base64中是常见的
+            if (cleaned.length < str.length * 0.7) {
+                return false;
+            }
+            // Base64字符串必须是4的倍数，且至少有4个字符
+            if (cleaned.length < 4 || cleaned.length % 4 !== 0) {
+                return false;
+            }
+            // 检查是否只包含有效的Base64字符
+            if (!/^[A-Za-z0-9+/]+={0,2}$/.test(cleaned)) {
+                return false;
+            }
+            // 检查填充字符是否正确
+            const paddingMatch = cleaned.match(/=*$/);
+            const paddingLength = paddingMatch ? paddingMatch[0].length : 0;
+            return paddingLength <= 2;
         }
         catch {
             return false;
@@ -164,22 +186,41 @@ class DataDecoder {
      * 检查字符串是否为有效的十六进制
      */
     static isValidHex(str) {
+        // 如果包含逗号，通常不是十六进制格式
+        if (str.includes(',')) {
+            return false;
+        }
         const cleaned = str.replace(/[^0-9A-Fa-f]/g, '');
-        return cleaned.length > 0 &&
-            cleaned.length >= str.length * 0.8 && // 至少80%为十六进制字符
-            /^[0-9A-Fa-f]+$/.test(cleaned);
+        // 十六进制字符串应该有合理的长度，且至少80%为十六进制字符
+        if (cleaned.length === 0 || cleaned.length < str.length * 0.8) {
+            return false;
+        }
+        // 检查是否只包含十六进制字符
+        if (!/^[0-9A-Fa-f]+$/.test(cleaned)) {
+            return false;
+        }
+        // 十六进制字符串通常是偶数长度，且至少有4个字符才是有意义的十六进制
+        return cleaned.length >= 4 && cleaned.length % 2 === 0;
     }
     /**
      * 检查字符串是否为有效的二进制数值序列
      */
     static isValidBinary(str) {
+        // 必须包含逗号分隔的数值
+        if (!str.includes(',')) {
+            return false;
+        }
         const parts = str.split(',');
+        // 至少需要2个数值
         if (parts.length < 2) {
             return false;
         }
+        // 检查所有部分是否都是有效的字节值（0-255）
         return parts.every(part => {
-            const num = parseInt(part.trim(), 10);
-            return !isNaN(num) && num >= 0 && num <= 255;
+            const trimmed = part.trim();
+            const num = parseInt(trimmed, 10);
+            // 必须是有效数字，且在字节范围内，且字符串表示一致（避免如"123abc"被解析为123）
+            return !isNaN(num) && num >= 0 && num <= 255 && num.toString() === trimmed;
         });
     }
     /**

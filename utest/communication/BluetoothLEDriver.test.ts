@@ -84,29 +84,23 @@ describe('BluetoothLEDriver', () => {
 
     it('should reject configuration without device ID', () => {
       config.deviceId = '';
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Device ID is required');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Device ID is required'
+      );
     });
 
     it('should reject configuration without service UUID', () => {
       config.serviceUuid = '';
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Service UUID is required');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Service UUID is required'
+      );
     });
 
     it('should reject configuration without characteristic UUID', () => {
       config.characteristicUuid = '';
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Characteristic UUID is required');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Characteristic UUID is required'
+      );
     });
 
     it('should validate short UUID format', () => {
@@ -129,47 +123,37 @@ describe('BluetoothLEDriver', () => {
 
     it('should reject invalid service UUID format', () => {
       config.serviceUuid = 'invalid-uuid';
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Invalid service UUID format');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Invalid service UUID format'
+      );
     });
 
     it('should reject invalid characteristic UUID format', () => {
       config.characteristicUuid = 'invalid-uuid';
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Invalid characteristic UUID format');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Invalid characteristic UUID format'
+      );
     });
 
     it('should reject scan timeout too small', () => {
       config.scanTimeout = 500;
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Scan timeout must be at least 1000ms');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Scan timeout must be at least 1000ms'
+      );
     });
 
     it('should reject connection timeout too small', () => {
       config.connectionTimeout = 1000;
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Connection timeout must be at least 5000ms');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Connection timeout must be at least 5000ms'
+      );
     });
 
     it('should reject reconnection interval too small', () => {
       config.reconnectInterval = 500;
-      driver = new BluetoothLEDriver(config);
-      const result = driver.validateConfiguration();
-      
-      expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Reconnection interval must be at least 1000ms');
+      expect(() => new BluetoothLEDriver(config)).toThrow(
+        'Invalid BLE configuration: Reconnection interval must be at least 1000ms'
+      );
     });
   });
 

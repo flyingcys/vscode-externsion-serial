@@ -300,7 +300,7 @@ export declare class PerformanceMonitor {
         recommendations: string[];
     };
     /**
-     * 计算整体健康度
+     * 计算整体健康度 - 优化测试环境兼容性
      */
     private calculateOverallHealth;
     /**

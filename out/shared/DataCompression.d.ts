@@ -64,11 +64,11 @@ export declare class SimpleCompressor {
     private static readonly MIN_MATCH_LENGTH;
     private static readonly MAX_MATCH_LENGTH;
     /**
-     * 简化的字典压缩
+     * 增强的字典压缩 - 使用哈希表加速匹配，优化压缩比
      */
     static compress(data: Uint8Array): CompressedData;
     /**
-     * 解压缩数据
+     * 解压缩数据 - 与增强压缩算法兼容
      */
     static decompress(compressed: CompressedData): Uint8Array;
 }
@@ -82,6 +82,18 @@ export declare class DataCompressor {
      * 自动选择最佳压缩算法
      */
     static compressAuto(data: DataPoint[]): CompressedData;
+    /**
+     * Delta + RLE压缩策略
+     */
+    private static compressDeltaRLE;
+    /**
+     * 量化压缩策略 - 减少精度以提高压缩比
+     */
+    private static compressWithQuantization;
+    /**
+     * LZ风格压缩策略
+     */
+    private static compressWithLZ;
     /**
      * 解压缩数据
      */

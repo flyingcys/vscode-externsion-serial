@@ -237,8 +237,21 @@ vi.mock('path', async () => {
   const actual = await vi.importActual('path');
   return {
     ...actual,
-    join: vi.fn().mockImplementation((...args: string[]) => args.join('/')),
-    resolve: vi.fn().mockImplementation((...args: string[]) => args.join('/'))
+    join: vi.fn().mockImplementation((...args: string[]) => {
+      // Filter out undefined/null values and ensure all are strings
+      const validArgs = args.filter(arg => arg != null && typeof arg === 'string');
+      if (validArgs.length === 0) {
+        return '.';  // Default behavior like Node.js path.join
+      }
+      return validArgs.join('/');
+    }),
+    resolve: vi.fn().mockImplementation((...args: string[]) => {
+      const validArgs = args.filter(arg => arg != null && typeof arg === 'string');
+      if (validArgs.length === 0) {
+        return '/';
+      }
+      return validArgs.join('/');
+    })
   };
 });
 
