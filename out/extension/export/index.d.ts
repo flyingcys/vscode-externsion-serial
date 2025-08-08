@@ -18,7 +18,7 @@ export * from './utils';
  * 创建默认配置的导出管理器
  * @returns 导出管理器实例
  */
-export declare function createExportManager(): any;
+export declare function createExportManager(): Promise<import("./ExportManager").ExportManagerImpl>;
 /**
  * 快速导出数据到CSV
  * @param data 导出数据

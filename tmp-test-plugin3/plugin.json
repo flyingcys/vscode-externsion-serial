@@ -1,0 +1,14 @@
+{
+  "id": "test-plugin-3",
+  "name": "Test Plugin 3",
+  "version": "1.0.0",
+  "description": "Test plugin description 3",
+  "author": "Test Author",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.60.0",
+    "serialStudio": "^1.0.0"
+  },
+  "activationEvents": ["*"],
+  "category": "communication"
+}

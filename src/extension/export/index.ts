@@ -33,8 +33,8 @@ export * from './utils';
  * 创建默认配置的导出管理器
  * @returns 导出管理器实例
  */
-export function createExportManager() {
-  const { getExportManager } = require('./ExportManager');
+export async function createExportManager() {
+  const { getExportManager } = await import('./ExportManager');
   return getExportManager();
 }
 

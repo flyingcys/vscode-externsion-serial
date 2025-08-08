@@ -110,12 +110,18 @@ class MockErrorHALDriver extends HALDriver {
   // 添加processData方法来模拟数据接收
   processData(data: Buffer): void {
     if (this._isOpen) {
-      // 更新接收统计（如果父类有这个方法的话）
-      if (typeof this.updateReceivedStats === 'function') {
-        this.updateReceivedStats(data.length);
-      }
+      // 更新接收统计
+      this.stats.bytesReceived += data.length;
+      this.stats.lastActivity = Date.now();
+      
+      // 直接发出dataReceived事件，避免缓冲区延迟
       this.emit('dataReceived', data);
     }
+  }
+  
+  protected updateReceivedStats(bytes: number): void {
+    this.stats.bytesReceived += bytes;
+    this.stats.lastActivity = Date.now();
   }
 }
 
@@ -267,7 +273,7 @@ describe('IO 错误处理测试', () => {
 
       expect(errors).toHaveLength(1);
       expect(errors[0].message).toContain('Device not found');
-      expect(ioManager.state).toBe(ConnectionState.Connected); // IOManager不会自动断开，需要外部处理
+      expect(ioManager.state).toBe(ConnectionState.Error); // 错误发生时应该设置为Error状态
     });
 
     it('应该处理蓝牙设备超出范围', async () => {
@@ -353,7 +359,7 @@ describe('IO 错误处理测试', () => {
       });
 
       // 配置帧分隔符
-      ioManager.updateFrameConfig({
+      await ioManager.updateFrameConfig({
         startSequence: new Uint8Array([0xFF]),
         finishSequence: new Uint8Array([0x0A]),
         checksumAlgorithm: 'none',
@@ -362,8 +368,15 @@ describe('IO 错误处理测试', () => {
       });
 
       const framesReceived: any[] = [];
+      
       ioManager.on('frameReceived', (frame) => {
-        framesReceived.push(frame);
+        // 创建深拷贝以避免对象池回收问题
+        framesReceived.push({
+          data: new Uint8Array(frame.data),
+          timestamp: frame.timestamp,
+          sequence: frame.sequence,
+          checksumValid: frame.checksumValid
+        });
       });
 
       // 发送不完整的帧（没有结束符）
@@ -372,7 +385,7 @@ describe('IO 错误处理测试', () => {
 
       // 等待处理
       await new Promise(resolve => setTimeout(resolve, 50));
-
+      
       // 不完整的帧不应该被发出
       expect(framesReceived).toHaveLength(0);
 
@@ -384,7 +397,7 @@ describe('IO 错误处理测试', () => {
 
       // 现在应该收到完整的帧
       expect(framesReceived).toHaveLength(1);
-      expect(framesReceived[0].data).toEqual(new Uint8Array([0x01, 0x02, 0x03]));
+      expect(Array.from(framesReceived[0].data)).toEqual([0x01, 0x02, 0x03]);
     });
 
     it('应该处理缓冲区溢出情况', async () => {
@@ -395,7 +408,7 @@ describe('IO 错误处理测试', () => {
       });
 
       // 配置只使用结束分隔符
-      ioManager.updateFrameConfig({
+      await ioManager.updateFrameConfig({
         startSequence: new Uint8Array(),
         finishSequence: new Uint8Array([0x0A]),
         checksumAlgorithm: 'none',
@@ -405,7 +418,13 @@ describe('IO 错误处理测试', () => {
 
       const framesReceived: any[] = [];
       ioManager.on('frameReceived', (frame) => {
-        framesReceived.push(frame);
+        // 创建深拷贝以避免对象池回收问题
+        framesReceived.push({
+          data: new Uint8Array(frame.data),
+          timestamp: frame.timestamp,
+          sequence: frame.sequence,
+          checksumValid: frame.checksumValid
+        });
       });
 
       // 发送超大数据块（可能导致缓冲区问题）

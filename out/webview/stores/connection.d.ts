@@ -20,9 +20,11 @@ export declare enum ConnectionState {
 export interface DeviceInfo {
     name: string;
     type: BusType;
+    path?: string;
     description?: string;
-    isAvailable: boolean;
-    lastSeen: number;
+    isAvailable?: boolean;
+    isConnected?: boolean;
+    lastSeen?: number;
 }
 export declare const useConnectionStore: import("pinia").StoreDefinition<"connection", any, any, any>;
 export default useConnectionStore;

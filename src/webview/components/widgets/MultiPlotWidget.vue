@@ -201,8 +201,8 @@ import {
 
 import BaseWidget from '../base/BaseWidget.vue'
 import { WidgetType, Dataset, PlotSeries } from '@/shared/types'
-import { useDataStore } from '@/stores/data'
-import { useThemeStore } from '@/stores/theme'
+import { useDataStore } from '@/webview/stores/data'
+import { useThemeStore } from '@/webview/stores/theme'
 
 // 注册Chart.js组件
 Chart.register(

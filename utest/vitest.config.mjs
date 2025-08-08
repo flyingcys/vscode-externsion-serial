@@ -61,6 +61,13 @@ export default defineConfig({
           lines: 90,
           branches: 80
         },
+        // Plugins模块 - 100%覆盖度目标
+        'src/extension/plugins/**': {
+          lines: 100,
+          branches: 100,
+          functions: 100,
+          statements: 100
+        },
         'src/performance/**': {
           lines: 95,
           branches: 90
@@ -106,7 +113,9 @@ export default defineConfig({
       '@test': path.resolve(__dirname, './test-utils'),
       'vscode': path.resolve(__dirname, 'mocks/vscode.ts'),
       'chart.js': path.resolve(__dirname, 'mocks/chart.js.ts'),
-      'mqtt': path.resolve(__dirname, 'mocks/mqtt.ts')
+      'mqtt': path.resolve(__dirname, 'mocks/mqtt.ts'),
+      'ajv': path.resolve(__dirname, 'mocks/ajv.ts'),
+      'ajv-formats': path.resolve(__dirname, 'mocks/ajv-formats.ts')
     }
   },
   define: {

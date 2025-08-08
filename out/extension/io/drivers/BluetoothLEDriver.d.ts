@@ -118,7 +118,11 @@ export declare class BluetoothLEDriver extends HALDriver {
     /**
      * Static UUID validation helper
      */
-    private static isValidUUID;
+    static isValidUUID(uuid: string): boolean;
+    /**
+     * Instance method for UUID validation (for testing)
+     */
+    isValidUUID(uuid: string): boolean;
     /**
      * Start device discovery
      */

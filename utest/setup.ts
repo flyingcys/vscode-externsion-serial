@@ -193,7 +193,10 @@ Object.defineProperty(global, 'vscode', {
   writable: true
 });
 
-// Mock Node.js modules
+// 创建一个全局虚拟文件系统
+const globalVirtualFs = new Map<string, string>();
+
+// Mock Node.js modules  
 vi.mock('fs', () => ({
   readFileSync: vi.fn(),
   writeFileSync: vi.fn(),
@@ -219,22 +222,645 @@ vi.mock('fs', () => ({
     on: vi.fn()
   }),
   promises: {
-    readFile: vi.fn().mockResolvedValue('mock file content'),
-    writeFile: vi.fn().mockResolvedValue(undefined),
-    mkdir: vi.fn().mockResolvedValue(undefined),
-    readdir: vi.fn().mockResolvedValue([]),
-    stat: vi.fn().mockResolvedValue({
-      isFile: () => true,
-      isDirectory: () => false,
-      size: 1024
+    readFile: vi.fn().mockImplementation(async (filePath: string) => {
+      if (globalVirtualFs.has(filePath)) {
+        return globalVirtualFs.get(filePath);
+      }
+      throw new Error(`ENOENT: no such file or directory, open '${filePath}'`);
     }),
-    unlink: vi.fn().mockResolvedValue(undefined),
+    writeFile: vi.fn().mockImplementation(async (filePath: string, content: string) => {
+      globalVirtualFs.set(filePath, content);
+      return undefined;
+    }),
+    mkdir: vi.fn().mockResolvedValue(undefined),
+    mkdtemp: vi.fn().mockResolvedValue('/tmp/mock-temp-dir'),
+    readdir: vi.fn().mockResolvedValue([]),
+    access: vi.fn().mockImplementation(async (filePath: string) => {
+      if (globalVirtualFs.has(filePath)) {
+        return undefined;
+      }
+      throw new Error(`ENOENT: no such file or directory, access '${filePath}'`);
+    }),
+    stat: vi.fn().mockImplementation(async (filePath: string) => {
+      if (globalVirtualFs.has(filePath)) {
+        const content = globalVirtualFs.get(filePath) || '';
+        return {
+          isFile: () => true,
+          isDirectory: () => false,
+          size: content.length
+        };
+      }
+      throw new Error(`ENOENT: no such file or directory, stat '${filePath}'`);
+    }),
+    unlink: vi.fn().mockImplementation(async (filePath: string) => {
+      if (globalVirtualFs.has(filePath)) {
+        globalVirtualFs.delete(filePath);
+        return undefined;
+      }
+      throw new Error(`ENOENT: no such file or directory, unlink '${filePath}'`);
+    }),
     rmdir: vi.fn().mockResolvedValue(undefined)
   }
 }));
 
+// 🎯 P5-02: 支持新的唯一路径模式 - 通用路径检查函数
+function isPhysicalPluginPath(path: string): boolean {
+  // 旧的固定路径格式（向后兼容）
+  const legacyPatterns = [
+    'tmp-test-plugin',
+    'tmp-validation-plugin',
+    'tmp-error-plugin',
+    'tmp-cache-plugin',
+    'tmp-empty-events-plugin',
+    'tmp-pm-test-plugin',
+    'tmp-pm-query-plugin',
+    'tmp-pm-batch-plugin',
+    'tmp-validation-plugin-drivers',
+    'tmp-validation-plugin-widgets', 
+    'tmp-validation-plugin-parsers',
+    'tmp-validation-plugin-activate',
+    'tmp-validation-plugin-multiple',
+    'tmp-cache-test-plugin',
+    '/test/plugin',
+    '/path/to/plugin'
+  ];
+
+  // 新的绝对唯一路径格式 - P5策略  
+  // 匹配: /tmp/unique-test-main-1754557115514-ztf3rnsla-160100/custom-entry.js
+  const uniquePathRegex = /\/tmp\/unique-[^\/]+-\d+-[a-z0-9]+-\d+/;
+  
+  // 动态验证插件路径格式
+  const dynamicPatterns = [
+    /tmp-validation-drivers-test-plugin-\d+/,
+    /tmp-validation-\w+-test-plugin-\d+/
+  ];
+
+  // 检查所有模式
+  for (const pattern of legacyPatterns) {
+    if (path.includes(pattern)) {
+      return true;
+    }
+  }
+
+  for (const pattern of dynamicPatterns) {
+    if (pattern.test(path)) {
+      return true;
+    }
+  }
+
+  // 🎯 关键：检查新的唯一路径格式
+  if (uniquePathRegex.test(path)) {
+    return true;
+  }
+
+  return false;
+}
+
+// Advanced Module._load interception for deep require() mocking
+const Module = require('module');
+const originalLoad = Module._load;
+const originalRequire = require;
+
+// Global controller for module loading behavior
+global.moduleLoadController = {
+  customBehaviors: new Map(),
+  defaultBehavior: null,
+  reset() {
+    this.customBehaviors.clear();
+    this.defaultBehavior = null;
+  },
+  setBehaviorForPath(pathPattern: string, behavior: any) {
+    this.customBehaviors.set(pathPattern, behavior);
+  },
+  setDefaultBehavior(behavior: any) {
+    this.defaultBehavior = behavior;
+  }
+};
+
+// Mock AJV modules before setting up Module._load interceptor
+vi.mock('ajv', () => {
+  class MockAjv {
+    private schemas = new Map();
+    public errors: any[] | null = null;
+
+    constructor(options?: any) {}
+
+    addSchema(schema: any, key?: string) {
+      if (key) this.schemas.set(key, schema);
+      return this;
+    }
+
+    compile(schema: any) {
+      return vi.fn().mockImplementation((data: any) => {
+        // Basic validation logic for common cases
+        const { isValid, errors } = this.performBasicValidation(schema, data);
+        this.errors = isValid ? null : errors;
+        return isValid;
+      });
+    }
+
+    validate(schemaOrRef: any, data: any) {
+      // For named schema references
+      let schema = schemaOrRef;
+      if (typeof schemaOrRef === 'string') {
+        schema = this.schemas.get(schemaOrRef);
+      }
+      
+      const { isValid, errors } = this.performBasicValidation(schema, data);
+      this.errors = isValid ? null : errors;
+      return isValid;
+    }
+
+    private performBasicValidation(schema: any, data: any): { isValid: boolean, errors: any[] } {
+      const errors: any[] = [];
+      
+      if (!schema || !data) {
+        errors.push({ instancePath: '', message: 'Schema or data is missing' });
+        return { isValid: false, errors };
+      }
+      
+      // Check if data is null/undefined for objects
+      if (schema.type === 'object' && (data === null || data === undefined)) {
+        errors.push({ instancePath: '', message: 'must be object' });
+        return { isValid: false, errors };
+      }
+      
+      // Check required fields
+      if (schema.required && Array.isArray(schema.required)) {
+        for (const field of schema.required) {
+          if (!(field in data)) {
+            errors.push({ 
+              instancePath: `/${field}`, 
+              message: `must have required property '${field}'`,
+              keyword: 'required',
+              params: { missingProperty: field }
+            });
+          }
+        }
+      }
+      
+      // Check type mismatches
+      if (schema.type) {
+        const actualType = Array.isArray(data) ? 'array' : typeof data;
+        if (actualType !== schema.type) {
+          errors.push({ 
+            instancePath: '', 
+            message: `must be ${schema.type}`,
+            keyword: 'type'
+          });
+        }
+      }
+      
+      // Check properties validation for objects
+      if (schema.properties && data && typeof data === 'object') {
+        for (const [propName, propSchema] of Object.entries(schema.properties)) {
+          if (propName in data) {
+            const propValue = (data as any)[propName];
+            const propSchemaObj = propSchema as any;
+            
+            // Check enum values
+            if (propSchemaObj.enum && Array.isArray(propSchemaObj.enum)) {
+              if (!propSchemaObj.enum.includes(propValue)) {
+                errors.push({ 
+                  instancePath: `/${propName}`, 
+                  message: `must be equal to one of the allowed values`,
+                  keyword: 'enum'
+                });
+              }
+            }
+            
+            // Check property type
+            if (propSchemaObj.type) {
+              const propActualType = Array.isArray(propValue) ? 'array' : typeof propValue;
+              if (propActualType !== propSchemaObj.type) {
+                errors.push({ 
+                  instancePath: `/${propName}`, 
+                  message: `must be ${propSchemaObj.type}`,
+                  keyword: 'type'
+                });
+              }
+            }
+            
+            // Check minimum values for numbers
+            if (propSchemaObj.minimum !== undefined && typeof propValue === 'number') {
+              if (propValue < propSchemaObj.minimum) {
+                errors.push({ 
+                  instancePath: `/${propName}`, 
+                  message: `must be >= ${propSchemaObj.minimum}`,
+                  keyword: 'minimum'
+                });
+              }
+            }
+            
+            // Check string length
+            if (propSchemaObj.minLength !== undefined && typeof propValue === 'string') {
+              if (propValue.length < propSchemaObj.minLength) {
+                errors.push({ 
+                  instancePath: `/${propName}`, 
+                  message: `must NOT have fewer than ${propSchemaObj.minLength} characters`,
+                  keyword: 'minLength'
+                });
+              }
+            }
+          }
+        }
+      }
+      
+      // For empty objects or basic validation failures
+      if (schema.type === 'object' && data && typeof data === 'object') {
+        if (Object.keys(data).length === 0) {
+          errors.push({ instancePath: '', message: 'must NOT have fewer than 1 properties' });
+        }
+      }
+      
+      return { isValid: errors.length === 0, errors };
+    }
+  }
+
+  const MockAjvConstructor = vi.fn().mockImplementation((options?: any) => new MockAjv(options));
+  return { default: MockAjvConstructor };
+});
+
+vi.mock('ajv-formats', () => ({
+  default: vi.fn().mockImplementation((ajv: any) => ajv)
+}));
+
+// Create module loader with dynamic behavior control - 终极优化版本
+Module._load = function(request: string, parent: any, isMain?: boolean) {
+  // Debug 输出 - 诊断插件路径问题  
+  if (request.includes('test') || request.includes('plugin')) {
+    // console.log('Module._load intercepted:', request);
+  }
+  
+  // Check for custom behaviors first - 支持完整路径和文件名匹配  
+  for (const [pattern, behavior] of global.moduleLoadController.customBehaviors.entries()) {
+    // 更智能的路径匹配逻辑
+    const matchesPattern = request.includes(pattern) || 
+                          request.startsWith(pattern) ||
+                          request.endsWith('/' + pattern) ||
+                          request.endsWith('\\' + pattern) ||
+                          (pattern.includes('/') && request.startsWith(pattern.split('/').slice(0, -1).join('/')));
+    
+    if (matchesPattern) {
+      console.log('Pattern matched:', pattern, 'for request:', request);
+      if (typeof behavior === 'function') {
+        return behavior(request, parent, isMain);
+      } else if (behavior instanceof Error) {
+        throw behavior;
+      } else {
+        // 对于模块对象，确保添加entryPoint属性
+        if (typeof behavior === 'object' && behavior !== null && !Array.isArray(behavior)) {
+          const entryFileName = request.split('/').pop() || 'index.js';
+          behavior.entryPoint = entryFileName;
+        }
+        return behavior;
+      }
+    }
+  }
+  
+  // Use default behavior if set
+  if (global.moduleLoadController.defaultBehavior) {
+    return global.moduleLoadController.defaultBehavior(request, parent, isMain);
+  }
+  
+  // 🎯 P5-02: 使用统一的路径检查函数，支持新的唯一路径格式
+  const isPluginPath = isPhysicalPluginPath(request);
+                      
+  // 🎯 P5-02: 对于物理插件文件，使用原始的require加载真实文件
+  const isPhysicalPluginFile = isPhysicalPluginPath(request);
+                               
+  if (isPhysicalPluginFile) {
+    console.log('🎯 Module._load: Loading physical plugin file:', request);
+    return originalLoad.call(this, request, parent, isMain);
+  }
+  
+  const isCustomEntry = request.includes('custom-entry.js');
+  const isIndexFile = request.endsWith('index.js') || request.endsWith('/index');
+  const isMainFile = request.endsWith('main.js') || request.endsWith('plugin.js');
+  
+  // 立即处理所有插件相关的require调用 - 扩展匹配逻辑
+  const isTestPluginPath = request.includes('/test/plugin');
+  if (isPluginPath || isCustomEntry || isTestPluginPath || (isIndexFile && request.includes('test')) || (isMainFile && request.includes('test'))) {
+    // 处理错误模拟场景
+    if (request.includes('Module syntax error')) {
+      const error = new Error('Module syntax error');
+      error.name = 'SyntaxError';
+      throw error;
+    }
+    
+    if (request.includes('nonexistent') || request.includes('invalid-plugin')) {
+      const error = new Error(`Cannot find module '${request}'`);
+      error.code = 'MODULE_NOT_FOUND';
+      throw error;
+    }
+    
+    // Custom entry files
+    if (isCustomEntry) {
+      return {
+        activate: vi.fn().mockResolvedValue(undefined),
+        deactivate: vi.fn().mockResolvedValue(undefined),
+        customExport: true,
+        widgets: []
+      };
+    }
+    
+    // Plugin module files with full contributions
+    if (isIndexFile || isMainFile || request.includes('plugin')) {
+      return {
+        activate: vi.fn().mockResolvedValue(undefined),
+        deactivate: vi.fn().mockResolvedValue(undefined),
+        drivers: [{
+          id: 'test-driver',
+          name: 'Test Driver',
+          protocol: 'test',
+          driverClass: vi.fn()
+        }],
+        widgets: [{
+          id: 'test-widget',
+          name: 'Test Widget',
+          type: 'dataset',
+          component: vi.fn()
+        }],
+        parsers: [{
+          id: 'test-parser',
+          name: 'Test Parser',
+          parserClass: vi.fn()
+        }],
+        validators: [],
+        transformers: [],
+        exportFormats: [],
+        themes: []
+      };
+    }
+    
+    // Default plugin module
+    return {
+      activate: vi.fn().mockResolvedValue(undefined),
+      deactivate: vi.fn().mockResolvedValue(undefined),
+      drivers: [],
+      widgets: [],
+      parsers: []
+    };
+  }
+  
+  // Let system modules and vitest modules load normally 
+  if (request.startsWith('vitest') || 
+      request.startsWith('@vitest') ||
+      request.startsWith('fs') ||
+      request.startsWith('path') ||
+      request.startsWith('util') ||
+      request.startsWith('events') ||
+      request.startsWith('stream') ||
+      request.includes('node_modules') ||
+      request.includes('ajv') ||
+      request === 'ajv' ||
+      request === 'ajv-formats') {
+    return originalLoad.call(this, request, parent, isMain);
+  }
+  
+  // Default mock for unknown modules
+  return {
+    activate: vi.fn().mockResolvedValue(undefined),
+    deactivate: vi.fn().mockResolvedValue(undefined),
+    default: {},
+    __esModule: true
+  };
+};
+
+// Store reference to original for restoration
+(Module._load as any).original = originalLoad;
+
+// 更彻底的require拦截 - 直接覆盖所有require调用
+const mockRequire = function(modulePath: string) {
+  console.log('Direct require intercepted:', modulePath);
+  
+  // 使用相同的逻辑处理
+  return Module._load(modulePath, module);
+};
+
+// 保留require的所有属性
+Object.setPrototypeOf(mockRequire, originalRequire);
+Object.getOwnPropertyNames(originalRequire).forEach(prop => {
+  if (prop !== 'length' && prop !== 'name') {
+    try {
+      mockRequire[prop] = originalRequire[prop];
+    } catch (e) {
+      // Some properties might be read-only
+    }
+  }
+});
+
+// 应用增强的require mock
+global.require = mockRequire;
+
+// 设置require的增强属性
+mockRequire.cache = originalRequire.cache || {};
+mockRequire.resolve = vi.fn().mockImplementation((modulePath: string) => {
+  console.log('require.resolve called:', modulePath);
+  
+  // 🎯 Enhanced path matching logic - 支持所有物理插件路径模式
+  // 🎯 P5-02: 使用统一的路径检查函数，支持新的唯一路径格式
+  const isPhysicalPluginPath = isPhysicalPluginPath(modulePath);
+  
+  if (isPhysicalPluginPath) {
+    console.log('🎯 Physical plugin path detected, returning:', modulePath);
+    return modulePath; // Return the path as-is for physical plugin modules
+  }
+  
+  // For real system modules, call the original resolve
+  if (modulePath.startsWith('vitest') || 
+      modulePath.startsWith('fs') ||
+      modulePath.startsWith('path') ||
+      modulePath.startsWith('util')) {
+    return originalRequire.resolve(modulePath);
+  }
+  
+  return modulePath; // Default fallback
+});
+mockRequire.extensions = originalRequire.extensions;
+mockRequire.main = originalRequire.main;
+
+// Also replace the require function in the current module context
+if (typeof module !== 'undefined' && module.require) {
+  const moduleOriginalRequire = module.require;
+  module.require = function(id: string) {
+    return Module._load(id, this);
+  };
+  module.require.cache = moduleOriginalRequire.cache || {};
+  module.require.resolve = vi.fn().mockImplementation((modulePath: string) => {
+    // 🎯 P5-02: 使用统一的路径检查函数，支持新的唯一路径格式
+    const isPhysicalPluginPath = isPhysicalPluginPath(modulePath);
+    
+    if (isPhysicalPluginPath) {
+      console.log('🎯 Module.require.resolve: Physical plugin path detected, returning:', modulePath);
+      return modulePath;
+    }
+    
+    if (modulePath.startsWith('vitest') || 
+        modulePath.startsWith('fs') ||
+        modulePath.startsWith('path') ||
+        modulePath.startsWith('util')) {
+      return moduleOriginalRequire.resolve(modulePath);
+    }
+    
+    return modulePath;
+  });
+  module.require.extensions = moduleOriginalRequire.extensions;
+  module.require.main = moduleOriginalRequire.main;
+}
+
+// Store real fs.access before mocking
+const realFsPromises = require('fs/promises');
+
+// Mock fs/promises specifically for ES6 imports - 完整版本
+vi.mock('fs/promises', () => ({
+  readFile: vi.fn().mockImplementation(async (filePath: string) => {
+    // 🎯 P6-01: 支持PhysicalPluginMockManager的唯一路径进行真实文件读取
+    if (isPhysicalPluginPath(filePath)) {
+      try {
+        return await realFsPromises.readFile(filePath, 'utf8');
+      } catch (error) {
+        // 如果真实文件不存在，抛出错误
+        throw error;
+      }
+    }
+    
+    // 对于PluginManager测试的临时插件文件，读取真实文件内容
+    if (filePath.includes('plugin.json') && (
+      filePath.includes('tmp-pm-test-plugin') || 
+      filePath.includes('tmp-pm-query-plugin') || 
+      filePath.includes('tmp-pm-batch-plugin')
+    )) {
+      try {
+        return await realFsPromises.readFile(filePath, 'utf8');
+      } catch (error) {
+        // 如果真实文件不存在，抛出错误
+        throw error;
+      }
+    }
+    
+    // 使用全局虚拟文件系统统一存储
+    if (globalVirtualFs.has(filePath)) {
+      const content = globalVirtualFs.get(filePath);
+      return content;
+    }
+    
+    // 智能返回JSON格式的manifest（用于其他测试）
+    if (filePath.includes('plugin.json')) {
+      return JSON.stringify({
+        id: 'test-plugin',
+        name: 'Test Plugin',
+        version: '1.0.0',
+        description: 'Test plugin description',
+        author: 'Test Author',
+        engines: { vscode: '^1.60.0', serialStudio: '^1.0.0' },
+        activationEvents: ['*']
+      });
+    }
+    
+    // 如果文件不存在，抛出ENOENT错误
+    throw new Error(`ENOENT: no such file or directory, open '${filePath}'`);
+  }),
+  writeFile: vi.fn().mockImplementation(async (filePath: string, data: string) => {
+    // 🎯 P6-01: 支持PhysicalPluginMockManager的唯一路径进行真实文件写入
+    if (isPhysicalPluginPath(filePath)) {
+      return await realFsPromises.writeFile(filePath, data, 'utf8');
+    }
+    // 写入到全局虚拟文件系统
+    globalVirtualFs.set(filePath, data);
+    return;
+  }),
+  mkdir: vi.fn().mockImplementation(async (dirPath: string, options?: any) => {
+    // 🎯 P6-01: 支持PhysicalPluginMockManager的唯一路径进行真实目录创建
+    if (isPhysicalPluginPath(dirPath)) {
+      return await realFsPromises.mkdir(dirPath, options);
+    }
+    return;
+  }),
+  mkdtemp: vi.fn().mockResolvedValue('/tmp/mock-temp-dir'),
+  readdir: vi.fn().mockResolvedValue([]),
+  access: vi.fn().mockImplementation(async (filePath: string) => {
+    // 🎯 P5-02: 智能文件存在检查，使用统一的路径检查函数，支持新的唯一路径格式
+    if (isPhysicalPluginPath(filePath)) {
+      // Use saved real fs to avoid recursion
+      try {
+        await realFsPromises.access(filePath);
+        return; // File exists
+      } catch (error) {
+        throw error; // File doesn't exist
+      }
+    }
+    
+    // 使用全局虚拟文件系统统一检查
+    if (globalVirtualFs.has(filePath)) {
+      return; // File exists
+    }
+    
+    // 如果文件不存在，抛出ENOENT错误
+    throw new Error(`ENOENT: no such file or directory, access '${filePath}'`);
+  }),
+  stat: vi.fn().mockImplementation(async (filePath: string) => {
+    // 🎯 P6-01: 支持PhysicalPluginMockManager的唯一路径进行真实stat
+    if (isPhysicalPluginPath(filePath)) {
+      return await realFsPromises.stat(filePath);
+    }
+    
+    // 使用全局虚拟文件系统统一检查
+    if (globalVirtualFs.has(filePath)) {
+      const content = globalVirtualFs.get(filePath) || '';
+      return {
+        isFile: () => true,
+        isDirectory: () => false,
+        size: content.length
+      };
+    }
+    
+    // 如果文件不存在，抛出ENOENT错误
+    throw new Error(`ENOENT: no such file or directory, stat '${filePath}'`);
+  }),
+  unlink: vi.fn().mockImplementation(async (filePath: string) => {
+    // 🎯 P6-01: 支持PhysicalPluginMockManager的唯一路径进行真实文件删除
+    if (isPhysicalPluginPath(filePath)) {
+      return await realFsPromises.unlink(filePath);
+    }
+    
+    // 从全局虚拟文件系统删除
+    if (globalVirtualFs.has(filePath)) {
+      globalVirtualFs.delete(filePath);
+      return;
+    }
+    
+    // 如果文件不存在，抛出ENOENT错误
+    throw new Error(`ENOENT: no such file or directory, unlink '${filePath}'`);
+  }),
+  rmdir: vi.fn().mockImplementation(async (dirPath: string, options?: any) => {
+    // 🎯 P6-01: 支持PhysicalPluginMockManager的唯一路径进行真实目录删除
+    if (isPhysicalPluginPath(dirPath)) {
+      return await realFsPromises.rmdir(dirPath, options);
+    }
+    return;
+  }),
+  rm: vi.fn().mockImplementation(async (path: string, options?: any) => {
+    // 🎯 P6-01: 支持PhysicalPluginMockManager的唯一路径进行真实删除
+    if (isPhysicalPluginPath(path)) {
+      return await realFsPromises.rm(path, options);
+    }
+    return;
+  }),
+  // 添加其他可能需要的方法
+  chmod: vi.fn().mockResolvedValue(undefined),
+  copyFile: vi.fn().mockResolvedValue(undefined),
+  realpath: vi.fn().mockImplementation(async (path: string) => path),
+  lstat: vi.fn().mockResolvedValue({
+    isFile: () => true,
+    isDirectory: () => false,
+    isSymbolicLink: () => false,
+    size: 1024
+  })
+}));
+
 vi.mock('path', async () => {
-  const actual = await vi.importActual('path');
+  const actual = await vi.importActual('path') as any;
   return {
     ...actual,
     join: vi.fn().mockImplementation((...args: string[]) => {
@@ -250,7 +876,8 @@ vi.mock('path', async () => {
       if (validArgs.length === 0) {
         return '/';
       }
-      return validArgs.join('/');
+      // 使用真正的path.resolve处理相对路径
+      return actual.resolve(...validArgs);
     })
   };
 });

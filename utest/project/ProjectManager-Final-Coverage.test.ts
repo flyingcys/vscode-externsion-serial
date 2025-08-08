@@ -19,8 +19,26 @@ vi.mock('path', () => ({
   join: vi.fn((...paths: string[]) => paths.join('/'))
 }));
 
-// Mock vscode
-const vscode = (global as any).vscode;
+// Mock vscode 模块
+vi.mock('vscode', () => ({
+  window: {
+    showWarningMessage: vi.fn(),
+    showInformationMessage: vi.fn(),
+    showErrorMessage: vi.fn(),
+    showOpenDialog: vi.fn(),
+    showSaveDialog: vi.fn(),
+  },
+  Uri: {
+    file: vi.fn((path: string) => ({ fsPath: path })),
+    joinPath: vi.fn((...args: any[]) => ({ fsPath: args.join('/') }))
+  },
+  workspace: {
+    rootPath: '/test/workspace'
+  }
+}));
+
+// Import the mocked modules
+const vscode = await import('vscode');
 const fs = await import('fs/promises');
 const path = await import('path');
 const mockReadFile = vi.mocked(fs.readFile);
@@ -205,12 +223,15 @@ describe('ProjectManager - 最终覆盖率测试', () => {
     });
 
     it('应该测试askSave的修改状态检查路径', async () => {
+      // 首先创建一个新项目以确保_currentProject存在
+      await projectManager.createNewProject();
+      
       // 通过正常方法触发修改状态
       projectManager.addGroup('Test Group', 'line');
       expect(projectManager.modified).toBe(true);
       
-      // Mock用户选择Don't Save以避免实际保存文件（注意转义符）
-      (vscode.window.showWarningMessage as any).mockResolvedValueOnce('Don\'t Save');
+      // Mock用户选择Don't Save以避免实际保存文件
+      vi.mocked(vscode.window.showWarningMessage).mockResolvedValue('Don\'t Save');
       
       const result = await projectManager.askSave();
       

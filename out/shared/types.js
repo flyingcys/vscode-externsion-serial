@@ -132,5 +132,8 @@ var MessageType;
     MessageType["ERROR"] = "error";
     MessageType["WARNING"] = "warning";
     MessageType["INFO"] = "info";
+    // Batch operations
+    MessageType["BATCH"] = "batch";
+    MessageType["RESPONSE"] = "response";
 })(MessageType = exports.MessageType || (exports.MessageType = {}));
 //# sourceMappingURL=types.js.map

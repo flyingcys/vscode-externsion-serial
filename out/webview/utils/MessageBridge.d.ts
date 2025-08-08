@@ -13,6 +13,10 @@ export declare class MessageBridge extends EventEmitter {
     private vscode;
     private messageId;
     private pendingRequests;
+    private isOnline;
+    private messageQueue;
+    private messageStats;
+    private messageListener;
     constructor(vscode: any);
     /**
      * 设置消息监听器
@@ -22,12 +26,29 @@ export declare class MessageBridge extends EventEmitter {
      * 处理接收到的消息
      * @param message 接收到的消息
      */
-    private handleMessage;
+    handleMessage(message: Message): void;
+    /**
+     * 发送消息（测试兼容方法）
+     * @param message 要发送的消息
+     */
+    send(message: any): void;
     /**
      * 发送消息到Extension
      * @param message 要发送的消息
      */
     sendMessage(message: Omit<Message, 'timestamp'>): void;
+    /**
+     * 内部发送消息方法
+     * @param message 完整消息
+     */
+    private _sendMessage;
+    /**
+     * 发送请求并等待响应（测试兼容方法）
+     * @param message 请求消息
+     * @param timeout 超时时间（毫秒）
+     * @returns Promise响应
+     */
+    request<T = any>(message: any, timeout?: number): Promise<T>;
     /**
      * 发送请求并等待响应
      * @param type 消息类型
@@ -156,7 +177,30 @@ export declare class MessageBridge extends EventEmitter {
      */
     trackUserAction(action: string, data?: any): void;
     /**
-     * 清理所有待处理的请求
+     * 发送批量消息
+     * @param messages 消息数组
+     */
+    sendBatch(messages: any[]): void;
+    /**
+     * 取消待处理的请求
+     * @param requestId 请求ID
+     */
+    cancelRequest(requestId: string): void;
+    /**
+     * 设置在线状态
+     * @param online 是否在线
+     */
+    setOnline(online: boolean): void;
+    /**
+     * 清除消息队列
+     */
+    clearQueue(): void;
+    /**
+     * 销毁消息桥梁
+     */
+    destroy(): void;
+    /**
+     * 清理所有待处理的请求（向后兼容）
      */
     cleanup(): void;
     /**
@@ -165,6 +209,9 @@ export declare class MessageBridge extends EventEmitter {
     getStats(): {
         pendingRequests: number;
         totalMessages: number;
+        messagesSent: number;
+        messagesReceived: number;
+        averageLatency: number;
     };
 }
 //# sourceMappingURL=MessageBridge.d.ts.map

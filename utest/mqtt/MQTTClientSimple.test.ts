@@ -16,6 +16,16 @@ import {
 
 describe('MQTT客户端基础功能测试', () => {
   let config: MQTTConfig;
+  
+  // 全局错误处理器，防止未处理的Promise拒绝
+  const errorHandler = () => {}; // 空函数静默处理错误
+  
+  // Helper函数创建带错误处理的MQTTClient
+  const createMQTTClient = (clientConfig: MQTTConfig): MQTTClient => {
+    const client = new MQTTClient(clientConfig);
+    client.on('error', errorHandler);
+    return client;
+  };
 
   beforeEach(() => {
     config = {
@@ -54,13 +64,13 @@ describe('MQTT客户端基础功能测试', () => {
 
   describe('客户端实例化', () => {
     it('应该成功创建MQTT客户端实例', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       expect(mqttClient).toBeDefined();
       expect(mqttClient.isConnected()).toBe(false);
     });
 
     it('应该正确存储配置信息', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       const clientConfig = mqttClient.getConfig();
       
       expect(clientConfig.hostname).toBe('localhost');
@@ -74,7 +84,7 @@ describe('MQTT客户端基础功能测试', () => {
       const configWithoutId = { ...config };
       delete configWithoutId.clientId;
       
-      const mqttClient = new MQTTClient(configWithoutId);
+      const mqttClient = createMQTTClient(configWithoutId);
       const clientConfig = mqttClient.getConfig();
       
       expect(clientConfig.clientId).toBeDefined();
@@ -84,14 +94,14 @@ describe('MQTT客户端基础功能测试', () => {
 
   describe('配置验证', () => {
     it('应该验证有效的配置', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       const result = mqttClient.validateConfig(config);
       expect(result.valid).toBe(true);
       expect(result.errors.length).toBe(0);
     });
 
     it('应该拒绝无效的主机名', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       const invalidConfig = { ...config, hostname: '' };
       const result = mqttClient.validateConfig(invalidConfig);
       expect(result.valid).toBe(false);
@@ -99,7 +109,7 @@ describe('MQTT客户端基础功能测试', () => {
     });
 
     it('应该拒绝无效的端口', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       const invalidConfig = { ...config, port: 0 };
       const result = mqttClient.validateConfig(invalidConfig);
       expect(result.valid).toBe(false);
@@ -107,7 +117,7 @@ describe('MQTT客户端基础功能测试', () => {
     });
 
     it('应该拒绝无效的keepAlive值', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       const invalidConfig = { ...config, keepAlive: -1 };
       const result = mqttClient.validateConfig(invalidConfig);
       expect(result.valid).toBe(false);
@@ -115,7 +125,7 @@ describe('MQTT客户端基础功能测试', () => {
     });
 
     it('应该验证主题格式', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       const invalidConfig = { ...config, topicFilter: '' }; // 空主题是无效的
       const result = mqttClient.validateConfig(invalidConfig);
       // 注意：空主题可能被认为是有效的，所以跳过这个测试或使用明显无效的格式
@@ -139,7 +149,7 @@ describe('MQTT客户端基础功能测试', () => {
         }
       };
       
-      const mqttClient = new MQTTClient(sslConfig);
+      const mqttClient = createMQTTClient(sslConfig);
       const clientConfig = mqttClient.getConfig();
       
       expect(clientConfig.ssl.enabled).toBe(true);
@@ -150,12 +160,12 @@ describe('MQTT客户端基础功能测试', () => {
 
   describe('状态管理', () => {
     it('应该正确初始化连接状态', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       expect(mqttClient.isConnected()).toBe(false);
     });
 
     it('应该提供统计信息', () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       const stats = mqttClient.getStatistics();
       
       expect(stats).toBeDefined();
@@ -171,14 +181,14 @@ describe('MQTT客户端基础功能测试', () => {
   describe('模式配置', () => {
     it('应该支持发布者模式', () => {
       const publisherConfig = { ...config, mode: MQTTClientMode.Publisher };
-      const mqttClient = new MQTTClient(publisherConfig);
+      const mqttClient = createMQTTClient(publisherConfig);
       
       expect(mqttClient.getConfig().mode).toBe(MQTTClientMode.Publisher);
     });
 
     it('应该支持订阅者模式', () => {
       const subscriberConfig = { ...config, mode: MQTTClientMode.Subscriber };
-      const mqttClient = new MQTTClient(subscriberConfig);
+      const mqttClient = createMQTTClient(subscriberConfig);
       
       expect(mqttClient.getConfig().mode).toBe(MQTTClientMode.Subscriber);
     });
@@ -186,7 +196,7 @@ describe('MQTT客户端基础功能测试', () => {
 
   describe('资源清理', () => {
     it('应该支持资源清理', async () => {
-      const mqttClient = new MQTTClient(config);
+      const mqttClient = createMQTTClient(config);
       
       // 应该能够安全地调用disconnect即使未连接
       await expect(mqttClient.disconnect()).resolves.not.toThrow();

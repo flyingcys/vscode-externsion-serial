@@ -120,6 +120,7 @@ export interface ProcessedFrame {
     timestamp: number;
     sequence: number;
     frameId: string;
+    isValid?: boolean;
 }
 /**
  * Data group containing related datasets
@@ -147,6 +148,7 @@ export interface Dataset {
     min?: number;
     max?: number;
     units?: string[];
+    timestamp?: number;
 }
 /**
  * Chart data point
@@ -452,7 +454,9 @@ export declare enum MessageType {
     EXPORT_COMPLETE = "export_complete",
     ERROR = "error",
     WARNING = "warning",
-    INFO = "info"
+    INFO = "info",
+    BATCH = "batch",
+    RESPONSE = "response"
 }
 /**
  * Message interface for extension-webview communication
@@ -460,7 +464,9 @@ export declare enum MessageType {
 export interface Message {
     type: MessageType;
     payload?: any;
+    data?: any;
     id?: string;
+    requestId?: string;
     timestamp?: number;
 }
 //# sourceMappingURL=types.d.ts.map

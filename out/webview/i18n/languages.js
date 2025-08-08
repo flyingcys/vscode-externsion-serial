@@ -171,6 +171,10 @@ exports.isRTLLanguage = isRTLLanguage;
  * 根据浏览器语言获取最匹配的支持语言
  */
 function getMatchingLocale(browserLanguage) {
+    // 处理空值和无效输入
+    if (!browserLanguage || typeof browserLanguage !== 'string') {
+        return exports.DEFAULT_LOCALE;
+    }
     // 直接匹配
     if (isSupportedLocale(browserLanguage)) {
         return browserLanguage;
@@ -289,7 +293,10 @@ exports.PLURAL_RULES = {
  * 获取复数规则函数
  */
 function getPluralRule(locale) {
-    return exports.PLURAL_RULES[locale] || exports.PLURAL_RULES[exports.DEFAULT_LOCALE];
+    if (!isSupportedLocale(locale)) {
+        throw new Error(`Unsupported locale: ${locale}`);
+    }
+    return new Intl.PluralRules(locale.replace('_', '-'));
 }
 exports.getPluralRule = getPluralRule;
 //# sourceMappingURL=languages.js.map

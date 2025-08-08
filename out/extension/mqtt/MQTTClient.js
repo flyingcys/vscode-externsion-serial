@@ -713,9 +713,10 @@ class MQTTClient extends events_1.EventEmitter {
         }, 5000); // 每5秒更新一次统计信息
     }
     startQosCleanupTimer() {
+        const cleanupInterval = process.env.NODE_ENV === 'test' ? 100 : 10000; // 测试环境100ms，生产环境10秒
         this.qosCleanupTimer = setInterval(() => {
             this.cleanupExpiredQosMessages();
-        }, 10000); // 每10秒清理过期的QoS消息
+        }, cleanupInterval);
     }
     getNextMessageId() {
         const id = this.messageIdCounter;

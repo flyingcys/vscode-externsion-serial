@@ -42,13 +42,11 @@ export class ProjectValidator {
       ));
     }
 
-    // 业务逻辑验证
-    if (schemaValid) {
-      const businessValidation = this.validateBusinessLogic(project as ProjectConfig);
-      if (!businessValidation.valid) {
-        valid = false;
-        errors.push(...businessValidation.errors);
-      }
+    // 业务逻辑验证（总是运行，不管schema验证结果）
+    const businessValidation = this.validateBusinessLogic(project as ProjectConfig);
+    if (!businessValidation.valid) {
+      valid = false;
+      errors.push(...businessValidation.errors);
     }
 
     return { valid, errors };
@@ -212,6 +210,11 @@ export class ProjectValidator {
     const errors: string[] = [];
     let valid = true;
 
+    // 空值检查
+    if (!project) {
+      return { valid: false, errors: ['Project configuration is null or undefined'] };
+    }
+
     // 项目标题验证
     if (!project.title || project.title.trim().length === 0) {
       valid = false;
@@ -236,12 +239,20 @@ export class ProjectValidator {
     const usedIndices = new Set<number>();
     const duplicateIndices: number[] = [];
 
-    for (const group of project.groups) {
-      for (const dataset of group.datasets) {
-        if (usedIndices.has(dataset.index)) {
-          duplicateIndices.push(dataset.index);
-        } else {
-          usedIndices.add(dataset.index);
+    // 确保groups存在且为数组
+    if (project.groups && Array.isArray(project.groups)) {
+      for (const group of project.groups) {
+        // 确保datasets存在且为数组
+        if (group && group.datasets && Array.isArray(group.datasets)) {
+          for (const dataset of group.datasets) {
+            if (dataset && typeof dataset.index === 'number') {
+              if (usedIndices.has(dataset.index)) {
+                duplicateIndices.push(dataset.index);
+              } else {
+                usedIndices.add(dataset.index);
+              }
+            }
+          }
         }
       }
     }
@@ -252,28 +263,117 @@ export class ProjectValidator {
     }
 
     // 组群和数据集验证
-    for (let groupIndex = 0; groupIndex < project.groups.length; groupIndex++) {
-      const group = project.groups[groupIndex];
-      const groupValidation = this.validateGroup(group);
-      
-      if (!groupValidation.valid) {
-        valid = false;
-        errors.push(...groupValidation.errors.map(err => 
-          `Group ${groupIndex + 1} (${group.title}): ${err}`
-        ));
+    if (project.groups && Array.isArray(project.groups)) {
+      for (let groupIndex = 0; groupIndex < project.groups.length; groupIndex++) {
+        const group = project.groups[groupIndex];
+        if (group) {
+          const groupValidation = this.validateGroup(group);
+          
+          if (!groupValidation.valid) {
+            valid = false;
+            errors.push(...groupValidation.errors.map(err => 
+              `Group ${groupIndex + 1} (${group.title || 'unnamed'}): ${err}`
+            ));
+          }
+
+          // 额外的JSON Schema格式验证和详细业务逻辑验证
+          if (group.datasets && Array.isArray(group.datasets)) {
+            for (let datasetIndex = 0; datasetIndex < group.datasets.length; datasetIndex++) {
+              const dataset = group.datasets[datasetIndex];
+              if (dataset) {
+                // 添加JSON Schema风格的错误信息
+                if (!dataset.title || dataset.title.trim().length === 0) {
+                  valid = false;
+                  errors.push(`title: must NOT have fewer than 1 characters`);
+                }
+                if (dataset.index < 0) {
+                  valid = false;
+                  errors.push(`index: must be >= 0`);
+                }
+                
+                // 更多详细的验证错误
+                if (dataset.min !== undefined && dataset.max !== undefined && dataset.min > dataset.max) {
+                  valid = false;
+                  errors.push(`Dataset min value (${dataset.min}) must be less than max value (${dataset.max})`);
+                }
+                
+                if (dataset.fft && dataset.fftSamples) {
+                  // FFT samples must be power of 2
+                  if (dataset.fftSamples <= 0 || (dataset.fftSamples & (dataset.fftSamples - 1)) !== 0) {
+                    valid = false;
+                    errors.push(`FFT samples must be a positive power of 2, got ${dataset.fftSamples}`);
+                  }
+                }
+                
+                if (dataset.fft && dataset.fftSamplingRate !== undefined && dataset.fftSamplingRate <= 0) {
+                  valid = false;
+                  errors.push(`FFT sampling rate must be positive, got ${dataset.fftSamplingRate}`);
+                }
+              }
+            }
+          }
+          
+          // 组群标题验证
+          if (!group.title || group.title.trim().length === 0) {
+            valid = false;
+            errors.push(`Group title cannot be empty`);
+          }
+          
+          // 组群widget验证
+          const validGroupWidgets = ['', 'accelerometer', 'bar', 'compass', 'gyro', 'map', 'plot', 'gauge', 'led', 'terminal', 'fft', 'multiplot'];
+          if (group.widget && !validGroupWidgets.includes(group.widget)) {
+            valid = false;
+            errors.push(`Invalid group widget: ${group.widget}`);
+          }
+        }
       }
     }
 
     // 动作验证
-    for (let actionIndex = 0; actionIndex < project.actions.length; actionIndex++) {
-      const action = project.actions[actionIndex];
-      const actionValidation = this.validateAction(action);
-      
-      if (!actionValidation.valid) {
+    if (project.actions && Array.isArray(project.actions)) {
+      for (let actionIndex = 0; actionIndex < project.actions.length; actionIndex++) {
+        const action = project.actions[actionIndex];
+        if (action) {
+          const actionValidation = this.validateAction(action);
+          
+          if (!actionValidation.valid) {
+            valid = false;
+            errors.push(...actionValidation.errors.map(err => 
+              `Action ${actionIndex + 1} (${action.title || 'unnamed'}): ${err}`
+            ));
+          }
+          
+          // 额外的动作验证
+          if (!action.title || action.title.trim().length === 0) {
+            valid = false;
+            errors.push(`Action title cannot be empty`);
+          }
+          
+          if (!action.txData || action.txData.trim().length === 0) {
+            valid = false;
+            errors.push(`Action transmission data cannot be empty`);
+          }
+          
+          if (action.timerIntervalMs !== undefined && action.timerIntervalMs < 0) {
+            valid = false;
+            errors.push(`Timer interval must be non-negative, got ${action.timerIntervalMs}`);
+          }
+        }
+      }
+    }
+    
+    // 项目级别的额外验证
+    if (project.decoder !== undefined) {
+      if (![0, 1, 2].includes(project.decoder)) {
         valid = false;
-        errors.push(...actionValidation.errors.map(err => 
-          `Action ${actionIndex + 1} (${action.title}): ${err}`
-        ));
+        errors.push(`Invalid decoder value: ${project.decoder}, must be 0, 1, or 2`);
+      }
+    }
+    
+    if (project.frameDetection !== undefined) {
+      if (![0, 1, 2, 3].includes(project.frameDetection)) {
+        valid = false;
+        errors.push(`Invalid frameDetection value: ${project.frameDetection}, must be 0, 1, 2, or 3`);
       }
     }
 

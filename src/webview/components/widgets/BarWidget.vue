@@ -433,6 +433,11 @@ const updateChart = () => {
   if (!chart.value || isPaused.value) return;
 
   try {
+    // 确保chart.value.data和datasets存在
+    if (!chart.value.data || !chart.value.data.datasets || !chart.value.data.datasets[0]) {
+      return;
+    }
+    
     // 更新数据
     chart.value.data.labels = sortedData.value.map(item => item.label);
     chart.value.data.datasets[0].data = sortedData.value.map(item => item.value);
@@ -505,7 +510,7 @@ const showContextMenu = (event: MouseEvent) => {
 // 模拟数据更新（用于演示）
 const simulateDataUpdate = () => {
   setInterval(() => {
-    if (!isPaused.value && props.realtime) {
+    if (!isPaused.value && props.realtime && chart.value) {
       // 更新现有数据项的值
       chartData.value.forEach(item => {
         item.value = Math.max(0, item.value + (Math.random() - 0.5) * 20);

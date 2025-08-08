@@ -116,7 +116,7 @@ class PluginLoader {
             this.validateDependencies(manifest.dependencies, errors);
         }
         if (errors.length > 0) {
-            throw new Error(`Plugin manifest validation failed:\\n${errors.join('\\n')}`);
+            throw new Error(`Plugin manifest validation failed:\n${errors.join('\n')}`);
         }
     }
     /**
@@ -163,6 +163,9 @@ class PluginLoader {
             // that can handle dynamic imports and provides isolation
             delete require.cache[require.resolve(modulePath)];
             const pluginModule = require(modulePath);
+            // Add metadata about which entry point was used
+            const entryFileName = path.basename(modulePath);
+            pluginModule.entryPoint = entryFileName;
             // Validate required exports
             this.validatePluginModule(pluginModule, manifest);
             // Cache the module

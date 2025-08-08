@@ -46,5 +46,5 @@ export declare const PLURAL_RULES: Record<SupportedLocales, (count: number) => s
 /**
  * 获取复数规则函数
  */
-export declare function getPluralRule(locale: SupportedLocales): (count: number) => string;
+export declare function getPluralRule(locale: SupportedLocales): Intl.PluralRules;
 //# sourceMappingURL=languages.d.ts.map

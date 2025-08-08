@@ -813,7 +813,7 @@ const processBatchUpdate = () => {
  * @param pointRemoved 是否移除了旧数据点
  */
 const incrementalUpdateChart = (datasetIndex: number, newPoint: any, pointRemoved: boolean) => {
-  if (!chart.value || isPaused.value) return;
+  if (!chart.value || !chart.value.data || !chart.value.data.datasets || isPaused.value) return;
 
   try {
     const dataset = chart.value.data.datasets[datasetIndex];
@@ -842,7 +842,7 @@ const incrementalUpdateChart = (datasetIndex: number, newPoint: any, pointRemove
  * @param updates 更新数组，每个元素包含datasetIndex和points
  */
 const batchIncrementalUpdate = (updates: Array<{datasetIndex: number, points: any[]}>) => {
-  if (!chart.value || isPaused.value || updates.length === 0) return;
+  if (!chart.value || !chart.value.data || !chart.value.data.datasets || isPaused.value || updates.length === 0) return;
 
   try {
     let hasUpdates = false;

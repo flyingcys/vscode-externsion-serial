@@ -26,11 +26,16 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
     const state = (0, vue_1.reactive)({
         currentFrame: null,
         frames: [],
+        rawData: [],
+        datasets: [],
+        groups: [],
         widgets: new Map(),
         isPaused: false,
         isRecording: false,
+        isProcessing: false,
         maxFrameHistory: 1000,
-        totalFramesReceived: 0,
+        totalFrames: 0,
+        droppedFrames: 0,
         totalBytesReceived: 0,
         lastFrameTime: 0,
         dataBuffer: new Map(),
@@ -165,6 +170,164 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
         buffer.totalPoints = 0;
         // 不需要清零TypedArray，因为会被覆盖
     };
+    // === 原始数据管理方法 ===
+    /**
+     * 添加原始数据
+     * @param data 原始数据
+     */
+    const addRawData = (data) => {
+        const entry = {
+            data,
+            timestamp: Date.now()
+        };
+        state.rawData.push(entry);
+        // 限制原始数据缓存大小
+        if (state.rawData.length > 1000) {
+            state.rawData.shift();
+        }
+    };
+    /**
+     * 批量添加原始数据
+     * @param dataArray 原始数据数组
+     */
+    const addRawDataBatch = (dataArray) => {
+        const timestamp = Date.now();
+        const entries = dataArray.map(data => ({ data, timestamp }));
+        state.rawData.push(...entries);
+        // 限制原始数据缓存大小
+        while (state.rawData.length > 1000) {
+            state.rawData.shift();
+        }
+    };
+    /**
+     * 清除原始数据
+     */
+    const clearRawData = () => {
+        state.rawData = [];
+    };
+    // === 处理后的帧管理方法 ===
+    /**
+     * 添加处理后的帧
+     * @param frame 处理后的帧
+     */
+    const addProcessedFrame = (frame) => {
+        if (!frame.isValid) {
+            state.droppedFrames++;
+            return;
+        }
+        state.frames.push(frame);
+        state.totalFrames++;
+        // 限制帧历史记录大小
+        if (state.frames.length > state.maxFrameHistory) {
+            state.frames.shift();
+        }
+    };
+    /**
+     * 批量添加处理后的帧
+     * @param frames 帧数组
+     */
+    const addProcessedFramesBatch = (frames) => {
+        const validFrames = frames.filter(frame => {
+            if (!frame.isValid) {
+                state.droppedFrames++;
+                return false;
+            }
+            return true;
+        });
+        state.frames.push(...validFrames);
+        state.totalFrames += validFrames.length;
+        // 限制帧历史记录大小
+        while (state.frames.length > state.maxFrameHistory) {
+            state.frames.shift();
+        }
+    };
+    // === 数据集管理方法 ===
+    /**
+     * 添加数据集
+     * @param dataset 数据集
+     */
+    const addDataset = (dataset) => {
+        const existingIndex = state.datasets.findIndex(d => d.id === dataset.id);
+        if (existingIndex >= 0) {
+            state.datasets[existingIndex] = dataset;
+        }
+        else {
+            state.datasets.push(dataset);
+        }
+    };
+    /**
+     * 更新数据集
+     * @param id 数据集ID
+     * @param dataset 更新的数据集
+     */
+    const updateDataset = (id, dataset) => {
+        const index = state.datasets.findIndex(d => d.id === id);
+        if (index >= 0) {
+            state.datasets[index] = dataset;
+        }
+    };
+    /**
+     * 移除数据集
+     * @param id 数据集ID
+     */
+    const removeDataset = (id) => {
+        const index = state.datasets.findIndex(d => d.id === id);
+        if (index >= 0) {
+            state.datasets.splice(index, 1);
+        }
+    };
+    // === 分组管理方法 ===
+    /**
+     * 添加组
+     * @param group 组
+     */
+    const addGroup = (group) => {
+        const existingIndex = state.groups.findIndex(g => g.id === group.id);
+        if (existingIndex >= 0) {
+            state.groups[existingIndex] = group;
+        }
+        else {
+            state.groups.push(group);
+        }
+    };
+    /**
+     * 更新组
+     * @param id 组ID
+     * @param group 更新的组
+     */
+    const updateGroup = (id, group) => {
+        const index = state.groups.findIndex(g => g.id === id);
+        if (index >= 0) {
+            state.groups[index] = group;
+        }
+    };
+    // === Widget数据管理方法 ===
+    /**
+     * 设置Widget数据
+     * @param id Widget ID
+     * @param data Widget数据
+     */
+    const setWidgetData = (id, data) => {
+        state.widgets.set(id, data);
+    };
+    /**
+     * 更新Widget数据
+     * @param id Widget ID
+     * @param updates 更新的数据
+     */
+    const updateWidgetData = (id, updates) => {
+        const existing = state.widgets.get(id);
+        if (existing) {
+            state.widgets.set(id, { ...existing, ...updates });
+        }
+    };
+    /**
+     * 移除Widget数据
+     * @param id Widget ID
+     */
+    const removeWidgetData = (id) => {
+        state.widgets.delete(id);
+    };
     // === 动作 ===
     /**
      * 初始化数据存储
@@ -174,7 +337,7 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
         // 定期清理过期数据
         setInterval(cleanupExpiredData, 30000); // 每30秒清理一次
         // 定期更新性能指标
-        setInterval(updatePerformanceMetrics, 1000); // 每秒更新一次
+        setInterval(updatePerformanceMetricsInternal, 1000); // 每秒更新一次
     };
     /**
      * 处理新的数据帧
@@ -183,13 +346,15 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
     const processFrame = (frame) => {
         if (state.isPaused) {
             performanceMetrics.droppedFrames++;
+            state.droppedFrames++;
             return;
         }
         const startTime = Date.now();
+        state.isProcessing = true;
         try {
             // 更新当前帧
             state.currentFrame = frame;
-            state.totalFramesReceived++;
+            state.totalFrames++;
             state.lastFrameTime = frame.timestamp;
             // 添加到历史记录
             state.frames.push(frame);
@@ -206,6 +371,9 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
         }
         catch (error) {
             console.error('处理数据帧时出错:', error);
+        }
+        finally {
+            state.isProcessing = false;
         }
     };
     /**
@@ -314,9 +482,13 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
     const clearAllData = () => {
         state.currentFrame = null;
         state.frames = [];
+        state.rawData = [];
+        state.datasets = [];
+        state.groups = [];
         state.widgets.clear();
         state.dataBuffer.clear();
-        state.totalFramesReceived = 0;
+        state.totalFrames = 0;
+        state.droppedFrames = 0;
         state.totalBytesReceived = 0;
         state.lastFrameTime = 0;
         performanceMetrics.droppedFrames = 0;
@@ -331,8 +503,104 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
             clearOptimizedBuffer(buffer);
         }
     };
+    // === 搜索和过滤方法 ===
+    /**
+     * 搜索数据集
+     * @param query 搜索查询
+     * @returns 匹配的数据集
+     */
+    const searchDatasets = (query) => {
+        return state.datasets.filter(dataset => dataset.title?.toLowerCase().includes(query.toLowerCase()));
+    };
+    /**
+     * 按Widget类型获取数据集
+     * @param widget Widget类型
+     * @returns 匹配的数据集
+     */
+    const getDatasetsByWidget = (widget) => {
+        return state.datasets.filter(dataset => dataset.widget === widget);
+    };
+    /**
+     * 获取时间范围内的数据
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @returns 时间范围内的数据集
+     */
+    const getDataInTimeRange = (startTime, endTime) => {
+        return state.datasets.filter(dataset => dataset.timestamp !== undefined && dataset.timestamp >= startTime && dataset.timestamp <= endTime);
+    };
+    // === 性能监控方法 ===
+    /**
+     * 更新性能指标
+     * @param metrics 性能指标
+     */
+    const updatePerformanceMetrics = (metrics) => {
+        Object.assign(performanceMetrics, metrics);
+    };
+    /**
+     * 计算处理速率
+     * @param startTime 开始时间
+     * @param endTime 结束时间
+     * @param count 处理数量
+     * @returns 处理速率（个/秒）
+     */
+    const calculateProcessingRate = (startTime, endTime, count) => {
+        const duration = endTime - startTime;
+        return duration > 0 ? (count * 1000) / duration : 0;
+    };
+    /**
+     * 获取内存使用情况
+     * @returns 内存使用情况
+     */
+    const getMemoryUsage = () => {
+        try {
+            const stats = memoryManager.getMemoryStats();
+            return {
+                used: stats.totalUsed || 0,
+                available: stats.totalFree || 1000000
+            };
+        }
+        catch (error) {
+            console.warn('获取内存使用情况失败:', error);
+            return { used: 0, available: 1000000 };
+        }
+    };
+    /**
+     * 检查内存使用情况
+     */
+    const checkMemoryUsage = () => {
+        const usage = getMemoryUsage();
+        const usageRatio = usage.used / (usage.used + usage.available);
+        if (usageRatio > 0.9) {
+            triggerMemoryCleanup();
+        }
+    };
+    /**
+     * 触发内存清理
+     */
+    const triggerMemoryCleanup = () => {
+        cleanupExpiredData();
+        // 清理较旧的数据
+        if (state.rawData.length > 500) {
+            state.rawData = state.rawData.slice(-500);
+        }
+        if (state.frames.length > 500) {
+            state.frames = state.frames.slice(-500);
+        }
+    };
     /**
      * 清理过期数据
+     * @param maxAge 最大保存时间（毫秒），默认1小时
+     */
+    const clearExpiredData = (maxAge = 3600000) => {
+        const now = Date.now();
+        // 清理过期的数据集
+        state.datasets = state.datasets.filter(dataset => dataset.timestamp !== undefined && now - dataset.timestamp < maxAge);
+        // 清理过期的原始数据
+        state.rawData = state.rawData.filter(entry => now - entry.timestamp < maxAge);
+    };
+    /**
+     * 清理过期数据（内部方法）
      */
     const cleanupExpiredData = () => {
         const now = Date.now();
@@ -369,9 +637,9 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
         memoryManager.optimize();
     };
     /**
-     * 更新性能指标
+     * 更新性能指标（内部方法）
      */
-    const updatePerformanceMetrics = () => {
+    const updatePerformanceMetricsInternal = () => {
         performanceMetrics.updateFrequency = averageUpdateRate.value;
         performanceMetrics.memoryUsage = memoryUsage.value;
     };
@@ -391,7 +659,7 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
      */
     const getStatistics = () => {
         return {
-            totalFrames: state.totalFramesReceived,
+            totalFrames: state.totalFrames,
             totalBytes: state.totalBytesReceived,
             activeWidgets: activeWidgets.value.length,
             totalDataPoints: totalDataPoints.value,
@@ -440,20 +708,58 @@ exports.useDataStore = (0, pinia_1.defineStore)('data', () => {
     };
     // 返回store API
     return {
-        // 状态
+        // 状态（测试兼容属性）
+        rawData: (0, vue_1.computed)(() => state.rawData),
+        processedFrames: (0, vue_1.computed)(() => state.frames),
+        datasets: (0, vue_1.computed)(() => state.datasets),
+        groups: (0, vue_1.computed)(() => state.groups),
+        widgetData: (0, vue_1.computed)(() => state.widgets),
+        isProcessing: (0, vue_1.computed)(() => state.isProcessing),
+        totalFrames: (0, vue_1.computed)(() => state.totalFrames),
+        droppedFrames: (0, vue_1.computed)(() => state.droppedFrames),
+        performanceMetrics: (0, vue_1.computed)(() => performanceMetrics),
+        // 状态（原有属性）
         currentFrame: (0, vue_1.computed)(() => state.currentFrame),
         frames: (0, vue_1.computed)(() => state.frames),
         widgets: (0, vue_1.computed)(() => state.widgets),
         isPaused: (0, vue_1.computed)(() => state.isPaused),
         isRecording: (0, vue_1.computed)(() => state.isRecording),
-        performanceMetrics: (0, vue_1.computed)(() => performanceMetrics),
         // 计算属性
         isConnected,
         activeWidgets,
         totalDataPoints,
         averageUpdateRate,
         memoryUsage,
-        // 方法
+        // 原始数据管理方法
+        addRawData,
+        addRawDataBatch,
+        clearRawData,
+        // 处理后的帧管理方法
+        addProcessedFrame,
+        addProcessedFramesBatch,
+        // 数据集管理方法
+        addDataset,
+        updateDataset,
+        removeDataset,
+        // 分组管理方法
+        addGroup,
+        updateGroup,
+        // Widget数据管理方法
+        setWidgetData,
+        updateWidgetData,
+        removeWidgetData,
+        // 搜索和过滤方法
+        searchDatasets,
+        getDatasetsByWidget,
+        getDataInTimeRange,
+        // 性能监控方法
+        updatePerformanceMetrics,
+        calculateProcessingRate,
+        getMemoryUsage,
+        checkMemoryUsage,
+        triggerMemoryCleanup,
+        clearExpiredData,
+        // 原有方法
         initialize,
         processFrame,
         getDataPoints,

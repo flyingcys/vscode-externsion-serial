@@ -153,7 +153,7 @@ class DefaultTranslationLoader implements TranslationLoader {
       const resource: TranslationResource = {
         locale,
         messages: module.default || module,
-        pluralRule: getPluralRule(locale),
+        pluralRule: (count: number) => getPluralRule(locale).select(count),
         dateTimeFormats: this.getDateTimeFormats(locale),
         numberFormats: this.getNumberFormats(locale)
       };
@@ -167,7 +167,7 @@ class DefaultTranslationLoader implements TranslationLoader {
       const emptyResource: TranslationResource = {
         locale,
         messages: {},
-        pluralRule: getPluralRule(locale),
+        pluralRule: (count: number) => getPluralRule(locale).select(count),
         dateTimeFormats: this.getDateTimeFormats(locale),
         numberFormats: this.getNumberFormats(locale)
       };
@@ -586,6 +586,7 @@ export class I18nManager {
     this.localeChangeListeners = [];
     this.resourceLoadListeners = [];
     this.translationMissingListeners = [];
+    this.missingKeysList.clear();
     this.config.initialized = false;
     I18nManager.instance = null;
   }
@@ -676,6 +677,9 @@ export class I18nManager {
    * 通知翻译缺失
    */
   private notifyTranslationMissing(key: string, locale: SupportedLocales): void {
+    // 添加到缺失键列表
+    this.missingKeysList.add(key);
+    
     if (this.config.options.warnOnMissing) {
       console.warn(`Missing translation for key "${key}" in locale "${locale}"`);
     }
@@ -687,5 +691,78 @@ export class I18nManager {
         console.error('Error in translation missing listener:', error);
       }
     });
+  }
+
+  // === 公共API方法扩展 ===
+
+  /**
+   * 检查翻译键是否存在
+   */
+  public hasTranslationKey(key: string, locale?: SupportedLocales): boolean {
+    const targetLocale = locale || this.config.currentLocale;
+    const resource = this.cache.get(targetLocale);
+    
+    if (!resource) {
+      return false;
+    }
+    
+    return this.getTranslationByKey(key, resource.messages) !== null;
+  }
+
+  /**
+   * 获取翻译统计信息
+   */
+  public getTranslationStats(): { totalKeys: number; missingKeys: number; coverage: number } {
+    if (!this.currentResource) {
+      return { totalKeys: 0, missingKeys: 0, coverage: 0 };
+    }
+
+    const totalKeys = this.countKeys(this.currentResource.messages);
+    const missingKeys = this.missingKeysList.size;
+    const coverage = totalKeys > 0 ? ((totalKeys - missingKeys) / totalKeys) * 100 : 100;
+
+    return { totalKeys, missingKeys, coverage: Math.round(coverage * 100) / 100 };
+  }
+
+  /**
+   * 获取缺失的翻译键
+   */
+  public getMissingKeys(): string[] {
+    return Array.from(this.missingKeysList);
+  }
+
+  /**
+   * 检查是否有某个语言的翻译资源
+   */
+  public hasTranslation(locale: SupportedLocales): boolean {
+    return this.cache.has(locale);
+  }
+
+  // === 私有辅助方法 ===
+
+  /**
+   * 缺失键列表（用于统计）
+   */
+  private missingKeysList = new Set<string>();
+
+  /**
+   * 递归计算翻译对象中的键数量
+   */
+  private countKeys(obj: any, prefix = ''): number {
+    let count = 0;
+    
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const fullKey = prefix ? `${prefix}.${key}` : key;
+        
+        if (typeof obj[key] === 'object' && obj[key] !== null) {
+          count += this.countKeys(obj[key], fullKey);
+        } else if (typeof obj[key] === 'string') {
+          count++;
+        }
+      }
+    }
+    
+    return count;
   }
 }

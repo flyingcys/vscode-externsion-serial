@@ -41,12 +41,15 @@ exports.useConnectionStore = (0, pinia_1.defineStore)('connection', () => {
         reconnections: 0,
         uptime: 0
     });
+    // 当前设备信息
+    const currentDevice = (0, vue_1.ref)(null);
     // 连接历史
     const connectionHistory = (0, vue_1.ref)([]);
     // === 计算属性 ===
     const isConnected = (0, vue_1.computed)(() => connectionState.value === ConnectionState.Connected);
     const isConnecting = (0, vue_1.computed)(() => connectionState.value === ConnectionState.Connecting ||
         connectionState.value === ConnectionState.Reconnecting);
+    const hasError = (0, vue_1.computed)(() => connectionState.value === ConnectionState.Error);
     const canReconnect = (0, vue_1.computed)(() => isAutoReconnectEnabled.value &&
         reconnectAttempts.value < maxReconnectAttempts.value &&
         currentConfig.value !== null);
@@ -221,14 +224,74 @@ exports.useConnectionStore = (0, pinia_1.defineStore)('connection', () => {
         }
     };
     /**
-     * 更新连接统计
-     * @param update 统计更新
+     * 设置连接状态
+     * @param state 连接状态
      */
-    const updateStats = (update) => {
-        Object.assign(stats, update);
+    const setState = (state) => {
+        connectionState.value = state;
     };
     /**
-     * 重置统计信息
+     * 设置当前设备
+     * @param device 设备信息
+     */
+    const setCurrentDevice = (device) => {
+        currentDevice.value = device;
+    };
+    /**
+     * 清除当前设备
+     */
+    const clearCurrentDevice = () => {
+        currentDevice.value = null;
+    };
+    /**
+     * 设置错误信息
+     * @param error 错误对象或消息
+     */
+    const setError = (error) => {
+        lastError.value = error instanceof Error ? error.message : error;
+        connectionState.value = ConnectionState.Error;
+    };
+    /**
+     * 清除错误信息
+     */
+    const clearError = () => {
+        lastError.value = '';
+    };
+    /**
+     * Set connection configuration
+     * @param config Connection configuration
+     */
+    const setConnectionConfig = (config) => {
+        currentConfig.value = config;
+    };
+    /**
+     * Update connection configuration
+     * @param updates Configuration updates
+     */
+    const updateConnectionConfig = (updates) => {
+        if (currentConfig.value) {
+            currentConfig.value = { ...currentConfig.value, ...updates };
+        }
+    };
+    /**
+     * Update connection statistics
+     * @param update Statistics update
+     */
+    const updateStats = (update) => {
+        Object.keys(update).forEach(key => {
+            const typedKey = key;
+            if (typeof update[typedKey] === 'number') {
+                // Accumulate numeric statistics
+                stats[typedKey] += update[typedKey] || 0;
+            }
+            else {
+                // Direct assignment for other types
+                stats[typedKey] = update[typedKey];
+            }
+        });
+    };
+    /**
+     * Reset statistics
      */
     const resetStats = () => {
         stats.bytesReceived = 0;
@@ -304,6 +367,52 @@ exports.useConnectionStore = (0, pinia_1.defineStore)('connection', () => {
         const filtered = presets.filter(p => p.name !== name);
         savePresets(filtered);
     };
+    /**
+     * 检查是否可以转换到指定状态
+     * @param targetState 目标状态
+     * @returns 是否可以转换
+     */
+    const canTransitionTo = (targetState) => {
+        const current = connectionState.value;
+        switch (current) {
+            case ConnectionState.Disconnected:
+                return targetState === ConnectionState.Connecting;
+            case ConnectionState.Connecting:
+                return [
+                    ConnectionState.Connected,
+                    ConnectionState.Error,
+                    ConnectionState.Disconnected
+                ].includes(targetState);
+            case ConnectionState.Connected:
+                return [
+                    ConnectionState.Disconnected,
+                    ConnectionState.Reconnecting,
+                    ConnectionState.Error
+                ].includes(targetState);
+            case ConnectionState.Reconnecting:
+                return [
+                    ConnectionState.Connected,
+                    ConnectionState.Error,
+                    ConnectionState.Disconnected
+                ].includes(targetState);
+            case ConnectionState.Error:
+                return [
+                    ConnectionState.Disconnected,
+                    ConnectionState.Connecting,
+                    ConnectionState.Reconnecting
+                ].includes(targetState);
+            default:
+                return false;
+        }
+    };
+    /**
+     * 添加连接到历史记录
+     * @param config 连接配置
+     * @param success 是否成功（可选）
+     */
+    const addToHistoryPublic = (config, success = true) => {
+        addToHistory(config, success);
+    };
     // === 内部辅助方法 ===
     /**
      * 开始运行时间计时器
@@ -354,16 +463,20 @@ exports.useConnectionStore = (0, pinia_1.defineStore)('connection', () => {
     // 返回store API
     return {
         // 状态
+        state: (0, vue_1.computed)(() => connectionState.value),
         connectionState: (0, vue_1.computed)(() => connectionState.value),
         currentConfig: (0, vue_1.computed)(() => currentConfig.value),
+        connectionConfig: (0, vue_1.computed)(() => currentConfig.value),
         lastError: (0, vue_1.computed)(() => lastError.value),
+        currentDevice: (0, vue_1.computed)(() => currentDevice.value),
         availableDevices: (0, vue_1.computed)(() => availableDevices.value),
         isScanning: (0, vue_1.computed)(() => isScanning.value),
-        stats: (0, vue_1.computed)(() => stats),
+        stats,
         connectionHistory: (0, vue_1.computed)(() => connectionHistory.value),
         // 计算属性
         isConnected,
         isConnecting,
+        hasError,
         canReconnect,
         connectionStatusText,
         uptimeText,
@@ -376,6 +489,13 @@ exports.useConnectionStore = (0, pinia_1.defineStore)('connection', () => {
         disconnect,
         reconnect,
         scanDevices,
+        setState,
+        setCurrentDevice,
+        clearCurrentDevice,
+        setError,
+        clearError,
+        setConnectionConfig,
+        updateConnectionConfig,
         updateStats,
         resetStats,
         setAutoReconnect,
@@ -384,7 +504,9 @@ exports.useConnectionStore = (0, pinia_1.defineStore)('connection', () => {
         getPresets,
         savePresets,
         addPreset,
-        removePreset
+        removePreset,
+        canTransitionTo,
+        addToHistory: addToHistoryPublic
     };
 });
 exports.default = exports.useConnectionStore;

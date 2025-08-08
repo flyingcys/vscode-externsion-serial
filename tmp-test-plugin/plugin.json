@@ -1,0 +1,23 @@
+{
+  "id": "test-plugin-1",
+  "name": "Test Plugin 1",
+  "version": "1.0.0",
+  "description": "Test plugin description 1",
+  "author": "Test Author",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.60.0",
+    "serialStudio": "^1.0.0"
+  },
+  "activationEvents": ["*"],
+  "main": "custom-entry.js",
+  "category": "communication",
+  "keywords": ["test", "plugin"],
+  "homepage": "https://example.com/test-plugin-1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/test/test-plugin-1.git"
+  },
+  "contributes": {},
+  "dependencies": {}
+}

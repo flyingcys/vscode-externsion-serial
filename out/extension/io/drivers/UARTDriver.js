@@ -351,9 +351,13 @@ class UARTDriver extends HALDriver_1.HALDriver {
         this.isReconnecting = true;
         this.reconnectTimer = setInterval(async () => {
             try {
-                // Ensure port is closed before attempting reconnection
-                if (this.serialPort && this.serialPort.isOpen) {
-                    await this.close();
+                // Ensure port is properly closed before attempting reconnection
+                if (this.serialPort) {
+                    if (this.serialPort.isOpen) {
+                        await this.close();
+                    }
+                    // Reset the port object to ensure clean state
+                    this.serialPort = null;
                 }
                 await this.open();
                 this.stopReconnectTimer();

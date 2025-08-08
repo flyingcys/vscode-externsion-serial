@@ -1,4 +1,5 @@
 {
     "git.ignoreLimitWarning": true,
-    "C_Cpp.workspaceParsingPriority": "low"
+    "C_Cpp.workspaceParsingPriority": "low",
+    "cmake.sourceDirectory": "/home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/Serial-Studio"
 }

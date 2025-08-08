@@ -165,8 +165,8 @@ import FFT from 'fft.js'
 
 import BaseWidget from '../base/BaseWidget.vue'
 import { WidgetType, Dataset } from '@/shared/types'
-import { useDataStore } from '@/stores/data'
-import { useThemeStore } from '@/stores/theme'
+import { useDataStore } from '@/webview/stores/data'
+import { useThemeStore } from '@/webview/stores/theme'
 
 // Props定义
 interface Props {

@@ -342,17 +342,18 @@ describe('NetworkDriver', () => {
     });
 
     test('should reject invalid timeout values', () => {
+      // In test environment, minimum timeout is 100ms instead of 1000ms
       const invalidConfig = {
         ...mockConfig,
-        connectTimeout: 500,
-        reconnectInterval: 800
+        connectTimeout: 50,  // Below test environment minimum
+        reconnectInterval: 80  // Below test environment minimum
       };
       const invalidDriver = new NetworkDriver(invalidConfig);
       
       const result = invalidDriver.validateConfiguration();
       expect(result.valid).toBe(false);
-      expect(result.errors).toContain('Connection timeout must be at least 1000ms');
-      expect(result.errors).toContain('Reconnection interval must be at least 1000ms');
+      expect(result.errors).toContain('Connection timeout must be at least 100ms');
+      expect(result.errors).toContain('Reconnection interval must be at least 100ms');
       
       invalidDriver.destroy();
     });

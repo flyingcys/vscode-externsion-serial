@@ -45,16 +45,29 @@ interface OptimizedDataBuffer {
 }
 
 /**
+ * 原始数据接口
+ */
+interface RawDataEntry {
+  data: Uint8Array;
+  timestamp: number;
+}
+
+/**
  * 数据存储状态
  */
 interface DataStoreState {
   currentFrame: ProcessedFrame | null;
   frames: ProcessedFrame[];
+  rawData: RawDataEntry[];  // 原始数据数组
+  datasets: Dataset[];      // 数据集数组
+  groups: Group[];          // 分组数组
   widgets: Map<string, WidgetData>;
   isPaused: boolean;
   isRecording: boolean;
+  isProcessing: boolean;    // 是否正在处理数据
   maxFrameHistory: number;
-  totalFramesReceived: number;
+  totalFrames: number;      // 总帧数（重命名）
+  droppedFrames: number;    // 丢帧数
   totalBytesReceived: number;
   lastFrameTime: number;
   dataBuffer: Map<string, OptimizedDataBuffer>;  // 使用优化的缓冲区
@@ -79,11 +92,16 @@ export const useDataStore = defineStore('data', () => {
   const state = reactive<DataStoreState>({
     currentFrame: null,
     frames: [],
+    rawData: [],
+    datasets: [],
+    groups: [],
     widgets: new Map(),
     isPaused: false,
     isRecording: false,
+    isProcessing: false,
     maxFrameHistory: 1000,
-    totalFramesReceived: 0,
+    totalFrames: 0,
+    droppedFrames: 0,
     totalBytesReceived: 0,
     lastFrameTime: 0,
     dataBuffer: new Map(),
@@ -234,6 +252,188 @@ export const useDataStore = defineStore('data', () => {
     // 不需要清零TypedArray，因为会被覆盖
   };
 
+  // === 原始数据管理方法 ===
+
+  /**
+   * 添加原始数据
+   * @param data 原始数据
+   */
+  const addRawData = (data: Uint8Array): void => {
+    const entry: RawDataEntry = {
+      data,
+      timestamp: Date.now()
+    };
+    
+    state.rawData.push(entry);
+    
+    // 限制原始数据缓存大小
+    if (state.rawData.length > 1000) {
+      state.rawData.shift();
+    }
+  };
+
+  /**
+   * 批量添加原始数据
+   * @param dataArray 原始数据数组
+   */
+  const addRawDataBatch = (dataArray: Uint8Array[]): void => {
+    const timestamp = Date.now();
+    const entries: RawDataEntry[] = dataArray.map(data => ({ data, timestamp }));
+    
+    state.rawData.push(...entries);
+    
+    // 限制原始数据缓存大小
+    while (state.rawData.length > 1000) {
+      state.rawData.shift();
+    }
+  };
+
+  /**
+   * 清除原始数据
+   */
+  const clearRawData = (): void => {
+    state.rawData = [];
+  };
+
+  // === 处理后的帧管理方法 ===
+
+  /**
+   * 添加处理后的帧
+   * @param frame 处理后的帧
+   */
+  const addProcessedFrame = (frame: ProcessedFrame): void => {
+    if (!frame.isValid) {
+      state.droppedFrames++;
+      return;
+    }
+    
+    state.frames.push(frame);
+    state.totalFrames++;
+    
+    // 限制帧历史记录大小
+    if (state.frames.length > state.maxFrameHistory) {
+      state.frames.shift();
+    }
+  };
+
+  /**
+   * 批量添加处理后的帧
+   * @param frames 帧数组
+   */
+  const addProcessedFramesBatch = (frames: ProcessedFrame[]): void => {
+    const validFrames = frames.filter(frame => {
+      if (!frame.isValid) {
+        state.droppedFrames++;
+        return false;
+      }
+      return true;
+    });
+    
+    state.frames.push(...validFrames);
+    state.totalFrames += validFrames.length;
+    
+    // 限制帧历史记录大小
+    while (state.frames.length > state.maxFrameHistory) {
+      state.frames.shift();
+    }
+  };
+
+  // === 数据集管理方法 ===
+
+  /**
+   * 添加数据集
+   * @param dataset 数据集
+   */
+  const addDataset = (dataset: Dataset): void => {
+    const existingIndex = state.datasets.findIndex(d => d.id === dataset.id);
+    if (existingIndex >= 0) {
+      state.datasets[existingIndex] = dataset;
+    } else {
+      state.datasets.push(dataset);
+    }
+  };
+
+  /**
+   * 更新数据集
+   * @param id 数据集ID
+   * @param dataset 更新的数据集
+   */
+  const updateDataset = (id: string, dataset: Dataset): void => {
+    const index = state.datasets.findIndex(d => d.id === id);
+    if (index >= 0) {
+      state.datasets[index] = dataset;
+    }
+  };
+
+  /**
+   * 移除数据集
+   * @param id 数据集ID
+   */
+  const removeDataset = (id: string): void => {
+    const index = state.datasets.findIndex(d => d.id === id);
+    if (index >= 0) {
+      state.datasets.splice(index, 1);
+    }
+  };
+
+  // === 分组管理方法 ===
+
+  /**
+   * 添加组
+   * @param group 组
+   */
+  const addGroup = (group: Group): void => {
+    const existingIndex = state.groups.findIndex(g => g.id === group.id);
+    if (existingIndex >= 0) {
+      state.groups[existingIndex] = group;
+    } else {
+      state.groups.push(group);
+    }
+  };
+
+  /**
+   * 更新组
+   * @param id 组ID
+   * @param group 更新的组
+   */
+  const updateGroup = (id: string, group: Group): void => {
+    const index = state.groups.findIndex(g => g.id === id);
+    if (index >= 0) {
+      state.groups[index] = group;
+    }
+  };
+
+  // === Widget数据管理方法 ===
+
+  /**
+   * 设置Widget数据
+   * @param id Widget ID
+   * @param data Widget数据
+   */
+  const setWidgetData = (id: string, data: WidgetData): void => {
+    state.widgets.set(id, data);
+  };
+
+  /**
+   * 更新Widget数据
+   * @param id Widget ID
+   * @param updates 更新的数据
+   */
+  const updateWidgetData = (id: string, updates: Partial<WidgetData>): void => {
+    const existing = state.widgets.get(id);
+    if (existing) {
+      state.widgets.set(id, { ...existing, ...updates });
+    }
+  };
+
+  /**
+   * 移除Widget数据
+   * @param id Widget ID
+   */
+  const removeWidgetData = (id: string): void => {
+    state.widgets.delete(id);
+  };
+
   // === 动作 ===
 
   /**
@@ -246,7 +446,7 @@ export const useDataStore = defineStore('data', () => {
     setInterval(cleanupExpiredData, 30000); // 每30秒清理一次
     
     // 定期更新性能指标
-    setInterval(updatePerformanceMetrics, 1000); // 每秒更新一次
+    setInterval(updatePerformanceMetricsInternal, 1000); // 每秒更新一次
   };
 
   /**
@@ -256,15 +456,17 @@ export const useDataStore = defineStore('data', () => {
   const processFrame = (frame: ProcessedFrame) => {
     if (state.isPaused) {
       performanceMetrics.droppedFrames++;
+      state.droppedFrames++;
       return;
     }
 
     const startTime = Date.now();
+    state.isProcessing = true;
 
     try {
       // 更新当前帧
       state.currentFrame = frame;
-      state.totalFramesReceived++;
+      state.totalFrames++;
       state.lastFrameTime = frame.timestamp;
 
       // 添加到历史记录
@@ -285,6 +487,8 @@ export const useDataStore = defineStore('data', () => {
       
     } catch (error) {
       console.error('处理数据帧时出错:', error);
+    } finally {
+      state.isProcessing = false;
     }
   };
 
@@ -409,9 +613,13 @@ export const useDataStore = defineStore('data', () => {
   const clearAllData = () => {
     state.currentFrame = null;
     state.frames = [];
+    state.rawData = [];
+    state.datasets = [];
+    state.groups = [];
     state.widgets.clear();
     state.dataBuffer.clear();
-    state.totalFramesReceived = 0;
+    state.totalFrames = 0;
+    state.droppedFrames = 0;
     state.totalBytesReceived = 0;
     state.lastFrameTime = 0;
     performanceMetrics.droppedFrames = 0;
@@ -428,8 +636,125 @@ export const useDataStore = defineStore('data', () => {
     }
   };
 
+  // === 搜索和过滤方法 ===
+
+  /**
+   * 搜索数据集
+   * @param query 搜索查询
+   * @returns 匹配的数据集
+   */
+  const searchDatasets = (query: string): Dataset[] => {
+    return state.datasets.filter(dataset => 
+      dataset.title?.toLowerCase().includes(query.toLowerCase())
+    );
+  };
+
+  /**
+   * 按Widget类型获取数据集
+   * @param widget Widget类型
+   * @returns 匹配的数据集
+   */
+  const getDatasetsByWidget = (widget: string): Dataset[] => {
+    return state.datasets.filter(dataset => dataset.widget === widget);
+  };
+
+  /**
+   * 获取时间范围内的数据
+   * @param startTime 开始时间
+   * @param endTime 结束时间
+   * @returns 时间范围内的数据集
+   */
+  const getDataInTimeRange = (startTime: number, endTime: number): Dataset[] => {
+    return state.datasets.filter(dataset => 
+      dataset.timestamp !== undefined && dataset.timestamp >= startTime && dataset.timestamp <= endTime
+    );
+  };
+
+  // === 性能监控方法 ===
+
+  /**
+   * 更新性能指标
+   * @param metrics 性能指标
+   */
+  const updatePerformanceMetrics = (metrics: Partial<PerformanceMetrics>): void => {
+    Object.assign(performanceMetrics, metrics);
+  };
+
+  /**
+   * 计算处理速率
+   * @param startTime 开始时间
+   * @param endTime 结束时间
+   * @param count 处理数量
+   * @returns 处理速率（个/秒）
+   */
+  const calculateProcessingRate = (startTime: number, endTime: number, count: number): number => {
+    const duration = endTime - startTime;
+    return duration > 0 ? (count * 1000) / duration : 0;
+  };
+
+  /**
+   * 获取内存使用情况
+   * @returns 内存使用情况
+   */
+  const getMemoryUsage = (): { used: number; available: number } => {
+    try {
+      const stats = memoryManager.getMemoryStats();
+      return {
+        used: stats.totalUsed || 0,
+        available: stats.totalFree || 1000000
+      };
+    } catch (error) {
+      console.warn('获取内存使用情况失败:', error);
+      return { used: 0, available: 1000000 };
+    }
+  };
+
+  /**
+   * 检查内存使用情况
+   */
+  const checkMemoryUsage = (): void => {
+    const usage = getMemoryUsage();
+    const usageRatio = usage.used / (usage.used + usage.available);
+    
+    if (usageRatio > 0.9) {
+      triggerMemoryCleanup();
+    }
+  };
+
+  /**
+   * 触发内存清理
+   */
+  const triggerMemoryCleanup = (): void => {
+    cleanupExpiredData();
+    // 清理较旧的数据
+    if (state.rawData.length > 500) {
+      state.rawData = state.rawData.slice(-500);
+    }
+    if (state.frames.length > 500) {
+      state.frames = state.frames.slice(-500);
+    }
+  };
+
   /**
    * 清理过期数据
+   * @param maxAge 最大保存时间（毫秒），默认1小时
+   */
+  const clearExpiredData = (maxAge: number = 3600000): void => {
+    const now = Date.now();
+    
+    // 清理过期的数据集
+    state.datasets = state.datasets.filter(dataset => 
+      dataset.timestamp !== undefined && now - dataset.timestamp < maxAge
+    );
+    
+    // 清理过期的原始数据
+    state.rawData = state.rawData.filter(entry => 
+      now - entry.timestamp < maxAge
+    );
+  };
+
+  /**
+   * 清理过期数据（内部方法）
    */
   const cleanupExpiredData = () => {
     const now = Date.now();
@@ -477,9 +802,9 @@ export const useDataStore = defineStore('data', () => {
   };
 
   /**
-   * 更新性能指标
+   * 更新性能指标（内部方法）
    */
-  const updatePerformanceMetrics = () => {
+  const updatePerformanceMetricsInternal = () => {
     performanceMetrics.updateFrequency = averageUpdateRate.value;
     performanceMetrics.memoryUsage = memoryUsage.value;
   };
@@ -501,7 +826,7 @@ export const useDataStore = defineStore('data', () => {
    */
   const getStatistics = () => {
     return {
-      totalFrames: state.totalFramesReceived,
+      totalFrames: state.totalFrames,
       totalBytes: state.totalBytesReceived,
       activeWidgets: activeWidgets.value.length,
       totalDataPoints: totalDataPoints.value,
@@ -563,13 +888,23 @@ export const useDataStore = defineStore('data', () => {
 
   // 返回store API
   return {
-    // 状态
+    // 状态（测试兼容属性）
+    rawData: computed(() => state.rawData),
+    processedFrames: computed(() => state.frames),
+    datasets: computed(() => state.datasets),
+    groups: computed(() => state.groups),
+    widgetData: computed(() => state.widgets),
+    isProcessing: computed(() => state.isProcessing),
+    totalFrames: computed(() => state.totalFrames),
+    droppedFrames: computed(() => state.droppedFrames),
+    performanceMetrics: computed(() => performanceMetrics),
+    
+    // 状态（原有属性）
     currentFrame: computed(() => state.currentFrame),
     frames: computed(() => state.frames),
     widgets: computed(() => state.widgets),
     isPaused: computed(() => state.isPaused),
     isRecording: computed(() => state.isRecording),
-    performanceMetrics: computed(() => performanceMetrics),
     
     // 计算属性
     isConnected,
@@ -578,7 +913,43 @@ export const useDataStore = defineStore('data', () => {
     averageUpdateRate,
     memoryUsage,
     
-    // 方法
+    // 原始数据管理方法
+    addRawData,
+    addRawDataBatch,
+    clearRawData,
+    
+    // 处理后的帧管理方法
+    addProcessedFrame,
+    addProcessedFramesBatch,
+    
+    // 数据集管理方法
+    addDataset,
+    updateDataset,
+    removeDataset,
+    
+    // 分组管理方法
+    addGroup,
+    updateGroup,
+    
+    // Widget数据管理方法
+    setWidgetData,
+    updateWidgetData,
+    removeWidgetData,
+    
+    // 搜索和过滤方法
+    searchDatasets,
+    getDatasetsByWidget,
+    getDataInTimeRange,
+    
+    // 性能监控方法
+    updatePerformanceMetrics,
+    calculateProcessingRate,
+    getMemoryUsage,
+    checkMemoryUsage,
+    triggerMemoryCleanup,
+    clearExpiredData,
+    
+    // 原有方法
     initialize,
     processFrame,
     getDataPoints,

@@ -238,7 +238,7 @@ export class MultiThreadProcessor extends EventEmitter {
       }
       
       // 实现排队机制
-      const tryProcessData = () => {
+      const tryProcessData = (): void => {
         if (this.workerPool.length === 0) {
           if (this.workers.length < (this.config.maxWorkers || 4)) {
             this.createWorker();

@@ -387,9 +387,19 @@ describe('Plugin System Integration Tests', () => {
         console.log('Plugin deactivated: ${manifest.name}');
       };
       
+      // Export contributions as expected by PluginLoader
       const pluginManifest = ${JSON.stringify(manifest)};
-      exports.drivers = pluginManifest.contributes && pluginManifest.contributes.drivers || [];
-      exports.widgets = pluginManifest.contributes && pluginManifest.contributes.widgets || [];
+      if (pluginManifest.contributes) {
+        if (pluginManifest.contributes.drivers) {
+          exports.drivers = pluginManifest.contributes.drivers;
+        }
+        if (pluginManifest.contributes.widgets) {
+          exports.widgets = pluginManifest.contributes.widgets;
+        }
+        if (pluginManifest.contributes.parsers) {
+          exports.parsers = pluginManifest.contributes.parsers;
+        }
+      }
     `;
     
     await fs.writeFile(path.join(pluginDir, 'index.js'), mainCode);

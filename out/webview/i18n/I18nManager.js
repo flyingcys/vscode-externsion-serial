@@ -132,7 +132,7 @@ class DefaultTranslationLoader {
             const resource = {
                 locale,
                 messages: module.default || module,
-                pluralRule: (0, languages_1.getPluralRule)(locale),
+                pluralRule: (count) => (0, languages_1.getPluralRule)(locale).select(count),
                 dateTimeFormats: this.getDateTimeFormats(locale),
                 numberFormats: this.getNumberFormats(locale)
             };
@@ -145,7 +145,7 @@ class DefaultTranslationLoader {
             const emptyResource = {
                 locale,
                 messages: {},
-                pluralRule: (0, languages_1.getPluralRule)(locale),
+                pluralRule: (count) => (0, languages_1.getPluralRule)(locale).select(count),
                 dateTimeFormats: this.getDateTimeFormats(locale),
                 numberFormats: this.getNumberFormats(locale)
             };
@@ -511,6 +511,7 @@ class I18nManager {
         this.localeChangeListeners = [];
         this.resourceLoadListeners = [];
         this.translationMissingListeners = [];
+        this.missingKeysList.clear();
         this.config.initialized = false;
         I18nManager.instance = null;
     }
@@ -596,6 +597,8 @@ class I18nManager {
      * 通知翻译缺失
      */
     notifyTranslationMissing(key, locale) {
+        // 添加到缺失键列表
+        this.missingKeysList.add(key);
         if (this.config.options.warnOnMissing) {
             console.warn(`Missing translation for key "${key}" in locale "${locale}"`);
         }
@@ -607,6 +610,65 @@ class I18nManager {
                 console.error('Error in translation missing listener:', error);
             }
         });
+    }
+    // === 公共API方法扩展 ===
+    /**
+     * 检查翻译键是否存在
+     */
+    hasTranslationKey(key, locale) {
+        const targetLocale = locale || this.config.currentLocale;
+        const resource = this.cache.get(targetLocale);
+        if (!resource) {
+            return false;
+        }
+        return this.getTranslationByKey(key, resource.messages) !== null;
+    }
+    /**
+     * 获取翻译统计信息
+     */
+    getTranslationStats() {
+        if (!this.currentResource) {
+            return { totalKeys: 0, missingKeys: 0, coverage: 0 };
+        }
+        const totalKeys = this.countKeys(this.currentResource.messages);
+        const missingKeys = this.missingKeysList.size;
+        const coverage = totalKeys > 0 ? ((totalKeys - missingKeys) / totalKeys) * 100 : 100;
+        return { totalKeys, missingKeys, coverage: Math.round(coverage * 100) / 100 };
+    }
+    /**
+     * 获取缺失的翻译键
+     */
+    getMissingKeys() {
+        return Array.from(this.missingKeysList);
+    }
+    /**
+     * 检查是否有某个语言的翻译资源
+     */
+    hasTranslation(locale) {
+        return this.cache.has(locale);
+    }
+    // === 私有辅助方法 ===
+    /**
+     * 缺失键列表（用于统计）
+     */
+    missingKeysList = new Set();
+    /**
+     * 递归计算翻译对象中的键数量
+     */
+    countKeys(obj, prefix = '') {
+        let count = 0;
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const fullKey = prefix ? `${prefix}.${key}` : key;
+                if (typeof obj[key] === 'object' && obj[key] !== null) {
+                    count += this.countKeys(obj[key], fullKey);
+                }
+                else if (typeof obj[key] === 'string') {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 }
 exports.I18nManager = I18nManager;

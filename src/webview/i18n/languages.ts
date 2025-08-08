@@ -187,6 +187,11 @@ export function isRTLLanguage(locale: SupportedLocales): boolean {
  * 根据浏览器语言获取最匹配的支持语言
  */
 export function getMatchingLocale(browserLanguage: string): SupportedLocales {
+  // 处理空值和无效输入
+  if (!browserLanguage || typeof browserLanguage !== 'string') {
+    return DEFAULT_LOCALE;
+  }
+
   // 直接匹配
   if (isSupportedLocale(browserLanguage)) {
     return browserLanguage as SupportedLocales;
@@ -307,6 +312,10 @@ export const PLURAL_RULES: Record<SupportedLocales, (count: number) => string> =
 /**
  * 获取复数规则函数
  */
-export function getPluralRule(locale: SupportedLocales): (count: number) => string {
-  return PLURAL_RULES[locale] || PLURAL_RULES[DEFAULT_LOCALE];
+export function getPluralRule(locale: SupportedLocales): Intl.PluralRules {
+  if (!isSupportedLocale(locale)) {
+    throw new Error(`Unsupported locale: ${locale}`);
+  }
+  
+  return new Intl.PluralRules(locale.replace('_', '-'));
 }

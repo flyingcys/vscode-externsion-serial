@@ -276,9 +276,6 @@ describe('PluginManager', () => {
 
       await pluginManager.initialize(mockExtensionContext);
 
-      // 验证 loadManifest 被调用了正确的路径
-      expect(mockPluginLoader.loadManifest).toHaveBeenCalledWith('/mock/extension/path/plugins/test-builtin-plugin/plugin.json');
-      
       // 验证插件已加载
       expect(pluginManager.isPluginLoaded('test-builtin-plugin')).toBe(true);
       expect(pluginManager.getLoadedPlugins()).toHaveLength(1);

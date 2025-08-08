@@ -138,6 +138,7 @@ export interface ProcessedFrame {
   timestamp: number;
   sequence: number;
   frameId: string;
+  isValid?: boolean;
 }
 
 /**
@@ -167,6 +168,7 @@ export interface Dataset {
   min?: number;
   max?: number;
   units?: string[];
+  timestamp?: number;
 }
 
 /**
@@ -489,7 +491,11 @@ export enum MessageType {
   // Error handling
   ERROR = 'error',
   WARNING = 'warning',
-  INFO = 'info'
+  INFO = 'info',
+  
+  // Batch operations
+  BATCH = 'batch',
+  RESPONSE = 'response'
 }
 
 /**
@@ -498,6 +504,8 @@ export enum MessageType {
 export interface Message {
   type: MessageType;
   payload?: any;
+  data?: any;
   id?: string;
+  requestId?: string;
   timestamp?: number;
 }

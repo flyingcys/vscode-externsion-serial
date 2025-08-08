@@ -115,6 +115,34 @@ export declare class I18nManager {
      * 通知翻译缺失
      */
     private notifyTranslationMissing;
+    /**
+     * 检查翻译键是否存在
+     */
+    hasTranslationKey(key: string, locale?: SupportedLocales): boolean;
+    /**
+     * 获取翻译统计信息
+     */
+    getTranslationStats(): {
+        totalKeys: number;
+        missingKeys: number;
+        coverage: number;
+    };
+    /**
+     * 获取缺失的翻译键
+     */
+    getMissingKeys(): string[];
+    /**
+     * 检查是否有某个语言的翻译资源
+     */
+    hasTranslation(locale: SupportedLocales): boolean;
+    /**
+     * 缺失键列表（用于统计）
+     */
+    private missingKeysList;
+    /**
+     * 递归计算翻译对象中的键数量
+     */
+    private countKeys;
 }
 export {};
 //# sourceMappingURL=I18nManager.d.ts.map

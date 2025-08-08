@@ -299,7 +299,7 @@ describe('Plugin System Core Tests', () => {
       };
       
       // Should not throw
-      await expect(pluginLoader.validateManifest(validManifest)).resolves.not.toThrow();
+      await expect(pluginLoader.validateManifest(validManifest)).resolves.toBeUndefined();
     });
     
     it('should reject invalid plugin manifest', async () => {

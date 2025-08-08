@@ -203,12 +203,12 @@ describe('MemoryManager', () => {
 
       memoryManager.createObjectPool('pressure-test', config);
       
-      const clearSpy = vi.spyOn(memoryManager.getBufferPool(), 'clear');
+      const forceCleanupSpy = vi.spyOn(memoryManager.getBufferPool(), 'forceCleanup');
       const forceSpy = vi.spyOn(memoryManager, 'forceGC');
       
       memoryManager.relieveMemoryPressure();
       
-      expect(clearSpy).toHaveBeenCalled();
+      expect(forceCleanupSpy).toHaveBeenCalled();
       expect(forceSpy).toHaveBeenCalled();
     });
   });

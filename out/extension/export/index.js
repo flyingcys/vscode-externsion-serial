@@ -66,8 +66,8 @@ __exportStar(require("./utils"), exports);
  * 创建默认配置的导出管理器
  * @returns 导出管理器实例
  */
-function createExportManager() {
-    const { getExportManager } = require('./ExportManager');
+async function createExportManager() {
+    const { getExportManager } = await Promise.resolve().then(() => __importStar(require('./ExportManager')));
     return getExportManager();
 }
 exports.createExportManager = createExportManager;

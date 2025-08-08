@@ -41,6 +41,16 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
   let mqttClient: MQTTClient;
   let mockMqttClient: any;
   let config: MQTTConfig;
+  
+  // 全局错误处理器，防止未处理的Promise拒绝
+  const errorHandler = () => {}; // 空函数静默处理错误
+  
+  // Helper函数创建带错误处理的MQTTClient
+  const createMQTTClient = (clientConfig: MQTTConfig): MQTTClient => {
+    const client = new MQTTClient(clientConfig);
+    client.on('error', errorHandler);
+    return client;
+  };
 
   // 创建基础配置
   const createBasicConfig = (): MQTTConfig => ({
@@ -91,7 +101,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
     });
 
     vi.mocked(mqtt.connect).mockReturnValue(mockMqttClient as any);
-    mqttClient = new MQTTClient(config);
+    mqttClient = createMQTTClient(config);
   });
 
   afterEach(async () => {
@@ -122,7 +132,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
 
     it('应该处理连接超时', async () => {
       config.connectTimeout = 1; // 1秒超时
-      mqttClient = new MQTTClient(config);
+      mqttClient = createMQTTClient(config);
       
       vi.mocked(mqtt.connect).mockImplementation(() => {
         // 不触发任何事件，让它超时
@@ -179,6 +189,9 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
     });
 
     it('应该正确断开连接', async () => {
+      // 添加错误监听器，避免未处理的错误
+      mqttClient.on('error', () => {});
+      
       // 先连接
       mockMqttClient.connected = true;
       vi.mocked(mqtt.connect).mockImplementation(() => {
@@ -192,6 +205,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
 
       // 设置end的mock行为
       mockMqttClient.end.mockImplementation((force, opts, callback) => {
+        mockMqttClient.connected = false;
         setTimeout(() => {
           if (callback) callback();
         }, 10);
@@ -307,7 +321,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
 
     it('应该自动生成客户端ID', () => {
       const configWithoutId = { ...config, clientId: '' };
-      const client = new MQTTClient(configWithoutId);
+      const client = createMQTTClient(configWithoutId);
       const resultConfig = client.getConfig();
       
       expect(resultConfig.clientId).toBeDefined();
@@ -343,7 +357,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
       });
       
       config.mode = MQTTClientMode.Publisher;
-      mqttClient = new MQTTClient(config);
+      mqttClient = createMQTTClient(config);
       await mqttClient.connect();
     });
 
@@ -445,7 +459,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
 
     it('应该拒绝非发布者模式的发布', async () => {
       config.mode = MQTTClientMode.Subscriber;
-      const subscriberClient = new MQTTClient(config);
+      const subscriberClient = createMQTTClient(config);
       
       // 先连接
       vi.mocked(mqtt.connect).mockImplementation(() => {
@@ -511,7 +525,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
       });
       
       config.mode = MQTTClientMode.Subscriber;
-      mqttClient = new MQTTClient(config);
+      mqttClient = createMQTTClient(config);
       await mqttClient.connect();
     });
 
@@ -601,7 +615,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
 
     it('应该拒绝非订阅者模式的订阅', async () => {
       config.mode = MQTTClientMode.Publisher;
-      const publisherClient = new MQTTClient(config);
+      const publisherClient = createMQTTClient(config);
       
       // 先连接
       vi.mocked(mqtt.connect).mockImplementation(() => {
@@ -631,7 +645,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
         return mockMqttClient as any;
       });
       
-      mqttClient = new MQTTClient(config);
+      mqttClient = createMQTTClient(config);
       await mqttClient.connect();
     });
 
@@ -654,7 +668,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
 
     it('应该处理无主题配置的热路径', async () => {
       config.topicFilter = '';
-      const clientWithoutTopic = new MQTTClient(config);
+      const clientWithoutTopic = createMQTTClient(config);
       
       // 监听错误事件，避免未处理的错误
       clientWithoutTopic.on('error', () => {});
@@ -758,7 +772,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
         }
       };
 
-      const sslClient = new MQTTClient(sslConfig);
+      const sslClient = createMQTTClient(sslConfig);
       const resultConfig = sslClient.getConfig();
       
       expect(resultConfig.ssl.enabled).toBe(true);
@@ -778,7 +792,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
         }
       };
 
-      const sslClient = new MQTTClient(sslConfig);
+      const sslClient = createMQTTClient(sslConfig);
       const validation = sslClient.validateConfig(sslConfig);
       
       expect(validation.valid).toBe(true);
@@ -798,7 +812,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
         }
       };
 
-      const clientWithWill = new MQTTClient(configWithWill);
+      const clientWithWill = createMQTTClient(configWithWill);
       const resultConfig = clientWithWill.getConfig();
       
       expect(resultConfig.willMessage).toBeDefined();
@@ -857,7 +871,7 @@ describe('MQTT客户端增强测试 - 覆盖率提升', () => {
         return mockMqttClient as any;
       });
       
-      mqttClient = new MQTTClient(config);
+      mqttClient = createMQTTClient(config);
       await mqttClient.connect();
     });
 

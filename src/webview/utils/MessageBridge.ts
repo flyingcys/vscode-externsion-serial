@@ -14,6 +14,15 @@ export class MessageBridge extends EventEmitter {
   private vscode: any;
   private messageId = 0;
   private pendingRequests = new Map<string, { resolve: Function; reject: Function; timeout: NodeJS.Timeout }>();
+  private isOnline = true;
+  private messageQueue: Message[] = [];
+  private messageStats = {
+    messagesSent: 0,
+    messagesReceived: 0,
+    totalLatency: 0,
+    averageLatency: 0
+  };
+  private messageListener!: (event: MessageEvent) => void;
 
   constructor(vscode: any) {
     super();
@@ -25,34 +34,88 @@ export class MessageBridge extends EventEmitter {
    * 设置消息监听器
    */
   private setupMessageListener(): void {
-    window.addEventListener('message', (event) => {
+    this.messageListener = (event: MessageEvent): void => {
       const message: Message = event.data;
       this.handleMessage(message);
-    });
+    };
+    window.addEventListener('message', this.messageListener);
   }
 
   /**
    * 处理接收到的消息
    * @param message 接收到的消息
    */
-  private handleMessage(message: Message): void {
-    // 如果是响应消息，处理待处理的请求
+  handleMessage(message: Message): void {
+    // 处理无效消息
+    if (!message || !message.type) {
+      return;
+    }
+
+    this.messageStats.messagesReceived++;
+    // 如果是响应消息，处理待处理的请求  
     if (message.id && this.pendingRequests.has(message.id)) {
       const request = this.pendingRequests.get(message.id)!;
       clearTimeout(request.timeout);
       this.pendingRequests.delete(message.id);
       
+      // 计算延迟
+      const latency = message.timestamp ? Date.now() - message.timestamp : 0;
+      this.messageStats.totalLatency += latency;
+      this.messageStats.averageLatency = this.messageStats.totalLatency / this.messageStats.messagesReceived;
+      
       if (message.type === MessageType.ERROR) {
-        request.reject(new Error(message.payload?.message || '未知错误'));
+        request.reject(new Error(message.data?.message || '未知错误'));
       } else {
-        request.resolve(message.payload);
+        request.resolve(message);
+      }
+      return;
+    }
+    
+    // 如果是响应消息（通过requestId标识），处理待处理的请求
+    if (message.requestId && this.pendingRequests.has(message.requestId)) {
+      const request = this.pendingRequests.get(message.requestId)!;
+      clearTimeout(request.timeout);
+      this.pendingRequests.delete(message.requestId);
+      
+      // 计算延迟
+      const latency = message.timestamp ? Date.now() - message.timestamp : 0;
+      this.messageStats.totalLatency += latency;
+      this.messageStats.averageLatency = this.messageStats.totalLatency / this.messageStats.messagesReceived;
+      
+      if (message.type === MessageType.ERROR) {
+        request.reject(new Error(message.data?.message || '未知错误'));
+      } else {
+        request.resolve(message);
+      }
+      return;
+    }
+
+    // 处理批量消息
+    if (message.type === MessageType.BATCH && message.data?.messages) {
+      for (const subMessage of message.data.messages) {
+        this.handleMessage(subMessage);
       }
       return;
     }
 
     // 触发对应的事件
-    this.emit(message.type, message.payload);
+    this.emit(message.type, message);
     this.emit('message', message);
+  }
+
+  /**
+   * 发送消息（测试兼容方法）
+   * @param message 要发送的消息
+   */
+  send(message: any): void {
+    const fullMessage: Message = {
+      type: message.type,
+      data: message.data,
+      id: this.generateMessageId(),
+      timestamp: Date.now()
+    };
+    
+    this._sendMessage(fullMessage);
   }
 
   /**
@@ -64,13 +127,58 @@ export class MessageBridge extends EventEmitter {
       ...message,
       timestamp: Date.now()
     };
+    
+    this._sendMessage(fullMessage);
+  }
+
+  /**
+   * 内部发送消息方法
+   * @param message 完整消息
+   */
+  private _sendMessage(message: Message): void {
+    if (!this.isOnline) {
+      this.messageQueue.push(message);
+      return;
+    }
 
     try {
-      this.vscode.postMessage(fullMessage);
+      this.vscode.postMessage(message);
+      this.messageStats.messagesSent++;
     } catch (error) {
       console.error('发送消息失败:', error);
       this.emit('error', error);
     }
+  }
+
+  /**
+   * 发送请求并等待响应（测试兼容方法）
+   * @param message 请求消息
+   * @param timeout 超时时间（毫秒）
+   * @returns Promise响应
+   */
+  request<T = any>(message: any, timeout = 5000): Promise<T> {
+    return new Promise((resolve, reject) => {
+      const id = this.generateMessageId();
+      
+      // 设置超时
+      const timeoutHandle = setTimeout(() => {
+        this.pendingRequests.delete(id);
+        reject(new Error('Request timeout'));
+      }, timeout);
+
+      // 存储待处理的请求
+      this.pendingRequests.set(id, { resolve, reject, timeout: timeoutHandle });
+
+      // 发送消息
+      const fullMessage = {
+        type: message.type,
+        data: message.data,
+        id,
+        timestamp: Date.now()
+      };
+      
+      this._sendMessage(fullMessage);
+    });
   }
 
   /**
@@ -94,7 +202,7 @@ export class MessageBridge extends EventEmitter {
       this.pendingRequests.set(id, { resolve, reject, timeout: timeoutHandle });
 
       // 发送消息
-      this.sendMessage({ type, payload, id });
+      this.sendMessage({ type, data: payload, id });
     });
   }
 
@@ -323,30 +431,113 @@ export class MessageBridge extends EventEmitter {
     });
   }
 
+  // === 批量消息处理 ===
+
+  /**
+   * 发送批量消息
+   * @param messages 消息数组
+   */
+  sendBatch(messages: any[]): void {
+    const batchMessage = {
+      type: MessageType.BATCH,
+      data: {
+        messages: messages.map(msg => ({
+          ...msg,
+          id: this.generateMessageId(),
+          timestamp: Date.now()
+        }))
+      },
+      id: this.generateMessageId(),
+      timestamp: Date.now()
+    };
+    
+    this._sendMessage(batchMessage);
+  }
+
+  /**
+   * 取消待处理的请求
+   * @param requestId 请求ID
+   */
+  cancelRequest(requestId: string): void {
+    const request = this.pendingRequests.get(requestId);
+    if (request) {
+      clearTimeout(request.timeout);
+      this.pendingRequests.delete(requestId);
+      request.reject(new Error('Request cancelled'));
+    }
+  }
+
+  /**
+   * 设置在线状态
+   * @param online 是否在线
+   */
+  setOnline(online: boolean): void {
+    this.isOnline = online;
+    
+    if (online && this.messageQueue.length > 0) {
+      // 发送队列中的消息
+      const queuedMessages = [...this.messageQueue];
+      this.messageQueue = [];
+      
+      for (const message of queuedMessages) {
+        this._sendMessage(message);
+      }
+    }
+  }
+
+  /**
+   * 清除消息队列
+   */
+  clearQueue(): void {
+    this.messageQueue = [];
+  }
+
   // === 清理方法 ===
 
   /**
-   * 清理所有待处理的请求
+   * 销毁消息桥梁
    */
-  cleanup(): void {
+  destroy(): void {
     // 清理所有待处理的请求
     for (const [, request] of this.pendingRequests) {
       clearTimeout(request.timeout);
-      request.reject(new Error('MessageBridge已清理'));
+      request.reject(new Error('MessageBridge destroyed'));
     }
     this.pendingRequests.clear();
+
+    // 清除消息队列
+    this.messageQueue = [];
+    
+    // 移除窗口事件监听器
+    window.removeEventListener('message', this.messageListener);
 
     // 移除所有事件监听器
     this.removeAllListeners();
   }
 
   /**
+   * 清理所有待处理的请求（向后兼容）
+   */
+  cleanup(): void {
+    this.destroy();
+  }
+
+  /**
    * 获取桥梁统计信息
    */
-  getStats(): { pendingRequests: number; totalMessages: number } {
+  getStats(): { 
+    pendingRequests: number; 
+    totalMessages: number;
+    messagesSent: number;
+    messagesReceived: number;
+    averageLatency: number;
+  } {
     return {
       pendingRequests: this.pendingRequests.size,
-      totalMessages: this.messageId
+      totalMessages: this.messageId,
+      messagesSent: this.messageStats.messagesSent,
+      messagesReceived: this.messageStats.messagesReceived,
+      averageLatency: this.messageStats.averageLatency
     };
   }
 }

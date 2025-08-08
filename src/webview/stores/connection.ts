@@ -28,9 +28,11 @@ export enum ConnectionState {
 export interface DeviceInfo {
   name: string;
   type: BusType;
+  path?: string;
   description?: string;
-  isAvailable: boolean;
-  lastSeen: number;
+  isAvailable?: boolean;
+  isConnected?: boolean;
+  lastSeen?: number;
 }
 
 export const useConnectionStore = defineStore('connection', () => {
@@ -58,6 +60,9 @@ export const useConnectionStore = defineStore('connection', () => {
     uptime: 0
   });
 
+  // 当前设备信息
+  const currentDevice = ref<DeviceInfo | null>(null);
+  
   // 连接历史
   const connectionHistory = ref<Array<{
     config: ConnectionConfig;
@@ -73,6 +78,8 @@ export const useConnectionStore = defineStore('connection', () => {
     connectionState.value === ConnectionState.Reconnecting
   );
 
+  const hasError = computed(() => connectionState.value === ConnectionState.Error);
+  
   const canReconnect = computed(() => 
     isAutoReconnectEnabled.value && 
     reconnectAttempts.value < maxReconnectAttempts.value &&
@@ -273,15 +280,81 @@ export const useConnectionStore = defineStore('connection', () => {
   };
 
   /**
-   * 更新连接统计
-   * @param update 统计更新
+   * 设置连接状态
+   * @param state 连接状态
    */
-  const updateStats = (update: Partial<CommunicationStats>): void => {
-    Object.assign(stats, update);
+  const setState = (state: ConnectionState): void => {
+    connectionState.value = state;
   };
 
   /**
-   * 重置统计信息
+   * 设置当前设备
+   * @param device 设备信息
+   */
+  const setCurrentDevice = (device: DeviceInfo | null): void => {
+    currentDevice.value = device;
+  };
+  
+  /**
+   * 清除当前设备
+   */
+  const clearCurrentDevice = (): void => {
+    currentDevice.value = null;
+  };
+
+  /**
+   * 设置错误信息
+   * @param error 错误对象或消息
+   */
+  const setError = (error: Error | string): void => {
+    lastError.value = error instanceof Error ? error.message : error;
+    connectionState.value = ConnectionState.Error;
+  };
+
+  /**
+   * 清除错误信息
+   */
+  const clearError = (): void => {
+    lastError.value = '';
+  };
+
+  /**
+   * Set connection configuration
+   * @param config Connection configuration
+   */
+  const setConnectionConfig = (config: ConnectionConfig): void => {
+    currentConfig.value = config;
+  };
+
+  /**
+   * Update connection configuration
+   * @param updates Configuration updates
+   */
+  const updateConnectionConfig = (updates: Partial<ConnectionConfig>): void => {
+    if (currentConfig.value) {
+      currentConfig.value = { ...currentConfig.value, ...updates };
+    }
+  };
+
+  /**
+   * Update connection statistics
+   * @param update Statistics update
+   */
+  const updateStats = (update: Partial<CommunicationStats>): void => {
+    Object.keys(update).forEach(key => {
+      const typedKey = key as keyof CommunicationStats;
+      if (typeof update[typedKey] === 'number') {
+        // Accumulate numeric statistics
+        (stats as any)[typedKey] += update[typedKey] || 0;
+      } else {
+        // Direct assignment for other types
+        (stats as any)[typedKey] = update[typedKey];
+      }
+    });
+  };
+
+  /**
+   * Reset statistics
    */
   const resetStats = (): void => {
     stats.bytesReceived = 0;
@@ -368,6 +441,60 @@ export const useConnectionStore = defineStore('connection', () => {
     savePresets(filtered);
   };
 
+  /**
+   * 检查是否可以转换到指定状态
+   * @param targetState 目标状态
+   * @returns 是否可以转换
+   */
+  const canTransitionTo = (targetState: ConnectionState): boolean => {
+    const current = connectionState.value;
+    
+    switch (current) {
+      case ConnectionState.Disconnected:
+        return targetState === ConnectionState.Connecting;
+        
+      case ConnectionState.Connecting:
+        return [
+          ConnectionState.Connected,
+          ConnectionState.Error,
+          ConnectionState.Disconnected
+        ].includes(targetState);
+        
+      case ConnectionState.Connected:
+        return [
+          ConnectionState.Disconnected,
+          ConnectionState.Reconnecting,
+          ConnectionState.Error
+        ].includes(targetState);
+        
+      case ConnectionState.Reconnecting:
+        return [
+          ConnectionState.Connected,
+          ConnectionState.Error,
+          ConnectionState.Disconnected
+        ].includes(targetState);
+        
+      case ConnectionState.Error:
+        return [
+          ConnectionState.Disconnected,
+          ConnectionState.Connecting,
+          ConnectionState.Reconnecting
+        ].includes(targetState);
+        
+      default:
+        return false;
+    }
+  };
+
+  /**
+   * 添加连接到历史记录
+   * @param config 连接配置
+   * @param success 是否成功（可选）
+   */
+  const addToHistoryPublic = (config: ConnectionConfig, success: boolean = true): void => {
+    addToHistory(config, success);
+  };
+
   // === 内部辅助方法 ===
 
   /**
@@ -426,17 +553,21 @@ export const useConnectionStore = defineStore('connection', () => {
   // 返回store API
   return {
     // 状态
+    state: computed(() => connectionState.value),
     connectionState: computed(() => connectionState.value),
     currentConfig: computed(() => currentConfig.value),
+    connectionConfig: computed(() => currentConfig.value),
     lastError: computed(() => lastError.value),
+    currentDevice: computed(() => currentDevice.value),
     availableDevices: computed(() => availableDevices.value),
     isScanning: computed(() => isScanning.value),
-    stats: computed(() => stats),
+    stats,  // 返回响应式对象而不是计算属性
     connectionHistory: computed(() => connectionHistory.value),
     
     // 计算属性
     isConnected,
     isConnecting,
+    hasError,
     canReconnect,
     connectionStatusText,
     uptimeText,
@@ -451,6 +582,13 @@ export const useConnectionStore = defineStore('connection', () => {
     disconnect,
     reconnect,
     scanDevices,
+    setState,
+    setCurrentDevice,
+    clearCurrentDevice,
+    setError,
+    clearError,
+    setConnectionConfig,
+    updateConnectionConfig,
     updateStats,
     resetStats,
     setAutoReconnect,
@@ -459,7 +597,9 @@ export const useConnectionStore = defineStore('connection', () => {
     getPresets,
     savePresets,
     addPreset,
-    removePreset
+    removePreset,
+    canTransitionTo,
+    addToHistory: addToHistoryPublic
   };
 });
 
