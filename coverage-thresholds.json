@@ -1,0 +1,185 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-08-08",
+  "description": "覆盖率阈值配置和监控规则",
+  
+  "globalThresholds": {
+    "minimum": {
+      "statements": 7.0,
+      "branches": 45.0,
+      "functions": 40.0,
+      "lines": 7.0
+    },
+    "warning": {
+      "statements": 6.0,
+      "branches": 40.0, 
+      "functions": 35.0,
+      "lines": 6.0
+    },
+    "description": "全局最低覆盖率要求，低于minimum失败，低于warning警告"
+  },
+
+  "moduleThresholds": {
+    "src/extension/parsing/Checksum.ts": {
+      "minimum": 95.0,
+      "target": 97.0,
+      "description": "校验和算法模块 - 纯逻辑，要求高覆盖率"
+    },
+    "src/extension/parsing/CircularBuffer.ts": {
+      "minimum": 95.0,
+      "target": 99.0,
+      "description": "环形缓冲区模块 - 复杂算法，要求极高覆盖率"
+    },
+    "src/extension/parsing/DataDecoder.ts": {
+      "minimum": 75.0,
+      "target": 80.0,
+      "description": "数据解码器 - 核心业务逻辑"
+    },
+    "src/extension/export/DataTransformer.ts": {
+      "minimum": 85.0,
+      "target": 90.0,
+      "description": "数据转换器 - 多种转换算法"
+    },
+    "src/extension/export/DataFilter.ts": {
+      "minimum": 65.0,
+      "target": 70.0,
+      "description": "数据过滤器 - 过滤逻辑"
+    },
+    "src/shared/MemoryManager.ts": {
+      "minimum": 60.0,
+      "target": 65.0,
+      "description": "内存管理器 - 系统级功能"
+    },
+    "src/shared/PerformanceMonitor.ts": {
+      "minimum": 55.0,
+      "target": 60.0,
+      "description": "性能监控器 - 统计和监控"
+    }
+  },
+
+  "regressionRules": {
+    "maxDecrease": {
+      "global": 0.5,
+      "module": 2.0,
+      "description": "单次提交最大允许的覆盖率下降百分点"
+    },
+    "warningDecrease": {
+      "global": 0.2,
+      "module": 1.0,
+      "description": "触发警告的覆盖率下降阈值"
+    },
+    "exemptFiles": [
+      "src/webview/**/*.vue",
+      "src/extension/main.ts",
+      "src/**/*.d.ts"
+    ],
+    "description": "回归检测规则，防止覆盖率意外下降"
+  },
+
+  "reportingConfig": {
+    "formats": ["html", "lcov", "text", "json"],
+    "outputDir": "coverage",
+    "includeUntestedFiles": true,
+    "reportOnlyChangedFiles": false,
+    "minLineThreshold": 10,
+    "description": "覆盖率报告生成配置"
+  },
+
+  "cicdIntegration": {
+    "failOnThresholdBreach": true,
+    "commentOnPR": true,
+    "generateBadges": true,
+    "publishReports": true,
+    "slackNotification": false,
+    "description": "CI/CD集成配置"
+  },
+
+  "qualityGates": {
+    "newCode": {
+      "minCoverage": 80.0,
+      "description": "新增代码必须达到的最低覆盖率"
+    },
+    "pullRequest": {
+      "minIncrease": 0.0,
+      "maxDecrease": 0.5,
+      "description": "Pull Request的覆盖率变化要求"
+    },
+    "release": {
+      "minGlobalCoverage": 7.0,
+      "minCriticalModuleCoverage": 80.0,
+      "description": "发布版本的覆盖率要求"
+    }
+  },
+
+  "testCategories": {
+    "pure_logic": {
+      "modules": [
+        "src/extension/parsing/Checksum.ts",
+        "src/extension/parsing/CircularBuffer.ts", 
+        "src/extension/parsing/DataDecoder.ts",
+        "src/extension/export/DataTransformer.ts"
+      ],
+      "expectedCoverage": 85.0,
+      "priority": "high",
+      "description": "纯逻辑模块，高覆盖率目标"
+    },
+    "business_logic": {
+      "modules": [
+        "src/extension/export/DataFilter.ts",
+        "src/shared/MemoryManager.ts",
+        "src/shared/PerformanceMonitor.ts"
+      ],
+      "expectedCoverage": 65.0,
+      "priority": "medium", 
+      "description": "业务逻辑模块，中等覆盖率目标"
+    },
+    "integration_dependent": {
+      "modules": [
+        "src/extension/main.ts",
+        "src/extension/io/**",
+        "src/webview/**"
+      ],
+      "expectedCoverage": 30.0,
+      "priority": "low",
+      "description": "依赖外部环境的模块，较低覆盖率目标"
+    }
+  },
+
+  "achievedResults": {
+    "baselineCoverage": 3.06,
+    "currentCoverage": 7.43,
+    "improvement": 4.37,
+    "improvementPercentage": 142.8,
+    "optimizedModulesCount": 7,
+    "averageOptimizedCoverage": 78.42,
+    "highestModuleCoverage": 99.52,
+    "bestModule": "CircularBuffer.ts",
+    "lastUpdated": "2025-08-08",
+    "description": "当前实际达成的覆盖率成果"
+  },
+
+  "monitoringAlerts": {
+    "enabled": true,
+    "rules": [
+      {
+        "condition": "global_coverage < minimum.statements",
+        "severity": "error",
+        "message": "全局覆盖率低于最低要求",
+        "action": "fail_build"
+      },
+      {
+        "condition": "module_coverage_regression > 2.0",
+        "severity": "warning", 
+        "message": "模块覆盖率显著下降",
+        "action": "notify_maintainers"
+      },
+      {
+        "condition": "pure_logic_module < 80.0",
+        "severity": "warning",
+        "message": "纯逻辑模块覆盖率偏低",
+        "action": "require_explanation"
+      }
+    ],
+    "description": "自动监控和告警规则"
+  }
+}

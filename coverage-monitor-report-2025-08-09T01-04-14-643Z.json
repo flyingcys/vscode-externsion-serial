@@ -1,0 +1,248 @@
+{
+  "timestamp": "2025-08-09T01:04:12.715Z",
+  "summary": {
+    "totalTestFiles": 194,
+    "duplicateGroups": 20,
+    "realCodeExecutionTests": 3,
+    "realCodeExecutionSuccess": 0
+  },
+  "testFilesBreakdown": {
+    "other": {
+      "count": 109,
+      "hasRealImport": 91
+    },
+    "extension": {
+      "count": 21,
+      "hasRealImport": 18
+    },
+    "plugins": {
+      "count": 8,
+      "hasRealImport": 8
+    },
+    "shared": {
+      "count": 10,
+      "hasRealImport": 10
+    },
+    "webview": {
+      "count": 38,
+      "hasRealImport": 21
+    },
+    "workers": {
+      "count": 8,
+      "hasRealImport": 2
+    }
+  },
+  "duplicateAnalysis": [
+    {
+      "baseName": "Manager",
+      "files": [
+        "utest/communication/Manager.test.ts",
+        "utest/extension/io/Manager-Real.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/extension/io/Manager-Real.test.ts"
+    },
+    {
+      "baseName": "NetworkDriver",
+      "files": [
+        "utest/communication/NetworkDriver.test.ts",
+        "utest/io/NetworkDriver-Simple.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/communication/NetworkDriver.test.ts"
+    },
+    {
+      "baseName": "ExportManager",
+      "files": [
+        "utest/export/ExportManager-Real.test.ts",
+        "utest/export/ExportManager.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/export/ExportManager-Real.test.ts"
+    },
+    {
+      "baseName": "XMLExporter",
+      "files": [
+        "utest/extension/export/exporters/XMLExporter-Fixed.test.ts",
+        "utest/extension/export/exporters/XMLExporter-Real.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/extension/export/exporters/XMLExporter-Real.test.ts"
+    },
+    {
+      "baseName": "main",
+      "files": [
+        "utest/extension/main.test.ts",
+        "utest/webview/main.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/extension/main.test.ts"
+    },
+    {
+      "baseName": "ProjectValidator",
+      "files": [
+        "utest/extension/project/ProjectValidator-Real.test.ts",
+        "utest/project/ProjectValidator.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/extension/project/ProjectValidator-Real.test.ts"
+    },
+    {
+      "baseName": "ProjectTypes",
+      "files": [
+        "utest/extension/types/ProjectTypes.test.ts",
+        "utest/project/ProjectTypes.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/extension/types/ProjectTypes.test.ts"
+    },
+    {
+      "baseName": "I18nManager",
+      "files": [
+        "utest/i18n/I18nManager-Real.test.ts",
+        "utest/i18n/I18nManager.test.ts",
+        "utest/webview/i18n/I18nManager.test.ts"
+      ],
+      "count": 3,
+      "recommended": "utest/i18n/I18nManager-Real.test.ts"
+    },
+    {
+      "baseName": "ErrorHandling",
+      "files": [
+        "utest/io/ErrorHandling.test.ts",
+        "utest/shared/ErrorHandling-Real.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/shared/ErrorHandling-Real.test.ts"
+    },
+    {
+      "baseName": "DataDecoder",
+      "files": [
+        "utest/parsing/DataDecoder-Coverage-Booster-100.test.ts",
+        "utest/parsing/DataDecoder-Real.test.ts",
+        "utest/parsing/DataDecoder.test.ts"
+      ],
+      "count": 3,
+      "recommended": "utest/parsing/DataDecoder-Real.test.ts"
+    },
+    {
+      "baseName": "FrameParser",
+      "files": [
+        "utest/parsing/FrameParser-Real.test.ts",
+        "utest/parsing/FrameParser-Simple.test.ts",
+        "utest/shared/FrameParser-Real.test.ts"
+      ],
+      "count": 3,
+      "recommended": "utest/parsing/FrameParser-Real.test.ts"
+    },
+    {
+      "baseName": "FrameReader",
+      "files": [
+        "utest/parsing/FrameReader-Coverage-Boost-100.test.ts",
+        "utest/parsing/FrameReader-Real.test.ts",
+        "utest/parsing/FrameReader.test.ts",
+        "utest/shared/FrameReader-Real.test.ts"
+      ],
+      "count": 4,
+      "recommended": "utest/parsing/FrameReader-Real.test.ts"
+    },
+    {
+      "baseName": "DataCache",
+      "files": [
+        "utest/performance/DataCache.test.ts",
+        "utest/shared/DataCache-Real.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/shared/DataCache-Real.test.ts"
+    },
+    {
+      "baseName": "DataCompression",
+      "files": [
+        "utest/performance/DataCompression.test.ts",
+        "utest/shared/DataCompression-Real.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/shared/DataCompression-Real.test.ts"
+    },
+    {
+      "baseName": "MemoryManager",
+      "files": [
+        "utest/performance/MemoryManager.test.ts",
+        "utest/shared/MemoryManager-Real.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/shared/MemoryManager-Real.test.ts"
+    },
+    {
+      "baseName": "PerformanceCollector",
+      "files": [
+        "utest/performance/PerformanceCollector-Simple.test.ts",
+        "utest/performance/PerformanceCollector.test.ts",
+        "utest/shared/PerformanceCollector-Real.test.ts"
+      ],
+      "count": 3,
+      "recommended": "utest/shared/PerformanceCollector-Real.test.ts"
+    },
+    {
+      "baseName": "PerformanceMonitor",
+      "files": [
+        "utest/performance/PerformanceMonitor.test.ts",
+        "utest/shared/PerformanceMonitor-Real.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/shared/PerformanceMonitor-Real.test.ts"
+    },
+    {
+      "baseName": "ProjectManager",
+      "files": [
+        "utest/project/ProjectManager-Enhanced.test.ts",
+        "utest/project/ProjectManager-Final-Coverage.test.ts",
+        "utest/project/ProjectManager.test.ts"
+      ],
+      "count": 3,
+      "recommended": "utest/project/ProjectManager.test.ts"
+    },
+    {
+      "baseName": "languages",
+      "files": [
+        "utest/webview/i18n/languages-Simple.test.ts",
+        "utest/webview/i18n/languages.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/webview/i18n/languages.test.ts"
+    },
+    {
+      "baseName": "MultiThreadProcessor",
+      "files": [
+        "utest/workers/MultiThreadProcessor-100Percent.test.ts",
+        "utest/workers/MultiThreadProcessor.test.ts"
+      ],
+      "count": 2,
+      "recommended": "utest/workers/MultiThreadProcessor.test.ts"
+    }
+  ],
+  "realCodeExecutionResults": {
+    "utest/extension/export/exporters/XMLExporter-Real.test.ts": {
+      "executed": true,
+      "passed": 0,
+      "total": 0,
+      "hasStackTrace": false,
+      "realCodePaths": []
+    },
+    "utest/plugins/PluginManager-Real.test.ts": {
+      "executed": true,
+      "passed": 0,
+      "total": 0,
+      "hasStackTrace": false,
+      "realCodePaths": []
+    },
+    "utest/shared/MemoryManager-Real.test.ts": {
+      "executed": true,
+      "passed": 0,
+      "total": 0,
+      "hasStackTrace": false,
+      "realCodePaths": []
+    }
+  },
+  "recommendations": []
+}

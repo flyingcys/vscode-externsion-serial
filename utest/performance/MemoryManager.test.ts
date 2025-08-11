@@ -14,7 +14,7 @@ import {
   type MemoryPoolConfig,
   type MemoryStats,
   type PoolStats
-} from '@shared/MemoryManager';
+} from '../../src/shared/MemoryManager';
 
 // Mock window for Node.js environment
 global.window = global.window || {} as any;

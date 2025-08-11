@@ -1,0 +1,253 @@
+
+> serial-studio-vscode@1.0.0 test:coverage:full
+> vitest --config utest/vitest.config.mjs --coverage --run
+
+
+ RUN  v1.6.1 /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial
+      Coverage enabled with v8
+
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+stdout | utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts > MQTT和许可证模块综合覆盖率测试 > 许可证模块测试 > MachineID机器标识符测试 > 应该导入MachineID模块
+MachineID module not available: Error: [vitest] No "default" export is defined on the "child_process" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:79:19)
+    at Object.get (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:153:22)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/src/extension/licensing/MachineID.ts:10:22
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at VitestExecutor.runModule (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:362:5)
+    at VitestExecutor.directRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:346:5)
+    at VitestExecutor.cachedRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:189:14)
+    at VitestExecutor.dependencyRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:233:12)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts:869:26
+    at runTest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:781:11) {
+  codeFrame: 'vi.mock("child_process", async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+
+stdout | utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts > MQTT和许可证模块综合覆盖率测试 > 许可证模块测试 > SimpleCrypt加密工具测试 > 应该导入SimpleCrypt模块
+SimpleCrypt module not available: Error: [vitest] No "SimpleCrypt" export is defined on the "@extension/licensing/SimpleCrypt" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:79:19)
+    at Object.get (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:153:22)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts:1027:25
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at runTest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:781:11)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runFiles (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:958:5) {
+  codeFrame: 'vi.mock("@extension/licensing/SimpleCrypt", async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+
+stdout | utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts > MQTT和许可证模块综合覆盖率测试 > 许可证模块测试 > LicenseManager许可证管理器测试 > 应该导入LicenseManager模块
+LicenseManager module not available: Error: [vitest] No "default" export is defined on the "child_process" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:79:19)
+    at Object.get (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:153:22)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/src/extension/licensing/MachineID.ts:10:22
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at VitestExecutor.runModule (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:362:5)
+    at VitestExecutor.directRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:346:5)
+    at VitestExecutor.cachedRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:189:14)
+    at VitestExecutor.dependencyRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:233:12)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts:869:26
+    at runTest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:781:11) {
+  codeFrame: 'vi.mock("child_process", async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+
+stdout | utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts > MQTT和许可证模块综合覆盖率测试 > 许可证模块测试 > FeatureGate特性门控测试 > 应该导入FeatureGate模块
+FeatureGate module not available: Error: [vitest] No "FeatureGate" export is defined on the "@extension/licensing/FeatureGate" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:79:19)
+    at Object.get (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:153:22)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts:1620:25
+    at runTest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:781:11)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runSuite (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:909:15)
+    at runFiles (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:958:5)
+    at startTests (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:967:3) {
+  codeFrame: 'vi.mock("@extension/licensing/FeatureGate", async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+
+stdout | utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts > MQTT和许可证模块综合覆盖率测试 > 许可证模块测试 > ConfigurationManager配置管理器测试 > 应该导入ConfigurationManager模块
+ConfigurationManager module not available: Error: [vitest] No "default" export is defined on the "child_process" mock. Did you forget to return it from "vi.mock"?
+If you need to partially mock a module, you can use "importOriginal" helper inside:
+
+    at VitestMocker.createError (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:79:19)
+    at Object.get (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vitest/dist/vendor/execute.fL3szUAI.js:153:22)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/src/extension/licensing/MachineID.ts:10:22
+    at processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at VitestExecutor.runModule (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:362:5)
+    at VitestExecutor.directRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:346:5)
+    at VitestExecutor.cachedRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:189:14)
+    at VitestExecutor.dependencyRequest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/vite-node/dist/client.mjs:233:12)
+    at /home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts:869:26
+    at runTest (file:///home/share/samba/vscode-extension/serial-visual/vscode-externsion-serial/node_modules/@vitest/runner/dist/index.js:781:11) {
+  codeFrame: 'vi.mock("child_process", async (importOriginal) => {\n' +
+    '  const actual = await importOriginal()\n' +
+    '  return {\n' +
+    '    ...actual,\n' +
+    '    // your mocked methods\n' +
+    '  }\n' +
+    '})'
+}
+
+ ❯ utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts  (28 tests | 2 failed) 461ms
+   ❯ utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts > MQTT和许可证模块综合覆盖率测试 > MQTT模块测试 > MQTTClient核心功能测试 > 应该处理MQTT连接生命周期
+     → expected [ 'connected', 'disconnected', …(3) ] to have a length of 4 but got 5
+   ❯ utest/extension/mqtt-licensing/MQTT-Licensing-Comprehensive-Coverage.test.ts > MQTT和许可证模块综合覆盖率测试 > 许可证模块测试 > ConfigurationManager配置管理器测试 > 应该支持配置加密和同步
+     → decryptedValue is not defined
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+stdout | utest/extension/plugins/Plugins-Comprehensive-Coverage.test.ts > 插件系统模块综合覆盖率测试 > PluginContext插件上下文测试 > 应该实现插件日志记录
+DEBUG: [test-plugin] Debug message { detail: 'extra info' }
+INFO: [test-plugin] Plugin initialized
+
+stderr | utest/extension/plugins/Plugins-Comprehensive-Coverage.test.ts > 插件系统模块综合覆盖率测试 > PluginContext插件上下文测试 > 应该实现插件日志记录
+WARN: [test-plugin] Deprecated API used
+ERROR: [test-plugin] Critical error occurred
+
+ ❯ utest/extension/plugins/Plugins-Comprehensive-Coverage.test.ts  (23 tests | 1 failed) 97ms
+   ❯ utest/extension/plugins/Plugins-Comprehensive-Coverage.test.ts > 插件系统模块综合覆盖率测试 > ContributionRegistry贡献注册表测试 > 应该实现贡献注册和查询
+     → expected [ { …(3) }, { …(3) }, { …(2) }, …(2) ] to have a length of 4 but got 5
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+stdout | utest/extension/export/Export-Comprehensive-Coverage.test.ts > 数据导出模块综合覆盖率测试 > 流式导出功能测试 > 应该支持大文件分块导出
+Progress: 4.0%
+Progress: 8.0%
+Progress: 12.0%
+Progress: 16.0%
+Progress: 20.0%
+Progress: 24.0%
+Progress: 28.0%
+Progress: 32.0%
+Progress: 36.0%
+Progress: 40.0%
+Progress: 44.0%
+Progress: 48.0%
+Progress: 52.0%
+Progress: 56.0%
+Progress: 60.0%
+Progress: 64.0%
+Progress: 68.0%
+Progress: 72.0%
+Progress: 76.0%
+Progress: 80.0%
+Progress: 84.0%
+Progress: 88.0%
+Progress: 92.0%
+Progress: 96.0%
+Progress: 100.0%
+
+stdout | utest/extension/export/Export-Comprehensive-Coverage.test.ts > 数据导出模块综合覆盖率测试 > 集成和性能测试 > 应该测试大数据量导出性能
+Progress: 50%
+
+stdout | utest/extension/export/Export-Comprehensive-Coverage.test.ts > 数据导出模块综合覆盖率测试 > 集成和性能测试 > 应该测试大数据量导出性能
+Progress: 100%
+
+ ❯ utest/extension/export/Export-Comprehensive-Coverage.test.ts  (33 tests | 1 failed) 6983ms
+   ❯ utest/extension/export/Export-Comprehensive-Coverage.test.ts > 数据导出模块综合覆盖率测试 > 批量导出管理器测试 > 应该实现批量导出功能
+     → expected "spy" to be called 7 times, but got 10 times
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+ ❯ utest/extension/support-services/Support-Services-Comprehensive-Coverage.test.ts  (0 test)
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+ ❯ utest/extension/project/Project-Comprehensive-Coverage.test.ts  (17 tests | 1 failed) 61ms
+   ❯ utest/extension/project/Project-Comprehensive-Coverage.test.ts > 项目管理模块综合覆盖率测试 > 性能和边界条件测试 > 应该处理边界情况和无效数据
+     → expected [Function] to not throw an error but 'SyntaxError: "undefined" is not valid…' was thrown
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+ ✓ utest/webview/components/dialogs/comprehensive-dialogs-logic.test.ts  (45 tests) 74ms
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+ ✓ utest/project/ProjectSerializer.test.ts  (42 tests) 15ms
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+
+ ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts  (28 tests | 22 failed) 154ms
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 1. 跨Widget数据共享测试 > 1.1 应该能在Widget间共享数据
+     → nextTick is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 1. 跨Widget数据共享测试 > 1.2 应该支持数据订阅和实时更新
+     → nextTick is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 2. 事件冒泡和传播测试 > 2.1 应该正确处理事件冒泡
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 2. 事件冒泡和传播测试 > 2.2 应该支持事件传播停止
+     → SupportedEventInterface is not a constructor
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 2. 事件冒泡和传播测试 > 2.3 应该支持自定义事件系统
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 2. 事件冒泡和传播测试 > 2.4 应该处理事件委托
+     → SupportedEventInterface is not a constructor
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 3. 键盘快捷键和热键测试 > 3.3 应该处理本地Widget快捷键
+     → SupportedEventInterface is not a constructor
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 3. 键盘快捷键和热键测试 > 3.5 应该支持条件快捷键
+     → SupportedEventInterface is not a constructor
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 4. 拖拽和手势操作测试 > 4.1 应该支持基础拖拽功能
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 4. 拖拽和手势操作测试 > 4.2 应该支持触摸拖拽（移动端）
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 4. 拖拽和手势操作测试 > 4.3 应该支持调整大小操作
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 4. 拖拽和手势操作测试 > 4.4 应该支持手势识别（双击、长按）
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 4. 拖拽和手势操作测试 > 4.5 应该处理拖拽约束和边界
+     → SupportedEventInterface is not a constructor
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 5. 响应式布局和自适应测试 > 5.1 应该响应屏幕尺寸变化
+     → window.matchMedia is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 5. 响应式布局和自适应测试 > 5.2 应该适应不同布局模式
+     → window.matchMedia is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 5. 响应式布局和自适应测试 > 5.3 应该处理方向变化
+     → window.matchMedia is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 5. 响应式布局和自适应测试 > 5.4 应该优化移动端触摸体验
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 6. 复杂交互场景集成测试 > 6.1 应该处理同时拖拽和调整大小
+     → wrapper.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 6. 复杂交互场景集成测试 > 6.2 应该处理多Widget选择和批量操作
+     → widget.vm.$on is not a function
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 6. 复杂交互场景集成测试 > 6.3 应该处理嵌套组件的事件处理
+     → SupportedEventInterface is not a constructor
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 6. 复杂交互场景集成测试 > 6.4 应该处理上下文菜单
+     → SupportedEventInterface is not a constructor
+   ❯ utest/visualization/Visualization-Interaction-Ultimate.test.ts > Visualization User Interaction Ultimate Tests > 6. 复杂交互场景集成测试 > 6.5 应该处理组件间的拖放操作
+     → SupportedEventInterface is not a constructor
+stdout | utest/setup.ts:1391:9
+🧪 Test environment setup completed
+

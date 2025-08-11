@@ -1,0 +1,107 @@
+{
+  "testQualityConfig": {
+    "version": "1.0.0",
+    "enableQualityGates": true,
+    "preventDuplicateTests": true,
+    
+    "coverageThresholds": {
+      "coreModules": {
+        "threshold": 80,
+        "paths": [
+          "src/extension/parsing/**/*",
+          "src/extension/export/**/*", 
+          "src/extension/io/**/*",
+          "src/shared/**/*"
+        ]
+      },
+      "generalModules": {
+        "threshold": 60,
+        "paths": [
+          "src/extension/plugins/**/*",
+          "src/extension/project/**/*",
+          "src/extension/webview/**/*"
+        ]
+      },
+      "webviewComponents": {
+        "threshold": 50,
+        "paths": [
+          "src/webview/components/**/*"
+        ]
+      },
+      "pluginsSystem": {
+        "threshold": 60,
+        "paths": [
+          "src/extension/plugins/**/*"
+        ]
+      },
+      "workersSystem": {
+        "threshold": 70,
+        "paths": [
+          "src/workers/**/*"
+        ]
+      }
+    },
+    
+    "testFilePatterns": {
+      "preferred": [
+        "*-Real.test.ts",
+        "*.test.ts"
+      ],
+      "forbidden": [
+        "*-Ultimate*.test.ts",
+        "*-Enhanced*.test.ts", 
+        "*-Coverage-Boost*.test.ts",
+        "*-100Percent*.test.ts",
+        "*-Final*.test.ts",
+        "*-Part2*.test.ts",
+        "*-Optimized*.test.ts",
+        "*-Production*.test.ts",
+        "*-Simple*.test.ts"
+      ]
+    },
+    
+    "realCodeExecutionRequirements": {
+      "mustImportRealSources": true,
+      "requiredImportPatterns": [
+        "@extension/",
+        "@shared/",
+        "@webview/",
+        "@workers/",
+        "../"
+      ],
+      "stackTraceValidation": true
+    },
+    
+    "qualityGates": {
+      "maxDuplicateFiles": 0,
+      "minRealImportRatio": 0.8,
+      "requiredTestCategories": [
+        "unit",
+        "integration",
+        "real-code-execution"
+      ]
+    },
+    
+    "monitoring": {
+      "runOnCommit": true,
+      "generateReports": true,
+      "alertOnQualityDrop": true,
+      "reportFormats": ["json", "markdown"],
+      "retentionDays": 30
+    },
+    
+    "currentStatus": {
+      "lastCheck": "2025-08-09T01:04:12.715Z",
+      "totalTestFiles": 194,
+      "duplicateGroups": 20,
+      "qualityScore": 85,
+      "recommendations": [
+        "发现 20 组重复测试文件，建议删除冗余版本",
+        "可通过删除 27 个冗余文件减少维护负担",
+        "部分测试未能验证真实源代码执行，建议检查测试环境配置",
+        "webview 模块中 55% 的测试导入真实源代码，建议提高比例",
+        "workers 模块中 25% 的测试导入真实源代码，建议提高比例"
+      ]
+    }
+  }
+}

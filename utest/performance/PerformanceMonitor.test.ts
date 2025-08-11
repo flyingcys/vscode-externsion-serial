@@ -13,7 +13,7 @@ import {
   type PerformanceBaseline,
   type BenchmarkResult,
   type MonitorConfig
-} from '@shared/PerformanceMonitor';
+} from '../../src/shared/PerformanceMonitor';
 
 // Mock global performance objects
 const mockPerformanceStats = {

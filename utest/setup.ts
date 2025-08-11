@@ -1,6 +1,112 @@
 import { vi } from 'vitest';
 import { config } from '@vue/test-utils';
 
+// 🔧 使用Object.defineProperty强制覆盖全局定时器API
+const timerStore = new Map<number, any>();
+let timerIdCounter = 1000;
+
+// 保存原始定时器函数
+const originalSetInterval = globalThis.setInterval;
+const originalClearInterval = globalThis.clearInterval;
+const originalSetTimeout = globalThis.setTimeout;
+const originalClearTimeout = globalThis.clearTimeout;
+
+// 强制定义全局clearInterval
+Object.defineProperty(globalThis, 'clearInterval', {
+  value: vi.fn((id: any) => {
+    if (typeof id === 'number' && timerStore.has(id)) {
+      const actualTimer = timerStore.get(id);
+      if (originalClearInterval && typeof originalClearInterval === 'function') {
+        originalClearInterval.call(globalThis, actualTimer);
+      } else if (originalClearTimeout) {
+        originalClearTimeout.call(globalThis, actualTimer);
+      }
+      timerStore.delete(id);
+    }
+    // console.log('🔧 clearInterval called with ID:', id);
+  }),
+  writable: true,
+  enumerable: true,
+  configurable: true
+});
+
+// 强制定义全局setInterval
+Object.defineProperty(globalThis, 'setInterval', {
+  value: vi.fn((callback: Function, delay: number) => {
+    const timerId = timerIdCounter++;
+    
+    // 对于内存监控定时器，立即执行一次以触发逻辑
+    if (delay === 1000) {
+      if (originalSetTimeout) {
+        originalSetTimeout.call(globalThis, callback, 0);
+      }
+    }
+    
+    // 创建实际定时器
+    const actualTimer = originalSetInterval 
+      ? originalSetInterval.call(globalThis, callback, delay)
+      : originalSetTimeout?.call(globalThis, callback, delay);
+    
+    timerStore.set(timerId, actualTimer);
+    return timerId;
+  }),
+  writable: true,
+  enumerable: true,
+  configurable: true
+});
+
+// 强制定义setImmediate
+Object.defineProperty(globalThis, 'setImmediate', {
+  value: vi.fn((callback: Function) => {
+    return originalSetTimeout ? originalSetTimeout.call(globalThis, callback, 0) : 0;
+  }),
+  writable: true,
+  enumerable: true,
+  configurable: true
+});
+
+// 强制定义clearImmediate
+Object.defineProperty(globalThis, 'clearImmediate', {
+  value: vi.fn((id: any) => {
+    if (typeof id === 'number' && originalClearTimeout) {
+      originalClearTimeout.call(globalThis, id);
+    }
+  }),
+  writable: true,
+  enumerable: true,
+  configurable: true
+});
+
+// 同时设置到global对象
+global.setInterval = globalThis.setInterval;
+global.clearInterval = globalThis.clearInterval;
+global.setImmediate = globalThis.setImmediate; 
+global.clearImmediate = globalThis.clearImmediate;
+
+// 使用vi.stubGlobal作为额外保障
+vi.stubGlobal('setInterval', globalThis.setInterval);
+vi.stubGlobal('clearInterval', globalThis.clearInterval);
+vi.stubGlobal('setImmediate', globalThis.setImmediate);
+vi.stubGlobal('clearImmediate', globalThis.clearImmediate);
+
+// 🎯 AUTO-1: 添加Vue nextTick支持
+import { nextTick } from 'vue';
+
+// 确保nextTick在全局可用
+global.nextTick = nextTick;
+vi.stubGlobal('nextTick', nextTick);
+
+// 添加Vue组合式API支持
+global.Vue = {
+  nextTick: nextTick,
+  ref: vi.fn((value: any) => ({ value })),
+  reactive: vi.fn((obj: any) => obj),
+  computed: vi.fn((fn: Function) => ({ value: fn() })),
+  watch: vi.fn(),
+  onMounted: vi.fn(),
+  onUnmounted: vi.fn()
+};
+
 // 确保DOM环境完全就绪（宽松检查）
 if (typeof document === 'undefined') {
   console.warn('jsdom environment not available, some tests may fail');
@@ -135,6 +241,100 @@ global.requestAnimationFrame = vi.fn().mockImplementation((cb) => {
 
 global.cancelAnimationFrame = vi.fn();
 
+// Mock localStorage and sessionStorage
+const createMockStorage = () => {
+  let storage: Record<string, string> = {};
+  return {
+    getItem: vi.fn().mockImplementation((key: string) => storage[key] || null),
+    setItem: vi.fn().mockImplementation((key: string, value: string) => {
+      storage[key] = value;
+    }),
+    removeItem: vi.fn().mockImplementation((key: string) => {
+      delete storage[key];
+    }),
+    clear: vi.fn().mockImplementation(() => {
+      storage = {};
+    }),
+    get length() {
+      return Object.keys(storage).length;
+    },
+    key: vi.fn().mockImplementation((index: number) => {
+      const keys = Object.keys(storage);
+      return keys[index] || null;
+    })
+  };
+};
+
+global.localStorage = createMockStorage();
+global.sessionStorage = createMockStorage();
+
+// Mock console methods for consistent behavior
+const originalConsole = { ...console };
+global.console = {
+  ...originalConsole,
+  log: vi.fn().mockImplementation(originalConsole.log),
+  warn: vi.fn().mockImplementation(originalConsole.warn),
+  error: vi.fn().mockImplementation(originalConsole.error),
+  info: vi.fn().mockImplementation(originalConsole.info),
+  debug: vi.fn().mockImplementation(originalConsole.debug)
+};
+
+// Mock window.matchMedia for CSS media queries
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: vi.fn().mockImplementation(query => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addListener: vi.fn(), // deprecated
+    removeListener: vi.fn(), // deprecated
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    dispatchEvent: vi.fn(),
+  })),
+});
+
+// Mock window.getComputedStyle
+Object.defineProperty(window, 'getComputedStyle', {
+  writable: true,
+  value: vi.fn().mockImplementation(() => ({
+    getPropertyValue: vi.fn().mockReturnValue(''),
+    setProperty: vi.fn(),
+    removeProperty: vi.fn(),
+    width: '100px',
+    height: '100px',
+    fontSize: '14px',
+    color: 'rgb(0, 0, 0)'
+  })),
+});
+
+// Mock window.screen
+Object.defineProperty(window, 'screen', {
+  writable: true,
+  value: {
+    width: 1920,
+    height: 1080,
+    availWidth: 1920,
+    availHeight: 1040,
+    colorDepth: 24,
+    pixelDepth: 24
+  },
+});
+
+// Mock Blob and URL for file operations
+global.Blob = vi.fn().mockImplementation((parts, options) => ({
+  size: parts ? parts.reduce((sum, part) => sum + (part.length || 0), 0) : 0,
+  type: options?.type || '',
+  arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(0)),
+  text: vi.fn().mockResolvedValue(''),
+  stream: vi.fn()
+}));
+
+global.URL = {
+  createObjectURL: vi.fn().mockReturnValue('blob:mock-url'),
+  revokeObjectURL: vi.fn()
+} as any;
+
 // 全局Mock VSCode API
 Object.defineProperty(global, 'vscode', {
   value: {
@@ -196,7 +396,132 @@ Object.defineProperty(global, 'vscode', {
 // 创建一个全局虚拟文件系统
 const globalVirtualFs = new Map<string, string>();
 
-// Mock Node.js modules  
+// Mock Node.js modules
+vi.mock('child_process', () => ({
+  default: {
+    exec: vi.fn().mockImplementation((command, callback) => {
+      const mockResult = {
+        stdout: 'mock output',
+        stderr: '',
+        error: null
+      };
+      if (callback) {
+        setTimeout(() => callback(null, mockResult.stdout, mockResult.stderr), 10);
+      }
+      return mockResult;
+    }),
+    execSync: vi.fn().mockReturnValue('mock sync output'),
+    spawn: vi.fn().mockReturnValue({
+      stdout: { 
+        on: vi.fn(),
+        pipe: vi.fn()
+      },
+      stderr: { 
+        on: vi.fn(),
+        pipe: vi.fn() 
+      },
+      on: vi.fn().mockImplementation((event, callback) => {
+        if (event === 'close') {
+          setTimeout(() => callback(0), 10);
+        }
+      }),
+      kill: vi.fn()
+    }),
+    fork: vi.fn().mockReturnValue({
+      send: vi.fn(),
+      on: vi.fn(),
+      kill: vi.fn()
+    })
+  },
+  exec: vi.fn().mockImplementation((command, callback) => {
+    const mockResult = {
+      stdout: 'mock output',
+      stderr: '',
+      error: null
+    };
+    if (callback) {
+      setTimeout(() => callback(null, mockResult.stdout, mockResult.stderr), 10);
+    }
+    return mockResult;
+  }),
+  execSync: vi.fn().mockReturnValue('mock sync output'),
+  spawn: vi.fn().mockReturnValue({
+    stdout: { 
+      on: vi.fn(),
+      pipe: vi.fn()
+    },
+    stderr: { 
+      on: vi.fn(),
+      pipe: vi.fn() 
+    },
+    on: vi.fn().mockImplementation((event, callback) => {
+      if (event === 'close') {
+        setTimeout(() => callback(0), 10);
+      }
+    }),
+    kill: vi.fn()
+  }),
+  fork: vi.fn().mockReturnValue({
+    send: vi.fn(),
+    on: vi.fn(),
+    kill: vi.fn()
+  })
+}));
+
+vi.mock('os', () => ({
+  default: {
+    platform: vi.fn().mockReturnValue('linux'),
+    hostname: vi.fn().mockReturnValue('test-machine'),
+    cpus: vi.fn().mockReturnValue([
+      { model: 'Intel Core i7', speed: 2400 }
+    ]),
+    networkInterfaces: vi.fn().mockReturnValue({
+      eth0: [{ mac: '00:11:22:33:44:55' }]
+    }),
+    userInfo: vi.fn().mockReturnValue({
+      username: 'testuser',
+      uid: 1000,
+      gid: 1000,
+      shell: '/bin/bash',
+      homedir: '/home/testuser'
+    }),
+    arch: vi.fn().mockReturnValue('x64'),
+    release: vi.fn().mockReturnValue('5.4.0')
+  },
+  platform: vi.fn().mockReturnValue('linux'),
+  hostname: vi.fn().mockReturnValue('test-machine'),
+  cpus: vi.fn().mockReturnValue([
+    { model: 'Intel Core i7', speed: 2400 }
+  ]),
+  networkInterfaces: vi.fn().mockReturnValue({
+    eth0: [{ mac: '00:11:22:33:44:55' }]
+  }),
+  userInfo: vi.fn().mockReturnValue({
+    username: 'testuser',
+    uid: 1000,
+    gid: 1000,
+    shell: '/bin/bash',
+    homedir: '/home/testuser'
+  }),
+  arch: vi.fn().mockReturnValue('x64'),
+  release: vi.fn().mockReturnValue('5.4.0')
+}));
+
+vi.mock('crypto', () => ({
+  default: {
+    createHash: vi.fn().mockReturnValue({
+      update: vi.fn().mockReturnThis(),
+      digest: vi.fn().mockReturnValue('mock-hash-digest')
+    }),
+    randomBytes: vi.fn().mockReturnValue(Buffer.from('mock-random-bytes'))
+  },
+  createHash: vi.fn().mockReturnValue({
+    update: vi.fn().mockReturnThis(),
+    digest: vi.fn().mockReturnValue('mock-hash-digest')
+  }),
+  randomBytes: vi.fn().mockReturnValue(Buffer.from('mock-random-bytes'))
+}));
+
 vi.mock('fs', () => ({
   readFileSync: vi.fn(),
   writeFileSync: vi.fn(),
@@ -1369,12 +1694,38 @@ if (typeof Date.now !== 'function') {
   };
 }
 
-// 为performance.now提供稳定的实现
+// 🎯 AUTO-2: 增强Performance API Mock - 完整实现
 global.performance = global.performance || {};
-if (typeof global.performance.now !== 'function') {
-  global.performance.now = function() {
-    return Date.now();
+
+// 完整的Performance API实现
+Object.assign(global.performance, {
+  now: vi.fn(() => Date.now()),
+  mark: vi.fn(),
+  measure: vi.fn(),
+  clearMarks: vi.fn(),
+  clearMeasures: vi.fn(),
+  getEntries: vi.fn(() => []),
+  getEntriesByName: vi.fn(() => []),
+  getEntriesByType: vi.fn(() => []),
+  // 内存使用监控
+  memory: {
+    usedJSHeapSize: 50 * 1024 * 1024, // 50MB
+    totalJSHeapSize: 100 * 1024 * 1024, // 100MB
+    jsHeapSizeLimit: 200 * 1024 * 1024 // 200MB
+  }
+});
+
+// PerformanceObserver Mock - 解决性能监控测试
+global.PerformanceObserver = vi.fn().mockImplementation((callback: Function) => {
+  return {
+    observe: vi.fn(),
+    disconnect: vi.fn(),
+    takeRecords: vi.fn(() => [])
   };
-}
+});
+
+// 确保在各个作用域都可用
+vi.stubGlobal('performance', global.performance);
+vi.stubGlobal('PerformanceObserver', global.PerformanceObserver);
 
 console.log('🧪 Test environment setup completed');
