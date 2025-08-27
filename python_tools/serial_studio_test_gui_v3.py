@@ -48,7 +48,18 @@ class SerialStudioAdvancedTestGUI:
         self.is_running = False
         self.send_thread = None
         self.component_configs: List[ComponentConfig] = []
-        self.comm_config = CommConfig(CommType.SERIAL)
+        
+        # 初始化通讯配置，尝试获取默认串口
+        default_port = self.comm_manager.get_default_serial_port() or "COM1"
+        self.comm_config = CommConfig(
+            comm_type=CommType.SERIAL,
+            port=default_port,
+            baudrate=115200,  # 使用更常用的波特率
+            databits=8,
+            parity="N",
+            stopbits=1,
+            timeout=1.0
+        )
         
         # 统计信息
         self.stats = {
@@ -263,20 +274,138 @@ class SerialStudioAdvancedTestGUI:
         """创建串口配置界面"""
         frame = self.comm_config_frame
         
-        # 串口
+        # 第一行：串口选择和刷新
         ttk.Label(frame, text="串口:").grid(row=0, column=0, sticky=tk.W)
+        
         self.serial_port_var = tk.StringVar(value=self.comm_config.port)
-        ttk.Entry(frame, textvariable=self.serial_port_var, width=10).grid(row=0, column=1, sticky=tk.EW, padx=(5, 10))
+        self.serial_port_combo = ttk.Combobox(frame, textvariable=self.serial_port_var, width=15)
+        self.serial_port_combo.grid(row=0, column=1, sticky=tk.EW, padx=(5, 5))
+        
+        # 刷新串口按钮
+        refresh_btn = ttk.Button(frame, text="刷新", command=self._refresh_serial_ports, width=8)
+        refresh_btn.grid(row=0, column=2, padx=(0, 10))
+        
+        # 自动选择默认串口按钮
+        auto_btn = ttk.Button(frame, text="自动", command=self._auto_select_serial_port, width=8)
+        auto_btn.grid(row=0, column=3, padx=(0, 10))
         
         # 波特率
-        ttk.Label(frame, text="波特率:").grid(row=0, column=2, sticky=tk.W)
+        ttk.Label(frame, text="波特率:").grid(row=0, column=4, sticky=tk.W)
         self.baudrate_var = tk.StringVar(value=str(self.comm_config.baudrate))
-        baudrate_combo = ttk.Combobox(frame, textvariable=self.baudrate_var, width=10)
-        baudrate_combo['values'] = ["1200", "2400", "4800", "9600", "19200", "38400", "57600", "115200", "230400", "460800", "921600"]
-        baudrate_combo.grid(row=0, column=3, sticky=tk.EW, padx=(5, 10))
+        baudrate_combo = ttk.Combobox(frame, textvariable=self.baudrate_var, width=12)
+        baudrate_combo['values'] = [str(b) for b in self.comm_manager.get_common_serial_baudrates()]
+        baudrate_combo.state(['readonly'])
+        baudrate_combo.grid(row=0, column=5, sticky=tk.EW, padx=(5, 0))
         
+        # 第二行：数据位、校验位、停止位
+        ttk.Label(frame, text="数据位:").grid(row=1, column=0, sticky=tk.W, pady=(10, 0))
+        self.databits_var = tk.StringVar(value=str(self.comm_config.databits))
+        databits_combo = ttk.Combobox(frame, textvariable=self.databits_var, width=8)
+        databits_combo['values'] = [str(d) for d in self.comm_manager.get_serial_databits_options()]
+        databits_combo.state(['readonly'])
+        databits_combo.grid(row=1, column=1, sticky=tk.W, padx=(5, 10), pady=(10, 0))
+        
+        ttk.Label(frame, text="校验位:").grid(row=1, column=2, sticky=tk.W, pady=(10, 0))
+        self.parity_var = tk.StringVar(value=self.comm_config.parity)
+        parity_combo = ttk.Combobox(frame, textvariable=self.parity_var, width=12)
+        parity_options = self.comm_manager.get_serial_parity_options()
+        parity_combo['values'] = [f"{k} - {v}" for k, v in parity_options.items()]
+        parity_combo.state(['readonly'])
+        # 设置当前值
+        for k, v in parity_options.items():
+            if k == self.comm_config.parity:
+                parity_combo.set(f"{k} - {v}")
+                break
+        parity_combo.grid(row=1, column=3, sticky=tk.EW, padx=(0, 10), pady=(10, 0))
+        parity_combo.bind('<<ComboboxSelected>>', self._on_parity_changed)
+        
+        ttk.Label(frame, text="停止位:").grid(row=1, column=4, sticky=tk.W, pady=(10, 0))
+        self.stopbits_var = tk.StringVar(value=str(self.comm_config.stopbits))
+        stopbits_combo = ttk.Combobox(frame, textvariable=self.stopbits_var, width=8)
+        stopbits_combo['values'] = [str(s) for s in self.comm_manager.get_serial_stopbits_options()]
+        stopbits_combo.state(['readonly'])
+        stopbits_combo.grid(row=1, column=5, sticky=tk.W, padx=(5, 0), pady=(10, 0))
+        
+        # 第三行：超时设置和串口信息
+        ttk.Label(frame, text="超时(s):").grid(row=2, column=0, sticky=tk.W, pady=(10, 0))
+        self.timeout_var = tk.StringVar(value=str(self.comm_config.timeout))
+        timeout_entry = ttk.Entry(frame, textvariable=self.timeout_var, width=8)
+        timeout_entry.grid(row=2, column=1, sticky=tk.W, padx=(5, 10), pady=(10, 0))
+        
+        # 串口信息标签
+        self.serial_info_var = tk.StringVar(value="选择串口查看详细信息")
+        info_label = ttk.Label(frame, textvariable=self.serial_info_var, foreground="blue")
+        info_label.grid(row=2, column=2, columnspan=4, sticky=tk.W, padx=(0, 0), pady=(10, 0))
+        
+        # 配置列权重
         frame.columnconfigure(1, weight=1)
         frame.columnconfigure(3, weight=1)
+        frame.columnconfigure(5, weight=1)
+        
+        # 绑定串口选择事件
+        self.serial_port_combo.bind('<<ComboboxSelected>>', self._on_serial_port_changed)
+        
+        # 初始化串口列表
+        self._refresh_serial_ports()
+    
+    def _refresh_serial_ports(self):
+        """刷新可用串口列表"""
+        try:
+            ports = self.comm_manager.get_available_serial_ports()
+            port_names = [port['device'] for port in ports]
+            
+            self.serial_port_combo['values'] = port_names
+            self.available_ports = {port['device']: port for port in ports}
+            
+            if port_names:
+                # 如果当前选择的串口不在列表中，选择第一个
+                current_port = self.serial_port_var.get()
+                if current_port not in port_names:
+                    self.serial_port_var.set(port_names[0])
+                    self._on_serial_port_changed()
+                
+                self._log(f"发现 {len(port_names)} 个可用串口")
+            else:
+                self.serial_port_combo['values'] = []
+                self.serial_info_var.set("未发现可用串口")
+                self._log("未发现可用串口", "WARNING")
+                
+        except Exception as e:
+            self._log(f"刷新串口列表失败: {e}", "ERROR")
+    
+    def _auto_select_serial_port(self):
+        """自动选择默认串口"""
+        try:
+            default_port = self.comm_manager.get_default_serial_port()
+            if default_port:
+                self.serial_port_var.set(default_port)
+                self._on_serial_port_changed()
+                self._log(f"自动选择串口: {default_port}")
+            else:
+                self._log("未找到合适的默认串口", "WARNING")
+        except Exception as e:
+            self._log(f"自动选择串口失败: {e}", "ERROR")
+    
+    def _on_serial_port_changed(self, event=None):
+        """串口选择改变事件"""
+        selected_port = self.serial_port_var.get()
+        if hasattr(self, 'available_ports') and selected_port in self.available_ports:
+            port_info = self.available_ports[selected_port]
+            info_text = f"{port_info['description']}"
+            if port_info['manufacturer']:
+                info_text += f" | {port_info['manufacturer']}"
+            if port_info['serial_number']:
+                info_text += f" | SN:{port_info['serial_number']}"
+            self.serial_info_var.set(info_text)
+        else:
+            self.serial_info_var.set("串口信息不可用")
+    
+    def _on_parity_changed(self, event=None):
+        """校验位选择改变事件"""
+        selected = self.parity_var.get()
+        if ' - ' in selected:
+            parity_key = selected.split(' - ')[0]
+            self.comm_config.parity = parity_key
     
     def _create_tcp_config_ui(self):
         """创建TCP配置界面"""
@@ -339,6 +468,15 @@ class SerialStudioAdvancedTestGUI:
         if comm_type == CommType.SERIAL:
             self.comm_config.port = self.serial_port_var.get()
             self.comm_config.baudrate = int(self.baudrate_var.get())
+            self.comm_config.databits = int(self.databits_var.get())
+            # 处理校验位
+            parity_value = self.parity_var.get()
+            if ' - ' in parity_value:
+                self.comm_config.parity = parity_value.split(' - ')[0]
+            else:
+                self.comm_config.parity = parity_value
+            self.comm_config.stopbits = float(self.stopbits_var.get())
+            self.comm_config.timeout = float(self.timeout_var.get())
             
         elif comm_type in [CommType.TCP_CLIENT, CommType.TCP_SERVER]:
             self.comm_config.host = self.tcp_host_var.get()
@@ -632,6 +770,11 @@ class SerialStudioAdvancedTestGUI:
     
     def _log(self, message: str, level: str = "INFO"):
         """记录日志"""
+        # 安全检查：确保log_level_var已初始化
+        if not hasattr(self, 'log_level_var'):
+            print(f"[{level}] {message}")  # 在界面未初始化时输出到控制台
+            return
+            
         current_level = self.log_level_var.get()
         level_priority = {"DEBUG": 0, "INFO": 1, "WARNING": 2, "ERROR": 3}
         
@@ -639,13 +782,16 @@ class SerialStudioAdvancedTestGUI:
             timestamp = datetime.now().strftime("%H:%M:%S")
             log_message = f"[{timestamp}] [{level}] {message}\n"
             
-            self.log_text.insert(tk.END, log_message)
-            self.log_text.see(tk.END)
-            
-            # 限制日志行数
-            lines = int(self.log_text.index('end-1c').split('.')[0])
-            if lines > 1000:
-                self.log_text.delete('1.0', '100.0')
+            if hasattr(self, 'log_text'):
+                self.log_text.insert(tk.END, log_message)
+                self.log_text.see(tk.END)
+                
+                # 限制日志行数
+                lines = int(self.log_text.index('end-1c').split('.')[0])
+                if lines > 1000:
+                    self.log_text.delete('1.0', '100.0')
+            else:
+                print(log_message.strip())  # 在界面未初始化时输出到控制台
     
     def _clear_log(self):
         """清空日志"""
