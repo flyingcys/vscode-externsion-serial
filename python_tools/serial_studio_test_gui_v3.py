@@ -172,7 +172,15 @@ class SerialStudioAdvancedTestGUI:
         btn_frame2 = ttk.Frame(comp_frame)
         btn_frame2.pack(fill=tk.X, pady=(5, 0))
         
-        ttk.Button(btn_frame2, text="重置配置", command=self._reset_config).pack(side=tk.LEFT)
+        ttk.Button(btn_frame2, text="重置配置", command=self._reset_config).pack(side=tk.LEFT, padx=(0, 5))
+        
+        # 批量启用/禁用控制
+        ttk.Button(btn_frame2, text="全部启用", command=self._enable_all_components).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(btn_frame2, text="全部禁用", command=self._disable_all_components).pack(side=tk.LEFT, padx=(0, 5))
+        ttk.Button(btn_frame2, text="仅启用选中", command=self._enable_only_selected).pack(side=tk.LEFT, padx=(0, 5))
+        
+        # 绑定双击事件来切换启用状态
+        self.comp_tree.bind("<Double-1>", self._toggle_component_enabled)
         
     def _create_control_panel(self, parent):
         """创建发送控制面板"""
@@ -195,6 +203,16 @@ class SerialStudioAdvancedTestGUI:
         self.duration_var = tk.StringVar(value="0")
         duration_entry = ttk.Entry(ctrl_frame1, textvariable=self.duration_var, width=8)
         duration_entry.pack(side=tk.LEFT, padx=(5, 0))
+        
+        # 当前启用组件显示
+        enabled_frame = ttk.Frame(control_frame)
+        enabled_frame.pack(fill=tk.X, pady=(10, 0))
+        
+        ttk.Label(enabled_frame, text="当前启用组件:", font=('TkDefaultFont', 9, 'bold')).pack(side=tk.LEFT)
+        self.enabled_components_var = tk.StringVar(value="无")
+        self.enabled_components_label = ttk.Label(enabled_frame, textvariable=self.enabled_components_var, 
+                                                  foreground="blue", font=('TkDefaultFont', 9))
+        self.enabled_components_label.pack(side=tk.LEFT, padx=(5, 0))
         
         # 统计信息
         stats_frame = ttk.Frame(control_frame)
@@ -490,6 +508,11 @@ class SerialStudioAdvancedTestGUI:
         """加载默认配置"""
         # 使用模块化的默认配置
         self.component_configs = DefaultConfigs.get_default_component_configs()
+        
+        # 默认只启用第一个组件（加速度计），其他都禁用
+        for i, config in enumerate(self.component_configs):
+            config.enabled = (i == 0)  # 只启用第一个
+        
         self._update_component_list()
     
     def _update_component_list(self):
@@ -500,16 +523,44 @@ class SerialStudioAdvancedTestGUI:
         
         # 添加组件
         for i, config in enumerate(self.component_configs):
-            enabled_text = "是" if config.enabled else "否"
+            enabled_text = "✓ 启用" if config.enabled else "✗ 禁用"
             dataset_count = len(config.datasets) if config.datasets else len(config.data_generation)
             
-            self.comp_tree.insert("", "end", iid=i, values=(
+            item = self.comp_tree.insert("", "end", iid=i, values=(
                 config.name,
                 config.component_type.value,
                 f"{config.frequency:.1f}",
                 str(dataset_count),
                 enabled_text
             ))
+            
+            # 根据启用状态设置不同的显示样式
+            if config.enabled:
+                # 启用的组件用绿色标识
+                self.comp_tree.set(item, "启用", "✓ 启用")
+            else:
+                # 禁用的组件用灰色标识
+                self.comp_tree.set(item, "启用", "✗ 禁用")
+        
+        # 更新启用组件显示
+        self._update_enabled_components_display()
+    
+    def _update_enabled_components_display(self):
+        """更新启用组件的显示"""
+        enabled_components = [config.name for config in self.component_configs if config.enabled]
+        
+        if enabled_components:
+            if len(enabled_components) <= 3:
+                # 如果启用的组件不多，显示具体名称
+                display_text = ", ".join(enabled_components)
+            else:
+                # 如果启用的组件太多，显示数量
+                display_text = f"{len(enabled_components)} 个组件"
+        else:
+            display_text = "无"
+        
+        if hasattr(self, 'enabled_components_var'):
+            self.enabled_components_var.set(display_text)
     
     def _add_component(self):
         """添加组件"""
@@ -565,6 +616,52 @@ class SerialStudioAdvancedTestGUI:
         if messagebox.askyesno("确认", "确定要重置为默认配置吗？所有自定义配置将丢失。"):
             self._load_default_configs()
             self._log("已重置为默认配置")
+    
+    def _enable_all_components(self):
+        """启用所有组件"""
+        for config in self.component_configs:
+            config.enabled = True
+        self._update_component_list()
+        self._log("已启用所有组件")
+    
+    def _disable_all_components(self):
+        """禁用所有组件"""
+        for config in self.component_configs:
+            config.enabled = False
+        self._update_component_list()
+        self._log("已禁用所有组件")
+    
+    def _enable_only_selected(self):
+        """仅启用选中的组件"""
+        selected = self.comp_tree.selection()
+        if not selected:
+            messagebox.showwarning("警告", "请先选择要启用的组件")
+            return
+        
+        # 先禁用所有组件
+        for config in self.component_configs:
+            config.enabled = False
+        
+        # 启用选中的组件
+        enabled_names = []
+        for item in selected:
+            index = int(item)
+            self.component_configs[index].enabled = True
+            enabled_names.append(self.component_configs[index].name)
+        
+        self._update_component_list()
+        self._log(f"仅启用选中组件: {', '.join(enabled_names)}")
+    
+    def _toggle_component_enabled(self, event):
+        """双击切换组件启用状态"""
+        item = self.comp_tree.identify('item', event.x, event.y)
+        if item:
+            index = int(item)
+            config = self.component_configs[index]
+            config.enabled = not config.enabled
+            status = "启用" if config.enabled else "禁用"
+            self._update_component_list()
+            self._log(f"已{status}组件: {config.name}")
     
     def _show_simple_component_dialog(self, config: Optional[ComponentConfig] = None, edit_index: Optional[int] = None):
         """显示简化的组件配置对话框"""
