@@ -12,6 +12,7 @@ class ComponentType(Enum):
     """支持的可视化组件类型"""
     ACCELEROMETER = "accelerometer"
     GYROSCOPE = "gyroscope"
+    MPU6050 = "mpu6050"  # MPU6050复合传感器（加速度计+陀螺仪+温度）
     GPS = "gps"
     GAUGE = "gauge"
     BAR = "bar"

@@ -7,7 +7,7 @@
 from typing import Dict, Type
 from ..config.data_types import ComponentType, ComponentConfig
 from .base import BaseComponentGenerator, DataGenerator
-from .motion_sensors import AccelerometerGenerator, GyroscopeGenerator, CompassGenerator
+from .motion_sensors import AccelerometerGenerator, GyroscopeGenerator, CompassGenerator, MPU6050Generator
 from .measurement_displays import GaugeGenerator, BarGenerator, LEDPanelGenerator
 from .plot_charts import PlotGenerator, MultiPlotGenerator, FFTPlotGenerator, Plot3DGenerator
 from .geo_data import GPSGenerator, DataGridGenerator, TerminalGenerator
@@ -21,6 +21,7 @@ class ComponentGeneratorFactory:
         self._generator_classes: Dict[ComponentType, Type[BaseComponentGenerator]] = {
             ComponentType.ACCELEROMETER: AccelerometerGenerator,
             ComponentType.GYROSCOPE: GyroscopeGenerator,
+            ComponentType.MPU6050: MPU6050Generator,
             ComponentType.COMPASS: CompassGenerator,
             ComponentType.GAUGE: GaugeGenerator,
             ComponentType.BAR: BarGenerator,
